@@ -1321,7 +1321,7 @@
   <a href="#anatomy"><span>Anatomie</span></a>
   <a href="#example"><span>Exemple</span></a>
   <a href="#roles"><span>Qui fait quoi</span></a>
-  <a href="#stats"><span>Pourquoi crucial</span></a>
+  <a href="#stats"><span>Pourquoi ça compte</span></a>
   <a href="#spectrum"><span>Le spectre</span></a>
   <a href="#tensions"><span>Les défis</span></a>
   <a href="#formula"><span>La formule</span></a>
@@ -1343,7 +1343,7 @@
         </h1>
         <div class="hero-divider"></div>
         <p class="hero-sub">
-          Comment transforme-t-on un simple modèle de langage en un véritable agent autonome ?
+          Comment passe-t-on d'un simple modèle de langage à un agent qui agit pour de bon ?
           La réponse tient en un mot.
         </p>
         <div class="hero-meta">Avril 2026 · Présentation</div>
@@ -1573,7 +1573,7 @@
         <h3>En IA : le modèle</h3>
         <p>
           Un grand modèle de langage (LLM), seul, ne fait qu'une chose : produire du texte.
-          Pour qu'il agisse — lire des fichiers, naviguer, exécuter du code —
+          Pour qu'il agisse vraiment (lire des fichiers, naviguer, exécuter du code),
           il lui faut tout un équipement autour. Cet équipement, c'est le harnais.
         </p>
         <div class="arrow-tag">Texte brut → Action dans le monde</div>
@@ -1663,7 +1663,7 @@
       <h2 style="color: var(--navy);">Un LLM, tout seul, ne peut pas grand-chose</h2>
       <p class="lede">
         Imaginez ChatGPT à l'état brut : une fonction qui prend du texte en entrée et renvoie
-        du texte en sortie. C'est tout. Sans harnais, voici ce qui lui manque.
+        du texte en sortie. C'est tout. Sans harnais, il lui manque tout le reste.
       </p>
     </div>
 
@@ -1742,11 +1742,11 @@
         <span class="chapter-num">04</span>
         <span class="chapter-label">Le fonctionnement</span>
       </div>
-      <h2 style="color:#fff;">Le cœur du harnais : la boucle agentique</h2>
+      <h2 style="color:#fff;">Le moteur du harnais : la boucle agentique</h2>
       <p class="lede">
-        Le harnais orchestre un cycle qui se répète tour après tour, jusqu'à ce que la tâche
-        soit terminée. À chaque tour, le modèle décide, le harnais exécute, et le résultat
-        redevient une nouvelle entrée.
+        Le harnais fait tourner un cycle qui se répète tour après tour, jusqu'à ce que la tâche
+        soit finie. À chaque tour, le modèle décide, le harnais exécute, et le résultat devient
+        l'entrée du tour suivant.
       </p>
     </div>
 
@@ -1838,7 +1838,7 @@
         </svg>
         <div>
           <h4>La boucle d'exécution</h4>
-          <p>Le code qui rappelle le modèle à chaque tour, exécute les actions, transmet les résultats. C'est ce qui permet l'autonomie.</p>
+          <p>Le code qui rappelle le modèle à chaque tour, exécute les actions, transmet les résultats. C'est de là que vient l'autonomie.</p>
         </div>
       </div>
       <div class="anatomy-card reveal reveal-delay-1">
@@ -1869,7 +1869,7 @@
         </svg>
         <div>
           <h4>L'observation & la trace</h4>
-          <p>Logs détaillés de chaque étape pour pouvoir comprendre, déboguer ou auditer le comportement de l'agent.</p>
+          <p>Logs détaillés de chaque étape pour comprendre, déboguer ou auditer le comportement de l'agent.</p>
         </div>
       </div>
       <div class="anatomy-card reveal reveal-delay-2">
@@ -2030,12 +2030,12 @@
     <div class="reveal">
       <div class="chapter-mark">
         <span class="chapter-num">08</span>
-        <span class="chapter-label">Pourquoi c'est crucial</span>
+        <span class="chapter-label">Pourquoi ça compte</span>
       </div>
       <h2 style="color: var(--navy);">Le harnais, c'est souvent là que tout se joue</h2>
       <p class="lede">
-        Avec le même modèle, deux harnais différents peuvent produire des agents radicalement
-        différents — l'un brillant, l'autre inutilisable.
+        Avec le même modèle, deux harnais différents produisent des agents très différents :
+        l'un brillant, l'autre inutilisable.
       </p>
     </div>
 
@@ -2057,7 +2057,7 @@
       </div>
     </div>
 
-    <p class="stats-footnote reveal">* Ordres de grandeur indicatifs, observés dans les benchmarks publics et les retours d'expérience industriels.</p>
+    <p class="stats-footnote reveal">* Chiffres indicatifs, tirés des benchmarks publics et de retours de terrain.</p>
   </div>
 </section>
 
@@ -2073,9 +2073,8 @@
       </div>
       <h2 style="color: var(--navy);">Tous les harnais ne se ressemblent pas</h2>
       <p class="lede">
-        Du plus minimal au plus complet, on rencontre une gradation continue. Plus on monte,
-        plus l'agent peut faire de choses sans aide humaine — et plus il faut soigner les
-        garde-fous.
+        Du plus minimal au plus complet, c'est un vrai dégradé. Plus on monte, plus l'agent peut
+        agir sans aide humaine, et plus il faut soigner les garde-fous.
       </p>
     </div>
 
@@ -2100,7 +2099,7 @@
         <div class="spectrum-card reveal reveal-delay-3">
           <h4>Agentique</h4>
           <div class="spectrum-tag">Agent autonome</div>
-          <p>Boucle complète : le modèle agit en plusieurs tours sans intervention pour des tâches définies.</p>
+          <p>Boucle complète : le modèle agit en plusieurs tours sans intervention humaine pour des tâches cadrées.</p>
         </div>
         <div class="spectrum-card reveal reveal-delay-4">
           <h4>Multi-agent</h4>
@@ -2140,7 +2139,7 @@
         </svg>
         <h4>Autonomie<span>↔</span>Sécurité</h4>
         <div class="tension-divider"></div>
-        <p>Plus on laisse l'agent libre d'agir, plus il accomplit de choses — mais plus il peut aussi causer de dégâts. Le harnais doit ouvrir la porte juste assez.</p>
+        <p>Plus on laisse l'agent libre d'agir, plus il fait de choses, mais plus il peut aussi casser. Le harnais doit ouvrir la porte juste assez.</p>
       </div>
       <div class="tension-card reveal reveal-delay-2">
         <svg class="tension-icon lc" viewBox="0 0 24 24" style="color: var(--gold-dk);">
@@ -2150,7 +2149,7 @@
         </svg>
         <h4>Contexte<span>↔</span>Coût</h4>
         <div class="tension-divider"></div>
-        <p>Donner tout l'historique au modèle améliore ses décisions, mais coûte cher en tokens. Le harnais doit choisir intelligemment ce qu'il garde.</p>
+        <p>Donner tout l'historique au modèle améliore ses décisions, mais coûte cher en tokens. Le harnais doit choisir avec soin ce qu'il garde.</p>
       </div>
       <div class="tension-card reveal reveal-delay-3">
         <svg class="tension-icon lc" viewBox="0 0 24 24" style="color: var(--gold-dk);">
@@ -2309,7 +2308,7 @@
       <div class="cta-card reveal reveal-delay-3">
         <div class="cta-num">03</div>
         <h4>Construire un mini-harnais</h4>
-        <p>Une boucle de quelques dizaines de lignes avec deux ou trois outils suffit pour saisir profondément le concept.</p>
+        <p>Une boucle de quelques dizaines de lignes avec deux ou trois outils suffit pour vraiment comprendre.</p>
       </div>
     </div>
 
