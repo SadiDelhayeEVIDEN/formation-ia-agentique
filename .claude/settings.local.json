@@ -6,7 +6,9 @@
       "WebFetch(domain:www.verdent.ai)",
       "WebFetch(domain:www.morphllm.com)",
       "WebFetch(domain:particula.tech)",
-      "WebFetch(domain:hal.cs.princeton.edu)"
+      "WebFetch(domain:hal.cs.princeton.edu)",
+      "WebFetch(domain:lucide.dev)",
+      "WebFetch(domain:raw.githubusercontent.com)"
     ]
   }
 }
