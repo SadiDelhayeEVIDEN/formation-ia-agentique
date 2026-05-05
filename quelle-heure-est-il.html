@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>« Quelle heure est-il ? » — Trois agents face à une question simple</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:    #0F1B3D;
+    --navy-2:  #0A1230;
+    --navy-3:  #1A2750;
+    --cream:   #F5F1E8;
+    --ice:     #CADCFC;
+    --gold:    #D4A574;
+    --gold-dk: #9C7A50;
+    --ink:     #1A1A1A;
+    --muted:   #5C6478;
+    --divider: #2A3556;
+    --red:     #E36B5A;
+    --green:   #7FBF7F;
+    --user-bubble: #2A3556;
+    --bot-bubble:  #1A2750;
+    --thinking-bubble: #2D2640;
+    --tool-bubble: #3D3220;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--navy);
+    color: var(--cream);
+    font-family: 'Inter', -apple-system, sans-serif;
+    line-height: 1.55;
+    min-height: 100vh;
+  }
+
+  /* Texture subtile en fond */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(circle at 20% 10%, rgba(212,165,116,0.08), transparent 40%),
+      radial-gradient(circle at 80% 90%, rgba(212,165,116,0.05), transparent 40%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 60px 32px 80px;
+  }
+
+  /* HEADER */
+  header {
+    margin-bottom: 60px;
+    border-bottom: 1px solid var(--divider);
+    padding-bottom: 40px;
+  }
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .eyebrow::before {
+    content: '';
+    width: 24px; height: 2px;
+    background: var(--gold);
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: clamp(40px, 5vw, 68px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    color: #fff;
+    margin-bottom: 24px;
+  }
+  h1 em {
+    font-style: italic;
+    color: var(--gold);
+    font-weight: 400;
+  }
+  .lede {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-style: italic;
+    font-size: 20px;
+    color: var(--ice);
+    max-width: 720px;
+    line-height: 1.5;
+  }
+
+  /* INTRO BOX */
+  .intro-box {
+    background: var(--navy-2);
+    border: 1px solid var(--divider);
+    border-left: 3px solid var(--gold);
+    padding: 24px 28px;
+    margin: 40px 0 60px;
+    border-radius: 4px;
+  }
+  .intro-box p {
+    font-size: 15px;
+    color: var(--ice);
+  }
+  .intro-box p + p { margin-top: 12px; }
+  .intro-box strong { color: var(--gold); font-weight: 600; }
+
+  /* SCENARIO */
+  .scenario {
+    margin-bottom: 80px;
+    background: linear-gradient(180deg, var(--navy-2) 0%, var(--navy) 100%);
+    border: 1px solid var(--divider);
+    border-radius: 12px;
+    overflow: clip;
+  }
+  .scenario-header {
+    padding: 28px 36px 24px;
+    border-bottom: 1px solid var(--divider);
+    background: var(--navy-2);
+    display: flex;
+    align-items: flex-start;
+    gap: 24px;
+  }
+  .scenario-num {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 64px;
+    line-height: 0.9;
+    color: var(--gold);
+    font-weight: 600;
+    flex-shrink: 0;
+    min-width: 80px;
+  }
+  .scenario-meta { flex: 1; }
+  .scenario-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 2px;
+  }
+  .tag-bare { background: rgba(227,107,90,0.15); color: var(--red); }
+  .tag-think { background: rgba(202,220,252,0.12); color: var(--ice); }
+  .tag-harness { background: rgba(127,191,127,0.15); color: var(--green); }
+
+  .scenario-title {
+    font-family: 'Fraunces', serif;
+    font-size: 28px;
+    font-weight: 600;
+    color: #fff;
+    margin-bottom: 6px;
+    letter-spacing: -0.01em;
+  }
+  .scenario-subtitle {
+    font-size: 14px;
+    color: var(--muted);
+    font-style: italic;
+  }
+
+  /* CONVERSATION */
+  .convo {
+    padding: 36px;
+  }
+  .clock-face {
+    text-align: center;
+    margin-bottom: 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  .msg {
+    display: flex;
+    margin-bottom: 16px;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .msg.show {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .msg-inner {
+    max-width: 78%;
+    padding: 14px 18px;
+    border-radius: 14px;
+    font-size: 15px;
+    line-height: 1.55;
+    position: relative;
+  }
+  .msg-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    opacity: 0.7;
+  }
+
+  /* User message */
+  .msg.user { justify-content: flex-end; }
+  .msg.user .msg-inner {
+    background: var(--user-bubble);
+    color: #fff;
+    border-bottom-right-radius: 4px;
+  }
+  .msg.user .msg-label { color: var(--ice); }
+
+  /* Bot message */
+  .msg.bot .msg-inner {
+    background: var(--bot-bubble);
+    color: var(--ice);
+    border-bottom-left-radius: 4px;
+    border-left: 2px solid var(--gold);
+  }
+  .msg.bot .msg-label { color: var(--gold); }
+
+  /* Thinking */
+  .msg.thinking .msg-inner {
+    background: transparent;
+    border: 1px dashed rgba(202,220,252,0.25);
+    color: var(--ice);
+    font-style: italic;
+    font-family: 'Fraunces', serif;
+    font-size: 14.5px;
+    border-bottom-left-radius: 4px;
+  }
+  .msg.thinking .msg-label {
+    color: rgba(202,220,252,0.5);
+    font-style: normal;
+    font-family: 'JetBrains Mono', monospace;
+  }
+
+  /* Tool call */
+  .msg.tool .msg-inner {
+    background: var(--tool-bubble);
+    border-bottom-left-radius: 4px;
+    border-left: 2px solid var(--gold);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--gold);
+    max-width: 88%;
+  }
+  .msg.tool .msg-label { color: var(--gold-dk); }
+  .msg.tool .tool-payload {
+    margin-top: 6px;
+    color: var(--cream);
+    font-size: 12.5px;
+    line-height: 1.7;
+  }
+  .msg.tool .tool-payload .key { color: var(--gold); }
+  .msg.tool .tool-payload .str { color: var(--ice); }
+  .msg.tool .tool-payload .num { color: var(--green); }
+
+  /* Tool result */
+  .msg.result .msg-inner {
+    background: rgba(127,191,127,0.08);
+    border: 1px solid rgba(127,191,127,0.25);
+    border-bottom-left-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--green);
+    max-width: 88%;
+  }
+  .msg.result .msg-label { color: var(--green); }
+  .msg.result .result-payload {
+    margin-top: 6px;
+    color: var(--cream);
+    font-size: 13px;
+    line-height: 1.7;
+  }
+
+  /* Annotations à droite */
+  .annot {
+    margin-top: -8px;
+    margin-bottom: 16px;
+    padding-left: 18px;
+    border-left: 2px solid var(--gold-dk);
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 13.5px;
+    color: var(--gold);
+    max-width: 75%;
+    opacity: 0;
+    transform: translateX(-8px);
+    transition: opacity 0.5s ease 0.2s, transform 0.5s ease 0.2s;
+  }
+  .annot.show { opacity: 1; transform: translateX(0); }
+
+  /* Verdict */
+  .verdict {
+    margin-top: 28px;
+    padding: 20px 24px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    opacity: 0;
+    transform: scale(0.97);
+    transition: opacity 0.6s ease, transform 0.6s ease;
+  }
+  .verdict.show { opacity: 1; transform: scale(1); }
+  .verdict-icon {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .verdict.fail { background: rgba(227,107,90,0.1); border-left: 3px solid var(--red); }
+  .verdict.fail .verdict-icon { background: var(--red); color: #fff; }
+  .verdict.warn { background: rgba(212,165,116,0.1); border-left: 3px solid var(--gold); }
+  .verdict.warn .verdict-icon { background: var(--gold); color: var(--navy); }
+  .verdict.win  { background: rgba(127,191,127,0.1); border-left: 3px solid var(--green); }
+  .verdict.win  .verdict-icon { background: var(--green); color: var(--navy); }
+  .verdict-text {
+    font-family: 'Fraunces', serif;
+    font-size: 16px;
+    color: var(--cream);
+    line-height: 1.5;
+  }
+  .verdict-text strong { color: #fff; font-weight: 600; }
+
+  /* Controls */
+  .controls {
+    padding: 20px 36px;
+    background: var(--navy-2);
+    border-top: 1px solid var(--divider);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    /* Ombre douce vers le haut quand la barre flotte au-dessus du contenu */
+    box-shadow: 0 -8px 24px -12px rgba(0, 0, 0, 0.4);
+    /* Coins arrondis pour épouser le cadre quand la barre est en bas du scénario */
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    /* Arrière-plan opaque pour que le contenu défilant ne transparaisse pas */
+    backdrop-filter: blur(4px);
+  }
+  .progress {
+    flex: 1;
+    height: 2px;
+    background: var(--divider);
+    border-radius: 2px;
+    overflow: hidden;
+    max-width: 200px;
+  }
+  .progress-bar {
+    height: 100%;
+    background: var(--gold);
+    width: 0%;
+    transition: width 0.4s ease;
+  }
+  .step-counter {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    min-width: 60px;
+  }
+  .btn {
+    background: var(--gold);
+    color: var(--navy);
+    border: none;
+    padding: 10px 22px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+  }
+  .btn:hover {
+    background: #fff;
+    transform: translateY(-1px);
+  }
+  .btn:disabled {
+    background: var(--divider);
+    color: var(--muted);
+    cursor: not-allowed;
+    transform: none;
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--divider);
+  }
+  .btn-ghost:hover {
+    background: var(--divider);
+    color: var(--cream);
+    transform: none;
+  }
+
+  /* Cursor blinking on tool execution */
+  @keyframes blink {
+    0%, 50% { opacity: 1; }
+    51%, 100% { opacity: 0; }
+  }
+  .cursor::after {
+    content: '▊';
+    color: var(--gold);
+    animation: blink 0.8s steps(1) infinite;
+    margin-left: 2px;
+  }
+
+  /* "Boucle" indicator pour scénario 3 */
+  .loop-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 3px 8px;
+    background: rgba(212,165,116,0.15);
+    color: var(--gold);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    border-radius: 3px;
+    margin-left: 8px;
+  }
+  .loop-badge::before {
+    content: '↻';
+    font-size: 12px;
+  }
+
+  /* CONCLUSION */
+  .conclusion {
+    margin-top: 80px;
+    padding: 48px;
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dk) 100%);
+    border-radius: 12px;
+    color: var(--navy);
+    position: relative;
+    overflow: hidden;
+  }
+  .conclusion::before {
+    content: '';
+    position: absolute;
+    top: -40px; right: -40px;
+    width: 200px; height: 200px;
+    border: 2px solid rgba(15,27,61,0.15);
+    border-radius: 50%;
+  }
+  .conclusion::after {
+    content: '';
+    position: absolute;
+    bottom: -60px; right: 80px;
+    width: 140px; height: 140px;
+    border: 2px solid rgba(15,27,61,0.1);
+    border-radius: 50%;
+  }
+  .conclusion h2 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 36px;
+    margin-bottom: 20px;
+    position: relative;
+    z-index: 1;
+    letter-spacing: -0.01em;
+  }
+  .conclusion p {
+    font-size: 16px;
+    max-width: 640px;
+    position: relative;
+    z-index: 1;
+    line-height: 1.6;
+  }
+  .conclusion p + p { margin-top: 12px; }
+  .conclusion strong { font-weight: 600; }
+
+  /* INTERLUDE entre 2 et 3 */
+  .interlude {
+    margin-bottom: 80px;
+    padding: 48px 56px;
+    background: var(--navy-2);
+    border: 1px solid var(--divider);
+    border-radius: 12px;
+    position: relative;
+  }
+  .interlude::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 24px; bottom: 24px;
+    width: 3px;
+    background: var(--gold);
+    border-radius: 2px;
+  }
+  .interlude .eyebrow {
+    margin-bottom: 16px;
+  }
+  .interlude h3 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 32px;
+    color: #fff;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    margin-bottom: 20px;
+  }
+  .interlude h3 em {
+    color: var(--gold);
+    font-style: italic;
+  }
+  .interlude p {
+    font-size: 15.5px;
+    color: var(--ice);
+    max-width: 760px;
+    line-height: 1.65;
+  }
+  .interlude p + p { margin-top: 14px; }
+  .interlude strong { color: var(--gold); font-weight: 600; }
+
+  .interlude-diagram {
+    margin-top: 32px;
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr;
+    gap: 16px;
+    align-items: stretch;
+  }
+  .diag-box {
+    background: var(--navy);
+    border: 1px solid var(--divider);
+    border-radius: 8px;
+    padding: 18px 16px;
+    text-align: center;
+  }
+  .diag-box .diag-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 2.5px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .diag-box .diag-content {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--cream);
+    line-height: 1.5;
+  }
+  .diag-arrow {
+    display: flex;
+    align-items: center;
+    color: var(--gold);
+    font-size: 20px;
+    font-family: 'JetBrains Mono', monospace;
+  }
+  .diag-box.merged {
+    background: var(--tool-bubble);
+    border-color: var(--gold);
+  }
+  .diag-box.merged .diag-label { color: var(--gold); }
+  @media (max-width: 720px) {
+    .interlude { padding: 32px 24px; }
+    .interlude h3 { font-size: 24px; }
+    .interlude-diagram {
+      grid-template-columns: 1fr;
+      gap: 8px;
+    }
+    .diag-arrow {
+      justify-content: center;
+      transform: rotate(90deg);
+      padding: 4px 0;
+    }
+  }
+
+  /* System prompt block (étape 0 du scénario 3) */
+  .msg.system .msg-inner {
+    background: rgba(212,165,116,0.06);
+    border: 1px solid rgba(212,165,116,0.3);
+    border-bottom-left-radius: 4px;
+    border-left: 2px solid var(--gold);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: var(--ice);
+    max-width: 92%;
+    line-height: 1.65;
+  }
+  .msg.system .msg-label { color: var(--gold); }
+  .msg.system .sys-section {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed rgba(212,165,116,0.2);
+  }
+  .msg.system .sys-section:first-of-type {
+    margin-top: 8px;
+    padding-top: 0;
+    border-top: none;
+  }
+  .msg.system .sys-heading {
+    color: var(--gold);
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    font-weight: 700;
+  }
+  .msg.system .sys-content {
+    color: var(--cream);
+    white-space: pre-wrap;
+  }
+  .msg.system .sys-content .comment {
+    color: var(--muted);
+    font-style: italic;
+  }
+  .msg.system .sys-content .keyword { color: var(--gold); }
+  .msg.system .sys-content .string  { color: var(--ice); }
+  .msg.system .sys-content .user-q  { color: #fff; font-weight: 700; }
+
+  /* Footer */
+  footer {
+    margin-top: 60px;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* Responsive */
+  @media (max-width: 720px) {
+    .wrap { padding: 40px 18px 60px; }
+    .scenario-header { flex-direction: column; gap: 12px; padding: 24px; }
+    .scenario-num { font-size: 48px; }
+    .convo { padding: 24px 20px; }
+    .msg-inner { max-width: 92% !important; }
+    .controls { flex-wrap: wrap; padding: 16px 20px; }
+    .annot { max-width: 100%; }
+    .conclusion { padding: 32px 24px; }
+    .conclusion h2 { font-size: 26px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+  <header>
+    <div class="eyebrow">Étude de cas · Mode outillé</div>
+    <h1>« Quelle heure <em>est-il ?</em> »<br>Trois agents, une question.</h1>
+    <p class="lede">
+      Une question d'apparence triviale révèle, mieux que n'importe quelle théorie,
+      ce que change un harnais. Voyons comment <strong>trois configurations différentes</strong>
+      du même modèle de langage s'en sortent.
+    </p>
+  </header>
+
+  <div class="intro-box">
+    <p>
+      Pour chaque scénario, cliquez sur <strong>« Étape suivante »</strong> pour faire avancer la conversation
+      pas à pas. Les annotations dorées en italique commentent ce qui se passe à l'intérieur du système.
+    </p>
+    <p>
+      L'utilisateur pose la même question dans les trois cas : <em>« Quelle heure est-il ? »</em>
+      Le modèle, lui, est le même. Seul le harnais change.
+    </p>
+  </div>
+
+  <!-- ============================================================ -->
+  <!-- SCÉNARIO 1 : LLM brut, sans réflexion                          -->
+  <!-- ============================================================ -->
+  <section class="scenario" id="s1">
+    <div class="scenario-header">
+      <div class="scenario-num">01</div>
+      <div class="scenario-meta">
+        <span class="scenario-tag tag-bare">LLM brut · pas de réflexion</span>
+        <h2 class="scenario-title">Le réflexe : répondre quoi qu'il arrive</h2>
+        <p class="scenario-subtitle">
+          Aucun outil. Aucune étape de pensée. Le modèle reçoit la question et produit immédiatement la suite la plus probable.
+        </p>
+      </div>
+    </div>
+    <div class="convo" id="convo-1">
+      <div class="clock-face">— Conversation #1 —</div>
+
+      <div class="msg user" data-step="1">
+        <div class="msg-inner">
+          <div class="msg-label">Utilisateur</div>
+          Quelle heure est-il ?
+        </div>
+      </div>
+
+      <div class="msg bot" data-step="2">
+        <div class="msg-inner">
+          <div class="msg-label">Modèle (réponse directe)</div>
+          Il est <strong style="color:#fff">14 h 23</strong>.
+        </div>
+      </div>
+
+      <div class="annot" data-step="3">
+        Sauf qu'il est en réalité 09 h 47. Le modèle n'a aucune horloge interne — il vient de
+        produire le texte qui ressemble le plus, statistiquement, à une réponse à cette question.
+        C'est une <strong>hallucination</strong> typique : confiante, plausible, et complètement fausse.
+      </div>
+
+      <div class="verdict fail" data-step="4">
+        <div class="verdict-icon">✕</div>
+        <div class="verdict-text">
+          <strong>Échec silencieux.</strong> Le pire des cas : la réponse est fausse,
+          mais l'utilisateur n'a aucun moyen de le savoir.
+        </div>
+      </div>
+    </div>
+    <div class="controls">
+      <span class="step-counter" id="counter-1">0 / 4</span>
+      <div class="progress"><div class="progress-bar" id="bar-1"></div></div>
+      <button class="btn-ghost btn" onclick="resetScenario(1)">Recommencer</button>
+      <button class="btn" id="next-1" onclick="nextStep(1)">Étape suivante →</button>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SCÉNARIO 2 : LLM avec thinking                                 -->
+  <!-- ============================================================ -->
+  <section class="scenario" id="s2">
+    <div class="scenario-header">
+      <div class="scenario-num">02</div>
+      <div class="scenario-meta">
+        <span class="scenario-tag tag-think">LLM avec réflexion · pas d'outils</span>
+        <h2 class="scenario-title">L'introspection : reconnaître ses limites</h2>
+        <p class="scenario-subtitle">
+          Toujours aucun outil, mais le modèle a la possibilité de <em>penser à haute voix</em> avant de répondre.
+        </p>
+      </div>
+    </div>
+    <div class="convo" id="convo-2">
+      <div class="clock-face">— Conversation #2 —</div>
+
+      <div class="msg user" data-step="1">
+        <div class="msg-inner">
+          <div class="msg-label">Utilisateur</div>
+          Quelle heure est-il ?
+        </div>
+      </div>
+
+      <div class="msg thinking" data-step="2">
+        <div class="msg-inner">
+          <div class="msg-label">Réflexion interne</div>
+          L'utilisateur me demande l'heure actuelle. Pour répondre, il me faudrait
+          accéder à une horloge en temps réel. Or je suis un modèle de langage : je
+          n'ai pas d'accès à l'état du monde au moment où on me parle. Je ne dispose
+          d'aucun outil dans cette conversation. Je ne peux donc pas répondre. Je
+          dois le dire honnêtement plutôt que d'inventer.
+        </div>
+      </div>
+
+      <div class="annot" data-step="3">
+        L'étape de réflexion permet au modèle de constater l'absence d'information fiable
+        avant de s'engager dans une réponse. C'est une forme primitive d'auto-évaluation —
+        utile, mais qui ne résout pas le problème de fond.
+      </div>
+
+      <div class="msg bot" data-step="4">
+        <div class="msg-inner">
+          <div class="msg-label">Modèle (réponse honnête)</div>
+          Je n'ai pas accès à l'heure actuelle dans cette conversation. Je suis un modèle
+          de langage sans accès à une horloge en temps réel. Si vous me dites l'heure, je
+          pourrai en revanche vous aider à calculer un délai ou un fuseau horaire.
+        </div>
+      </div>
+
+      <div class="verdict warn" data-step="5">
+        <div class="verdict-icon">!</div>
+        <div class="verdict-text">
+          <strong>Honnête mais inutile.</strong> Le modèle évite l'erreur, mais l'utilisateur
+          repart sans la moindre information. La question reste sans réponse.
+        </div>
+      </div>
+    </div>
+    <div class="controls">
+      <span class="step-counter" id="counter-2">0 / 5</span>
+      <div class="progress"><div class="progress-bar" id="bar-2"></div></div>
+      <button class="btn-ghost btn" onclick="resetScenario(2)">Recommencer</button>
+      <button class="btn" id="next-2" onclick="nextStep(2)">Étape suivante →</button>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- INTERLUDE : ce que le harnais ajoute                           -->
+  <!-- ============================================================ -->
+  <section class="interlude">
+    <div class="eyebrow">Avant le scénario 3 · Ce qu'apporte le harnais</div>
+    <h3>Passons maintenant au cas <em>outillé</em>. Voici ce que le harnais change.</h3>
+    <p>
+      Dans les deux premiers scénarios, le modèle était livré à lui-même : tout ce dont il
+      disposait, c'était la question de l'utilisateur. Pour le troisième, on ajoute un harnais
+      autour de lui — et la première chose que ce harnais fait, c'est <strong>doter le modèle d'outils</strong>
+      qu'il pourra appeler en cas de besoin.
+    </p>
+    <p>
+      Encore faut-il que le modèle soit au courant de leur existence. La technique est simple, presque
+      mécanique : <strong>le harnais réécrit silencieusement la requête avant de l'envoyer au modèle</strong>.
+      La question de l'utilisateur reste là, mais elle est précédée du catalogue des outils disponibles —
+      leur nom, leur description, leurs paramètres. Comme si l'on glissait une notice à côté d'une question
+      avant de la transmettre.
+    </p>
+
+    <div class="interlude-diagram">
+      <div class="diag-box">
+        <div class="diag-label">L'utilisateur tape</div>
+        <div class="diag-content">"Quelle heure<br>est-il ?"</div>
+      </div>
+      <div class="diag-arrow">+</div>
+      <div class="diag-box">
+        <div class="diag-label">Le harnais ajoute</div>
+        <div class="diag-content">Catalogue<br>des outils<br>disponibles</div>
+      </div>
+      <div class="diag-arrow">→</div>
+      <div class="diag-box merged">
+        <div class="diag-label">Le modèle reçoit</div>
+        <div class="diag-content">Question<br>+ outils<br>en un seul prompt</div>
+      </div>
+    </div>
+
+    <p style="margin-top: 28px;">
+      Le modèle découvre alors, en plus de la question, quelque chose comme :
+      <em>« voici les outils que tu peux appeler, voici comment les invoquer, choisis-en un si tu en as besoin »</em>.
+      C'est ce qui va lui permettre de raisonner différemment des deux scénarios précédents :
+      <em>« tiens, il y a justement une fonction qui répond à cette question »</em>.
+    </p>
+    <p>
+      Le scénario 3 commence donc par ce que le modèle reçoit <em>vraiment</em> — la question
+      enrichie — avant d'enchaîner sur la boucle agentique elle-même.
+    </p>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- SCÉNARIO 3 : LLM outillé avec harnais                          -->
+  <!-- ============================================================ -->
+  <section class="scenario" id="s3">
+    <div class="scenario-header">
+      <div class="scenario-num">03</div>
+      <div class="scenario-meta">
+        <span class="scenario-tag tag-harness">LLM outillé · avec harnais <span class="loop-badge">boucle agentique</span></span>
+        <h2 class="scenario-title">L'agent : penser, agir, observer, répondre</h2>
+        <p class="scenario-subtitle">
+          Le modèle dispose maintenant d'un outil <code style="font-family:'JetBrains Mono',monospace;color:var(--gold)">get_current_time()</code>
+          fourni par son harnais. Suivons la mini-boucle qu'il déclenche.
+        </p>
+      </div>
+    </div>
+    <div class="convo" id="convo-3">
+      <div class="clock-face">— Conversation #3 · Boucle agentique —</div>
+
+      <div class="msg user" data-step="1">
+        <div class="msg-inner">
+          <div class="msg-label">Ce que l'utilisateur tape</div>
+          Quelle heure est-il ?
+        </div>
+      </div>
+
+      <div class="msg system" data-step="2">
+        <div class="msg-inner">
+          <div class="msg-label">Ce que le modèle reçoit réellement (prompt enrichi par le harnais)</div>
+
+          <div class="sys-section">
+            <div class="sys-heading">// Instructions système</div>
+<div class="sys-content">Tu es un assistant. Tu as accès aux outils listés ci-dessous.
+<span class="comment">// Pour utiliser un outil, renvoie un appel au format JSON.
+// Le résultat te sera transmis avant de poursuivre.</span></div>
+          </div>
+
+          <div class="sys-section">
+            <div class="sys-heading">// Outils disponibles</div>
+<div class="sys-content">{
+  <span class="keyword">"name"</span>: <span class="string">"get_current_time"</span>,
+  <span class="keyword">"description"</span>: <span class="string">"Renvoie l'heure actuelle dans un fuseau horaire donné."</span>,
+  <span class="keyword">"parameters"</span>: {
+    <span class="keyword">"timezone"</span>: {
+      <span class="keyword">"type"</span>: <span class="string">"string"</span>,
+      <span class="keyword">"description"</span>: <span class="string">"ex. 'Europe/Paris', 'America/New_York'"</span>
+    }
+  }
+}</div>
+          </div>
+
+          <div class="sys-section">
+            <div class="sys-heading">// Message de l'utilisateur</div>
+<div class="sys-content"><span class="user-q">Quelle heure est-il ?</span></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="annot" data-step="3">
+        <strong>Voilà ce qui arrive vraiment dans la « boîte aux lettres » du modèle.</strong>
+        La question est en bas, mais elle est précédée du catalogue d'outils. C'est ce
+        catalogue qui rend possible tout ce qui suit : sans lui, le modèle serait revenu
+        au scénario 2.
+      </div>
+
+      <div class="msg thinking" data-step="4">
+        <div class="msg-inner">
+          <div class="msg-label">Tour 1 · Pensée</div>
+          On me demande l'heure. Je n'ai pas cette information par moi-même, mais je vois
+          dans mes outils disponibles une fonction <code style="font-family:'JetBrains Mono',monospace;font-style:normal">get_current_time</code>
+          qui renvoie l'heure actuelle. Je vais l'appeler.
+        </div>
+      </div>
+
+      <div class="annot" data-step="5">
+        <strong>Étape 1 — Pensée.</strong> Le modèle décide de ne pas inventer ; il choisit un outil.
+      </div>
+
+      <div class="msg tool" data-step="6">
+        <div class="msg-inner">
+          <div class="msg-label">Tour 1 · Action — appel d'outil</div>
+          → get_current_time<span class="cursor"></span>
+          <div class="tool-payload">
+{<br>
+&nbsp;&nbsp;<span class="key">"tool"</span>: <span class="str">"get_current_time"</span>,<br>
+&nbsp;&nbsp;<span class="key">"arguments"</span>: { <span class="key">"timezone"</span>: <span class="str">"Europe/Paris"</span> }<br>
+}
+          </div>
+        </div>
+      </div>
+
+      <div class="annot" data-step="7">
+        <strong>Étape 2 — Action.</strong> Le modèle ne peut pas exécuter l'outil lui-même : il décrit
+        l'appel qu'il <em>souhaite</em> voir effectué, et il s'arrête là. C'est maintenant au harnais d'agir.
+      </div>
+
+      <div class="msg result" data-step="8">
+        <div class="msg-inner">
+          <div class="msg-label">Tour 1 · Exécution — résultat de l'outil</div>
+          ← get_current_time
+          <div class="result-payload">
+{<br>
+&nbsp;&nbsp;"timestamp": <span style="color:var(--gold)">"2026-04-29T09:47:12+02:00"</span>,<br>
+&nbsp;&nbsp;"timezone": "Europe/Paris",<br>
+&nbsp;&nbsp;"formatted": <span style="color:var(--gold)">"mercredi 29 avril 2026, 09:47"</span><br>
+}
+          </div>
+        </div>
+      </div>
+
+      <div class="annot" data-step="9">
+        <strong>Étape 3 — Exécution.</strong> Le harnais a bel et bien lu l'horloge système et
+        réinjecte le résultat dans la conversation, comme s'il s'agissait d'un nouveau message.
+        Le modèle reprend la main.
+      </div>
+
+      <div class="msg thinking" data-step="10">
+        <div class="msg-inner">
+          <div class="msg-label">Tour 2 · Pensée (observation)</div>
+          J'ai reçu l'heure : 09:47 en heure de Paris, le 29 avril 2026. C'est ce que je
+          cherchais. Je peux maintenant formuler une réponse claire pour l'utilisateur. La
+          tâche est terminée, plus besoin d'appeler d'outil.
+        </div>
+      </div>
+
+      <div class="annot" data-step="11">
+        <strong>Étape 4 — Observation.</strong> Le modèle interprète le résultat et constate
+        qu'il a tout ce qu'il faut. Il choisit de sortir de la boucle.
+      </div>
+
+      <div class="msg bot" data-step="12">
+        <div class="msg-inner">
+          <div class="msg-label">Réponse finale</div>
+          Il est <strong style="color:#fff">9 h 47</strong> à Paris (mercredi 29 avril 2026).
+        </div>
+      </div>
+
+      <div class="verdict win" data-step="13">
+        <div class="verdict-icon">✓</div>
+        <div class="verdict-text">
+          <strong>Réponse correcte.</strong> Le même modèle qui hallucinait au scénario 1 et
+          s'excusait au scénario 2 répond ici juste — parce que son harnais lui a donné les
+          moyens d'aller chercher l'information.
+        </div>
+      </div>
+    </div>
+    <div class="controls">
+      <span class="step-counter" id="counter-3">0 / 13</span>
+      <div class="progress"><div class="progress-bar" id="bar-3"></div></div>
+      <button class="btn-ghost btn" onclick="resetScenario(3)">Recommencer</button>
+      <button class="btn" id="next-3" onclick="nextStep(3)">Étape suivante →</button>
+    </div>
+  </section>
+
+  <!-- ============================================================ -->
+  <!-- CONCLUSION                                                    -->
+  <!-- ============================================================ -->
+  <div class="conclusion">
+    <h2>Le modèle est le même. Le harnais fait toute la différence.</h2>
+    <p>
+      Dans les trois scénarios, c'est rigoureusement le même réseau de neurones qui calcule
+      les réponses. Pourtant, l'expérience utilisateur va de <strong>« dangereusement faux »</strong>
+      à <strong>« correctement répondu »</strong> en passant par <strong>« honnête mais stérile »</strong>.
+    </p>
+    <p>
+      Ce qui change, ce ne sont ni les paramètres du modèle ni son entraînement : c'est uniquement ce qui
+      l'entoure. Un outil <code>get_current_time</code>, une boucle qui rappelle le modèle après l'exécution,
+      un protocole pour passer le résultat. Quelques dizaines de lignes de code — et un agent émerge.
+    </p>
+  </div>
+
+  <footer>
+    Étude de cas · « Quelle heure est-il ? » — En complément de la présentation sur le harnais
+  </footer>
+
+</div>
+
+<script>
+  // État de chaque scénario : étape courante (0 = rien d'affiché)
+  const state = { 1: 0, 2: 0, 3: 0 };
+  const totals = { 1: 4, 2: 5, 3: 13 };
+
+  function nextStep(scenarioId) {
+    const current = state[scenarioId];
+    const total = totals[scenarioId];
+    if (current >= total) return;
+
+    const newStep = current + 1;
+    state[scenarioId] = newStep;
+
+    // Révéler tous les éléments de cette étape (msg, annot, verdict)
+    const convo = document.getElementById('convo-' + scenarioId);
+    const elems = convo.querySelectorAll('[data-step="' + newStep + '"]');
+    elems.forEach(el => {
+      // Léger délai pour les annotations qui suivent un message
+      const delay = el.classList.contains('annot') ? 200 : 0;
+      setTimeout(() => el.classList.add('show'), delay);
+    });
+
+    // Faire défiler doucement vers le dernier élément ajouté
+    if (elems.length > 0) {
+      setTimeout(() => {
+        const last = elems[elems.length - 1];
+        last.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      }, 100);
+    }
+
+    updateUI(scenarioId);
+  }
+
+  function resetScenario(scenarioId) {
+    state[scenarioId] = 0;
+    const convo = document.getElementById('convo-' + scenarioId);
+    convo.querySelectorAll('[data-step]').forEach(el => el.classList.remove('show'));
+    updateUI(scenarioId);
+    document.getElementById('s' + scenarioId).scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  function updateUI(scenarioId) {
+    const current = state[scenarioId];
+    const total = totals[scenarioId];
+    document.getElementById('counter-' + scenarioId).textContent = current + ' / ' + total;
+    document.getElementById('bar-' + scenarioId).style.width = (current / total * 100) + '%';
+    const btn = document.getElementById('next-' + scenarioId);
+    if (current >= total) {
+      btn.disabled = true;
+      btn.textContent = 'Terminé';
+    } else {
+      btn.disabled = false;
+      btn.textContent = 'Étape suivante →';
+    }
+  }
+
+  // Init
+  [1, 2, 3].forEach(updateUI);
+
+  // Raccourci clavier : flèche droite ou espace pour avancer le scénario visible le plus avancé
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'ArrowRight' || e.key === ' ') {
+      // Trouver le scénario actuellement le plus visible
+      const scenarios = [1, 2, 3].map(id => {
+        const el = document.getElementById('s' + id);
+        const rect = el.getBoundingClientRect();
+        const visible = Math.max(0, Math.min(rect.bottom, window.innerHeight) - Math.max(rect.top, 0));
+        return { id, visible };
+      });
+      scenarios.sort((a, b) => b.visible - a.visible);
+      const target = scenarios[0].id;
+      if (state[target] < totals[target]) {
+        e.preventDefault();
+        nextStep(target);
+      }
+    }
+  });
+</script>
+
+</body>
+</html>

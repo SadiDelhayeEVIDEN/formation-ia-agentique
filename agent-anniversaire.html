@@ -1,0 +1,1241 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>L'agent qui organise un anniversaire — Niveau 3 : agentique</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,600;0,9..144,700;1,9..144,400&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:    #0F1B3D;
+    --navy-2:  #0A1230;
+    --navy-3:  #1A2750;
+    --cream:   #F5F1E8;
+    --ice:     #CADCFC;
+    --gold:    #D4A574;
+    --gold-dk: #9C7A50;
+    --ink:     #1A1A1A;
+    --muted:   #5C6478;
+    --divider: #2A3556;
+    --red:     #E36B5A;
+    --green:   #7FBF7F;
+    --orange:  #E8A55A;
+    --user-bubble: #2A3556;
+    --bot-bubble:  #1A2750;
+    --thinking-bubble: #2D2640;
+    --tool-bubble: #3D3220;
+    --error-bubble: #4A2520;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html, body {
+    background: var(--navy);
+    color: var(--cream);
+    font-family: 'Inter', -apple-system, sans-serif;
+    line-height: 1.55;
+    min-height: 100vh;
+  }
+
+  /* Texture subtile en fond */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(circle at 20% 10%, rgba(212,165,116,0.08), transparent 40%),
+      radial-gradient(circle at 80% 90%, rgba(212,165,116,0.05), transparent 40%);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .wrap {
+    position: relative;
+    z-index: 1;
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 60px 32px 80px;
+  }
+
+  /* ============================================================
+     HEADER
+  ============================================================ */
+  header {
+    margin-bottom: 50px;
+    border-bottom: 1px solid var(--divider);
+    padding-bottom: 40px;
+  }
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .eyebrow::before {
+    content: '';
+    width: 24px; height: 2px;
+    background: var(--gold);
+  }
+  h1 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: clamp(36px, 6vw, 56px);
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+    margin-bottom: 24px;
+  }
+  h1 em {
+    color: var(--gold);
+    font-style: italic;
+    font-weight: 500;
+  }
+  .lede {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: clamp(17px, 2vw, 20px);
+    line-height: 1.5;
+    color: var(--ice);
+    max-width: 760px;
+  }
+
+  /* Rappel du niveau précédent */
+  .recap {
+    margin-top: 36px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+  .recap-card {
+    padding: 20px 24px;
+    border-radius: 8px;
+    border: 1px solid var(--divider);
+  }
+  .recap-card.previous { background: rgba(15, 27, 61, 0.5); }
+  .recap-card.current  {
+    background: rgba(212, 165, 116, 0.08);
+    border-color: var(--gold);
+  }
+  .recap-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+  .recap-card.previous .recap-tag { color: var(--muted); }
+  .recap-title {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 17px;
+    color: var(--cream);
+    margin-bottom: 6px;
+  }
+  .recap-desc {
+    font-size: 13.5px;
+    color: var(--ice);
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: 0.5px;
+  }
+
+  /* ============================================================
+     CONTEXTE OUTILS (encadré au-dessus du scénario)
+  ============================================================ */
+  .tools-context {
+    margin: 40px 0 32px;
+    padding: 18px 24px;
+    background: rgba(15, 27, 61, 0.6);
+    border: 1px solid var(--divider);
+    border-left: 3px solid var(--gold);
+    border-radius: 6px;
+    font-size: 13.5px;
+    color: var(--ice);
+    line-height: 1.6;
+  }
+  .tools-context strong {
+    color: var(--gold);
+    font-weight: 600;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 8px;
+  }
+  .tools-context code {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    background: rgba(212, 165, 116, 0.12);
+    color: var(--gold);
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+  .tools-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px 24px;
+  }
+  .tools-list li {
+    position: relative;
+    padding-left: 16px;
+    font-size: 13.5px;
+    line-height: 1.5;
+  }
+  .tools-list li::before {
+    content: '·';
+    position: absolute;
+    left: 4px;
+    color: var(--gold);
+    font-weight: 700;
+  }
+  @media (max-width: 720px) {
+    .tools-list { grid-template-columns: 1fr; }
+  }
+
+  /* ============================================================
+     SCENARIO CONTAINER
+  ============================================================ */
+  .scenario {
+    background: linear-gradient(180deg, var(--navy-2) 0%, var(--navy) 100%);
+    border: 1px solid var(--divider);
+    border-radius: 12px;
+  }
+  .scenario-header {
+    padding: 28px 36px 24px;
+    border-bottom: 1px solid var(--divider);
+    background: var(--navy-2);
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+    display: flex;
+    align-items: flex-start;
+    gap: 20px;
+  }
+  .scenario-num {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 56px;
+    color: var(--gold);
+    line-height: 0.9;
+    flex-shrink: 0;
+  }
+  .scenario-title-block { flex: 1; }
+  .scenario-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 6px;
+  }
+  .scenario-title {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 26px;
+    color: var(--cream);
+    margin-bottom: 8px;
+  }
+  .scenario-subtitle {
+    font-size: 14px;
+    color: var(--muted);
+  }
+
+  /* Conversation */
+  .convo {
+    padding: 36px 36px 24px;
+    min-height: 500px;
+  }
+
+  /* ============================================================
+     MESSAGE BUBBLES
+  ============================================================ */
+  .msg {
+    margin-bottom: 18px;
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    transform: translateY(8px);
+    transition: opacity 0.5s ease, transform 0.5s ease;
+  }
+  .msg.show { opacity: 1; transform: translateY(0); }
+
+  .msg-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--muted);
+    margin-bottom: 6px;
+    font-weight: 700;
+  }
+
+  .msg-inner {
+    padding: 14px 18px;
+    border-radius: 10px;
+    line-height: 1.55;
+    font-size: 14px;
+    max-width: 85%;
+  }
+
+  /* User message */
+  .msg.user { align-items: flex-end; }
+  .msg.user .msg-label { color: var(--ice); }
+  .msg.user .msg-inner {
+    background: var(--user-bubble);
+    color: var(--cream);
+    border-bottom-right-radius: 4px;
+  }
+
+  /* Thinking */
+  .msg.thinking .msg-inner {
+    background: rgba(212,165,116,0.08);
+    border: 1px dashed rgba(212,165,116,0.3);
+    color: var(--gold);
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    border-bottom-left-radius: 4px;
+    max-width: 90%;
+  }
+  .msg.thinking .msg-label { color: var(--gold-dk); }
+
+  /* Tool call */
+  .msg.tool .msg-inner {
+    background: rgba(212,165,116,0.06);
+    border: 1px solid rgba(212,165,116,0.2);
+    border-bottom-left-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: var(--gold);
+    max-width: 88%;
+  }
+  .msg.tool .msg-label { color: var(--gold-dk); }
+  .msg.tool .tool-fn { color: var(--cream); font-weight: 700; }
+  .msg.tool .tool-arg-key { color: var(--gold-dk); }
+  .msg.tool .tool-arg-val { color: var(--ice); }
+  .msg.tool .punct { color: var(--muted); }
+
+  /* Tool result */
+  .msg.result .msg-inner {
+    background: rgba(127,191,127,0.08);
+    border: 1px solid rgba(127,191,127,0.25);
+    border-bottom-left-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: var(--green);
+    max-width: 88%;
+  }
+  .msg.result .msg-label { color: var(--green); }
+  .msg.result .result-line {
+    color: var(--cream);
+    margin-top: 4px;
+    line-height: 1.7;
+  }
+  .msg.result .price {
+    color: var(--gold);
+    font-weight: 700;
+  }
+  .msg.result .num-result {
+    color: var(--gold);
+    font-weight: 700;
+    font-size: 14px;
+  }
+
+  /* Tool error */
+  .msg.error .msg-inner {
+    background: rgba(227,107,90,0.08);
+    border: 1px solid rgba(227,107,90,0.3);
+    border-bottom-left-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: var(--red);
+    max-width: 88%;
+  }
+  .msg.error .msg-label { color: var(--red); }
+  .msg.error .err-detail { color: var(--cream); margin-top: 4px; }
+
+  /* Memory */
+  .msg.memory .msg-inner {
+    background: rgba(202,220,252,0.05);
+    border: 1px solid rgba(202,220,252,0.15);
+    border-bottom-left-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ice);
+    max-width: 80%;
+  }
+  .msg.memory .msg-label { color: var(--ice); opacity: 0.7; }
+  .msg.memory .mem-key { color: var(--gold); }
+
+  /* Final answer (formatted card) */
+  .msg.final .msg-inner {
+    background: linear-gradient(135deg, rgba(212,165,116,0.12), rgba(127,191,127,0.08));
+    border: 1px solid var(--gold);
+    border-bottom-left-radius: 4px;
+    color: var(--cream);
+    font-size: 14.5px;
+    line-height: 1.7;
+    max-width: 92%;
+  }
+  .msg.final .msg-label { color: var(--gold); }
+  .msg.final .final-title {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 19px;
+    color: var(--gold);
+    margin-bottom: 14px;
+  }
+  .msg.final .final-section {
+    margin-bottom: 12px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid rgba(212,165,116,0.2);
+  }
+  .msg.final .final-section:last-of-type {
+    border-bottom: none;
+    margin-bottom: 0;
+  }
+  .msg.final .final-section-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 4px;
+    font-weight: 700;
+  }
+  .msg.final .final-amount {
+    color: var(--gold);
+    font-weight: 700;
+  }
+  .msg.final .final-total {
+    margin-top: 16px;
+    padding-top: 14px;
+    border-top: 1px solid var(--gold);
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 16px;
+    color: var(--gold);
+    text-align: right;
+    font-weight: 600;
+  }
+
+  /* ============================================================
+     ANNOTATIONS (italiques en marge)
+  ============================================================ */
+  .annot {
+    margin-top: -8px;
+    margin-bottom: 16px;
+    padding-left: 18px;
+    border-left: 2px solid var(--gold-dk);
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 13.5px;
+    color: var(--gold);
+    max-width: 75%;
+    opacity: 0;
+    transform: translateX(-8px);
+    transition: opacity 0.5s ease 0.2s, transform 0.5s ease 0.2s;
+  }
+  .annot.show { opacity: 1; transform: translateX(0); }
+
+  /* ============================================================
+     VERDICT
+  ============================================================ */
+  .verdict {
+    margin: 24px 36px 0;
+    padding: 0 28px;
+    border-radius: 10px;
+    text-align: left;
+    opacity: 0;
+    transform: translateY(8px);
+    max-height: 0;
+    overflow: hidden;
+    transition: opacity 0.5s ease, transform 0.5s ease, max-height 0.6s ease, padding 0.6s ease;
+  }
+  .verdict.show {
+    opacity: 1;
+    transform: translateY(0);
+    padding: 24px 28px;
+    max-height: 600px;
+  }
+  .verdict.success {
+    background: rgba(127,191,127,0.1);
+    border: 1px solid var(--green);
+    color: var(--cream);
+  }
+  .verdict-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--green);
+    text-transform: uppercase;
+    margin-bottom: 12px;
+    font-weight: 700;
+  }
+  .verdict h3 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 21px;
+    color: var(--green);
+    margin-bottom: 14px;
+  }
+  .verdict-stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-top: 14px;
+  }
+  .verdict-stat {
+    padding: 12px 14px;
+    background: rgba(127,191,127,0.05);
+    border-radius: 6px;
+    border: 1px solid rgba(127,191,127,0.15);
+  }
+  .verdict-stat-num {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 22px;
+    font-weight: 600;
+    color: var(--green);
+    line-height: 1;
+  }
+  .verdict-stat-label {
+    font-size: 12.5px;
+    color: var(--ice);
+    margin-top: 4px;
+  }
+
+  /* Final pédagogique */
+  .moral {
+    margin: 24px 36px 36px;
+    padding: 0 28px;
+    background: rgba(212,165,116,0.06);
+    border: 1px solid rgba(212,165,116,0.25);
+    border-radius: 10px;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--ice);
+    text-align: center;
+    opacity: 0;
+    max-height: 0;
+    overflow: hidden;
+    transition: opacity 0.6s ease, max-height 0.6s ease, padding 0.6s ease, margin-bottom 0.6s ease;
+    margin-bottom: 0;
+  }
+  .moral.show {
+    opacity: 1;
+    padding: 24px 28px;
+    max-height: 300px;
+    margin-bottom: 36px;
+  }
+  .moral strong {
+    color: var(--gold);
+    font-weight: 600;
+  }
+
+  /* ============================================================
+     CONTROLS (sticky bar en bas du scénario)
+  ============================================================ */
+  .controls {
+    padding: 20px 36px;
+    background: var(--navy-2);
+    border-top: 1px solid var(--divider);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    position: sticky;
+    bottom: 0;
+    z-index: 10;
+    box-shadow: 0 -8px 24px -12px rgba(0, 0, 0, 0.4);
+    border-bottom-left-radius: 12px;
+    border-bottom-right-radius: 12px;
+    backdrop-filter: blur(4px);
+  }
+  .progress {
+    flex: 1;
+    height: 2px;
+    background: var(--divider);
+    border-radius: 2px;
+    overflow: hidden;
+    max-width: 200px;
+  }
+  .progress-bar {
+    height: 100%;
+    background: var(--gold);
+    width: 0%;
+    transition: width 0.4s ease;
+  }
+  .step-counter {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    min-width: 60px;
+  }
+  .btn {
+    background: var(--gold);
+    color: var(--navy);
+    border: none;
+    padding: 10px 22px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: all 0.2s ease;
+  }
+  .btn:hover {
+    background: #fff;
+    transform: translateY(-1px);
+  }
+  .btn:disabled {
+    background: var(--divider);
+    color: var(--muted);
+    cursor: not-allowed;
+    transform: none;
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--divider);
+  }
+  .btn-ghost:hover {
+    background: var(--divider);
+    color: var(--cream);
+    transform: none;
+  }
+
+  /* ============================================================
+     KBD HINT
+  ============================================================ */
+  .kbd-hint {
+    margin-top: 28px;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--muted);
+  }
+  kbd {
+    display: inline-block;
+    padding: 2px 8px;
+    background: var(--navy-2);
+    border: 1px solid var(--divider);
+    border-radius: 3px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--gold);
+    margin: 0 2px;
+  }
+
+  /* ============================================================
+     FOOTER
+  ============================================================ */
+  footer {
+    margin-top: 60px;
+    padding-top: 32px;
+    border-top: 1px solid var(--divider);
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--muted);
+    text-transform: uppercase;
+  }
+
+  /* Responsive */
+  @media (max-width: 720px) {
+    .wrap { padding: 40px 18px 60px; }
+    .recap { grid-template-columns: 1fr; }
+    .scenario-header { flex-direction: column; gap: 8px; padding: 24px; }
+    .scenario-num { font-size: 40px; }
+    .convo { padding: 24px; }
+    .controls { padding: 16px 20px; flex-wrap: wrap; }
+    .verdict, .moral { margin: 24px 20px 0; padding: 20px; }
+    .verdict-stats { grid-template-columns: 1fr; }
+    .msg-inner { max-width: 100% !important; }
+    .annot { max-width: 100%; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ============================================================
+       HEADER
+  ============================================================ -->
+  <header>
+    <div class="eyebrow">Niveau 3 · Le harnais agentique</div>
+    <h1>Quand l'IA <em>prend les commandes</em></h1>
+    <p class="lede">
+      Vous avez vu comment l'IA peut appeler un outil pour répondre à une question
+      simple. Voyons maintenant ce qui se passe quand on lui confie une vraie mission —
+      avec plusieurs étapes, des contraintes, et de l'imprévu.
+    </p>
+
+    <div class="recap">
+      <div class="recap-card previous">
+        <div class="recap-tag">Niveau 2 · Outillé</div>
+        <div class="recap-title">Une question, un outil, une réponse</div>
+        <div class="recap-desc">1 question → 1 appel d'outil → 1 réponse</div>
+      </div>
+      <div class="recap-card current">
+        <div class="recap-tag">Niveau 3 · Agentique</div>
+        <div class="recap-title">Une mission, une boucle, un résultat</div>
+        <div class="recap-desc">1 mission → boucle d'outils → adaptation → résultat structuré</div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ============================================================
+       CONTEXTE TECHNIQUE
+  ============================================================ -->
+  <div class="tools-context">
+    <strong>L'agent dispose de</strong>
+    <p style="margin-bottom: 14px;">Comme un assistant réel, l'agent a accès à toute une boîte à outils — il n'utilisera dans cette mission qu'une partie de ce qui est à sa disposition.</p>
+    <ul class="tools-list">
+      <li><code>recherche_commerce</code> — chercher des produits, services, prestataires (catégorie, lieu, prix…)</li>
+      <li><code>calcul</code> — effectuer une opération arithmétique</li>
+      <li><code>mémoire_locale</code> — lire et écrire dans une mémoire de travail propre à la mission</li>
+      <li><code>wait</code> — patienter un certain nombre de secondes avant de relancer une action</li>
+      <li><code>météo</code> — obtenir les prévisions à une date et un lieu donnés</li>
+      <li><code>agenda_utilisateur</code> — consulter le calendrier personnel de l'utilisateur</li>
+      <li><code>envoyer_email</code> — envoyer un message à un destinataire</li>
+      <li><code>traduire</code> — traduire un texte d'une langue vers une autre</li>
+    </ul>
+    <p style="margin-top: 14px; opacity: 0.85;">Boucle activée : après chaque action, le résultat revient au modèle qui décide de la suite. L'agent s'arrête de lui-même quand il juge la mission accomplie.</p>
+  </div>
+
+  <!-- ============================================================
+       SCENARIO
+  ============================================================ -->
+  <section class="scenario" id="scenario">
+    <div class="scenario-header">
+      <div class="scenario-num">01</div>
+      <div class="scenario-title-block">
+        <div class="scenario-tag">Mission · anniversaire de Léa</div>
+        <div class="scenario-title">L'agent qui organise une fête d'enfant</div>
+        <div class="scenario-subtitle">35 étapes · 12 appels d'outils · 1 attente forcée · 1 retour en arrière sur un choix</div>
+      </div>
+    </div>
+
+    <div class="convo" id="convo">
+      <!-- Les étapes seront injectées ici -->
+    </div>
+
+    <div class="verdict" id="verdict">
+      <div class="verdict-tag">✓ Mission accomplie</div>
+      <h3>L'agent s'est débrouillé seul, du début à la fin</h3>
+      <p>Une seule requête utilisateur, une boucle d'exécution complète, un résultat structuré et conforme à la contrainte budgétaire.</p>
+      <div class="verdict-stats">
+        <div class="verdict-stat">
+          <div class="verdict-stat-num">12</div>
+          <div class="verdict-stat-label">appels d'outils orchestrés</div>
+        </div>
+        <div class="verdict-stat">
+          <div class="verdict-stat-num">2</div>
+          <div class="verdict-stat-label">situations imprévues gérées<br><span style="opacity:0.7; font-size: 11px;">(saturation serveur, impasse budgétaire)</span></div>
+        </div>
+        <div class="verdict-stat">
+          <div class="verdict-stat-num">1</div>
+          <div class="verdict-stat-label">retour en arrière sur un choix passé</div>
+        </div>
+        <div class="verdict-stat">
+          <div class="verdict-stat-num">0</div>
+          <div class="verdict-stat-label">intervention humaine</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="moral" id="moral">
+      Le modèle est exactement le même que celui à qui on demandait l'heure.
+      Ce qui change ? <strong>Le harnais.</strong>
+      Une boucle qui rappelle le modèle après chaque action, une mémoire de travail,
+      une notion de critère d'arrêt. Et soudain, l'IA peut conduire une mission entière.
+    </div>
+
+    <div class="controls">
+      <button class="btn btn-ghost" id="reset-btn">↻ Recommencer</button>
+      <div class="step-counter" id="counter">0 / 35</div>
+      <div class="progress"><div class="progress-bar" id="bar"></div></div>
+      <button class="btn" id="next-btn">Étape suivante →</button>
+    </div>
+  </section>
+
+  <p class="kbd-hint">
+    Astuce : <kbd>espace</kbd> ou <kbd>→</kbd> pour avancer
+  </p>
+
+  <footer>
+    Le harnais dans l'agentique AI · Niveau 3 · Avril 2026
+  </footer>
+
+</div>
+
+<script>
+  // ============================================================
+  // ÉTAPES DU SCÉNARIO
+  // Chaque étape est un fragment HTML à injecter
+  // ============================================================
+
+  const steps = [
+    // ============================================================
+    // MOUVEMENT 1 — LA REQUÊTE & LE PLAN
+    // ============================================================
+
+    // ÉTAPE 1 — La requête utilisateur
+    {
+      type: 'msg',
+      cls: 'user',
+      label: 'Vous',
+      content: `« C'est l'anniversaire de ma fille Léa samedi prochain. Elle a 8 ans, elle adore les dinosaures. Trouve-moi un gâteau, une activité pour la fête, et 3 petits cadeaux. Budget total : 100&nbsp;€. »`
+    },
+
+    // ÉTAPE 2 — Pensée n°1 : décomposition (sans enveloppes par poste — l'agent reste souple)
+    {
+      type: 'msg',
+      cls: 'thinking',
+      label: 'Pensée du modèle',
+      content: `Mission : organiser l'anniversaire de Léa, 8 ans, thème dinosaures, budget 100&nbsp;€. Trois éléments à trouver — gâteau, activité, 3 cadeaux. Je commence par le gâteau, c'est l'élément central de la fête.`,
+      annot: `Le modèle décompose la mission. Il sait par où commencer mais ne fixe pas encore tous les détails — il s'adaptera en fonction de ce qu'il trouvera.`
+    },
+
+    // ============================================================
+    // MOUVEMENT 2 — PREMIER ESSAI (avec erreur 503 + wait)
+    // ============================================================
+
+    // ÉTAPE 3 — Action 1 : recherche du gâteau
+    {
+      type: 'msg',
+      cls: 'tool',
+      label: 'Action · appel d\'outil',
+      content: `<span class="tool-fn">recherche_commerce</span><span class="punct">(</span><br>&nbsp;&nbsp;<span class="tool-arg-key">catégorie</span><span class="punct">:</span> <span class="tool-arg-val">"pâtisserie"</span><span class="punct">,</span><br>&nbsp;&nbsp;<span class="tool-arg-key">thème</span><span class="punct">:</span> <span class="tool-arg-val">"dinosaure"</span><br><span class="punct">)</span>`
+    },
+
+    // ÉTAPE 4 — Erreur : service surchargé
+    {
+      type: 'msg',
+      cls: 'error',
+      label: 'Erreur · service surchargé',
+      content: `<strong>ERROR 503</strong> · service_overloaded<br><span class="err-detail">Le service est temporairement saturé. Réessayez dans 60 secondes.<br><span style="opacity:0.7; font-size: 11.5px;">↳ header HTTP <code style="background:rgba(227,107,90,0.15); padding:1px 5px; border-radius:3px;">Retry-After: 60</code></span></span>`,
+      annot: `Premier imprévu : le service est saturé — comme un site de billetterie un soir de mise en vente. Heureusement, l'erreur dit explicitement combien de temps attendre.`
+    },
+
+    // ÉTAPE 5 — Pensée : lecture de l'instruction d'attente
+    {
+      type: 'msg',
+      cls: 'thinking',
+      label: 'Pensée du modèle',
+      content: `Le service est saturé, mais il m'indique de réessayer dans 60 secondes. Je n'insiste pas tout de suite — j'attends, puis je relance la même requête. Pas besoin de changer de stratégie : le serveur n'est pas en panne, il est juste occupé.`,
+      annot: `Le modèle lit l'information utile dans l'erreur. Il ne ressaie pas en boucle (ce qui aggraverait la saturation), il ne change pas de stratégie inutilement. Il fait simplement ce qu'on lui demande : patienter.`
+    },
+
+    // ÉTAPE 6 — Action wait
+    {
+      type: 'msg',
+      cls: 'tool',
+      label: 'Action · appel d\'outil',
+      content: `<span class="tool-fn">wait</span><span class="punct">(</span><span class="tool-arg-key">seconds</span><span class="punct">:</span> <span class="tool-arg-val">60</span><span class="punct">)</span>`,
+      annot: `Notez ce nouvel outil : <code style="background:rgba(212,165,116,0.12); color:var(--gold); padding:1px 5px; border-radius:3px; font-family:'JetBrains Mono', monospace; font-size:12px;">wait</code>. Le harnais peut fournir des outils que personne ne demanderait spontanément, mais qui rendent l'agent capable de gérer des situations réelles — comme attendre poliment qu'un service surchargé reprenne son souffle.`
+    },
+
+    // ÉTAPE 7 — Résultat wait (brut)
+    {
+      type: 'msg',
+      cls: 'result',
+      label: 'Résultat',
+      content: `<span class="num-result">ok</span>`
+    },
+
+    // ÉTAPE 8 — Nouvelle action : même requête
+    {
+      type: 'msg',
+      cls: 'tool',
+      label: 'Action · appel d\'outil (2ᵉ tentative)',
+      content: `<span class="tool-fn">recherche_commerce</span><span class="punct">(</span><br>&nbsp;&nbsp;<span class="tool-arg-key">catégorie</span><span class="punct">:</span> <span class="tool-arg-val">"pâtisserie"</span><span class="punct">,</span><br>&nbsp;&nbsp;<span class="tool-arg-key">thème</span><span class="punct">:</span> <span class="tool-arg-val">"dinosaure"</span><br><span class="punct">)</span>`
+    },
+
+    // ÉTAPE 9 — Résultat : trois options
+    {
+      type: 'msg',
+      cls: 'result',
+      label: 'Résultat',
+      content: `<div class="result-line">[</div>
+<div class="result-line">&nbsp;&nbsp;{ nom: "Pâtisserie Le Diplodocus — gâteau 3D dinosaure 6 parts", prix: <span class="price">65</span> },</div>
+<div class="result-line">&nbsp;&nbsp;{ nom: "Sweet Cakes — cupcakes dino × 12", prix: <span class="price">36</span> },</div>
+<div class="result-line">&nbsp;&nbsp;{ nom: "Boulangerie Lutèce — gâteau imprimé dino 8 parts", prix: <span class="price">28</span> }</div>
+<div class="result-line">]</div>`
+    },
+
+    // ÉTAPE 10 — Choix optimiste : le gâteau cher
+    {
+      type: 'msg',
+      cls: 'thinking',
+      label: 'Pensée du modèle',
+      content: `Le 3D à 65&nbsp;€ est cher mais il fera vraiment l'effet "wow" pour la fête de Léa — c'est la pièce centrale. Je le prends et je serai prudent sur le reste. Il me restera 35&nbsp;€ pour activité + 3 cadeaux, ça devrait passer.`,
+      annot: `Choix optimiste. L'agent privilégie l'impact pour Léa, en pariant qu'il pourra resserrer ailleurs. Le scénario va mettre ce pari à l'épreuve.`
+    },
+
+    // ÉTAPE 11 — Mémorisation
+    {
+      type: 'msg',
+      cls: 'tool',
+      label: 'Action · mémoire de travail',
+      content: `<span class="tool-fn">mémoire_locale.set</span><span class="punct">(</span><br>&nbsp;&nbsp;<span class="tool-arg-key">clé</span><span class="punct">:</span> <span class="tool-arg-val">"choix.gâteau"</span><span class="punct">,</span><br>&nbsp;&nbsp;<span class="tool-arg-key">valeur</span><span class="punct">:</span> <span class="tool-arg-val">{ nom: "Le Diplodocus — 3D", prix: 65 }</span><br><span class="punct">)</span>`
+    },
+
+    // ÉTAPE 12 — Résultat mémoire (brut)
+    {
+      type: 'msg',
+      cls: 'result',
+      label: 'Résultat',
+      content: `<span class="num-result">ok</span>`
+    },
+
+    // ÉTAPE 13 — Action : recherche activité
+    {
+      type: 'msg',
+      cls: 'tool',
+      label: 'Action · appel d\'outil',
+      content: `<span class="tool-fn">recherche_commerce</span><span class="punct">(</span><br>&nbsp;&nbsp;<span class="tool-arg-key">catégorie</span><span class="punct">:</span> <span class="tool-arg-val">"activité enfant"</span><span class="punct">,</span><br>&nbsp;&nbsp;<span class="tool-arg-key">thème</span><span class="punct">:</span> <span class="tool-arg-val">"dinosaure"</span><br><span class="punct">)</span>`
+    },
+
+    // ÉTAPE 14 — Résultat activité
+    {
+      type: 'msg',
+      cls: 'result',
+      label: 'Résultat',
+      content: `<div class="result-line">[</div>
+<div class="result-line">&nbsp;&nbsp;{ nom: "Atelier moulage fossiles à domicile", prix: <span class="price">80</span> },</div>
+<div class="result-line">&nbsp;&nbsp;{ nom: "Musée Paléo — visite guidée (par enfant)", prix: <span class="price">12</span> },</div>
+<div class="result-line">&nbsp;&nbsp;{ nom: "Kit Petit Paléontologue (à offrir et animer)", prix: <span class="price">25</span> }</div>
+<div class="result-line">]</div>`
+    },
+
+    // ÉTAPE 15 — Pensée : choix activité
+    {
+      type: 'msg',
+      cls: 'thinking',
+      label: 'Pensée du modèle',
+      content: `L'atelier à 80&nbsp;€ est hors budget. Le musée à 12&nbsp;€/enfant fait 60–72&nbsp;€ pour 5–6 enfants, trop cher. Le kit à 25&nbsp;€ est parfait — animation pendant la fête, dans le budget. Je le prends.`
+    },
+
+    // ÉTAPE 16 — Mémorisation activité
+    {
+      type: 'msg',
+      cls: 'tool',
+      label: 'Action · mémoire de travail',
+      content: `<span class="tool-fn">mémoire_locale.set</span><span class="punct">(</span><br>&nbsp;&nbsp;<span class="tool-arg-key">clé</span><span class="punct">:</span> <span class="tool-arg-val">"choix.activité"</span><span class="punct">,</span><br>&nbsp;&nbsp;<span class="tool-arg-key">valeur</span><span class="punct">:</span> <span class="tool-arg-val">{ nom: "Kit Petit Paléontologue", prix: 25 }</span><br><span class="punct">)</span>`
+    },
+
+    // ÉTAPE 17 — Résultat (brut)
+    {
+      type: 'msg',
+      cls: 'result',
+      label: 'Résultat',
+      content: `<span class="num-result">ok</span>`
+    },
+
+    // ÉTAPE 18 — Calcul du budget restant
+    {
+      type: 'msg',
+      cls: 'tool',
+      label: 'Action · vérification du budget',
+      content: `<span class="tool-fn">calcul</span><span class="punct">(</span><span class="tool-arg-val">100 - 65 - 25</span><span class="punct">)</span>`
+    },
+
+    // ÉTAPE 19 — Résultat brut
+    {
+      type: 'msg',
+      cls: 'result',
+      label: 'Résultat',
+      content: `<span class="num-result">10</span>`
+    },
+
+    // ============================================================
+    // MOUVEMENT 3 — L'IMPASSE & LA CORRECTION
+    // ============================================================
+
+    // ÉTAPE 20 — Pensée : alerte budgétaire
+    {
+      type: 'msg',
+      cls: 'thinking',
+      label: 'Pensée du modèle',
+      content: `Il me reste 10&nbsp;€ pour 3 cadeaux. Ça va être très juste — vérifions ce qu'on trouve dans cette fourchette.`
+    },
+
+    // ÉTAPE 21 — Recherche cadeaux pour confirmer
+    {
+      type: 'msg',
+      cls: 'tool',
+      label: 'Action · appel d\'outil',
+      content: `<span class="tool-fn">recherche_commerce</span><span class="punct">(</span><br>&nbsp;&nbsp;<span class="tool-arg-key">catégorie</span><span class="punct">:</span> <span class="tool-arg-val">"jouet"</span><span class="punct">,</span><br>&nbsp;&nbsp;<span class="tool-arg-key">thème</span><span class="punct">:</span> <span class="tool-arg-val">"dinosaure"</span><span class="punct">,</span><br>&nbsp;&nbsp;<span class="tool-arg-key">âge</span><span class="punct">:</span> <span class="tool-arg-val">"8 ans"</span><br><span class="punct">)</span>`
+    },
+
+    // ÉTAPE 22 — Résultat : tous au-dessus de 10€
+    {
+      type: 'msg',
+      cls: 'result',
+      label: 'Résultat',
+      content: `<div class="result-line">[</div>
+<div class="result-line">&nbsp;&nbsp;{ nom: "Puzzle 3D Tricératops", prix: <span class="price">12</span> },</div>
+<div class="result-line">&nbsp;&nbsp;{ nom: "Livre pop-up Tyrannosaure", prix: <span class="price">14</span> },</div>
+<div class="result-line">&nbsp;&nbsp;{ nom: "Peluche Stégosaure", prix: <span class="price">16</span> },</div>
+<div class="result-line">&nbsp;&nbsp;{ nom: "Figurines articulées × 6", prix: <span class="price">18</span> },</div>
+<div class="result-line">&nbsp;&nbsp;{ nom: "Pyjama dino", prix: <span class="price">22</span> }</div>
+<div class="result-line">]</div>`
+    },
+
+    // ÉTAPE 23 — Pensée : constat d'impasse
+    {
+      type: 'msg',
+      cls: 'thinking',
+      label: 'Pensée du modèle',
+      content: `Aucun jouet sous 12&nbsp;€. Le minimum pour 3 cadeaux serait 12 + 14 + 16 = 42&nbsp;€. <strong>J'ai 10&nbsp;€.</strong> Je suis dans une impasse — il faut que je revienne sur un choix antérieur.`,
+      annot: `Voilà le moment-clé. L'agent aurait pu rendre une mauvaise réponse en bricolant ("tiens, voici 1 cadeau au lieu de 3"). Au lieu de ça, il s'arrête, constate l'impasse, et décide de réviser un choix passé. Ça suppose une mémoire qui survit aux tours et la capacité d'annuler une décision — impossible sans harnais.`
+    },
+
+    // ÉTAPE 24 — Lecture de la mémoire
+    {
+      type: 'msg',
+      cls: 'tool',
+      label: 'Action · lecture mémoire',
+      content: `<span class="tool-fn">mémoire_locale.get</span><span class="punct">(</span><span class="tool-arg-val">"choix.*"</span><span class="punct">)</span>`
+    },
+
+    // ÉTAPE 25 — Résultat : ce que l'agent a déjà décidé
+    {
+      type: 'msg',
+      cls: 'result',
+      label: 'Résultat',
+      content: `<div class="result-line">{</div>
+<div class="result-line">&nbsp;&nbsp;"choix.gâteau": { nom: "Le Diplodocus — 3D", prix: <span class="price">65</span> },</div>
+<div class="result-line">&nbsp;&nbsp;"choix.activité": { nom: "Kit Petit Paléontologue", prix: <span class="price">25</span> }</div>
+<div class="result-line">}</div>`
+    },
+
+    // ÉTAPE 26 — Pensée : identifier le poste à corriger
+    {
+      type: 'msg',
+      cls: 'thinking',
+      label: 'Pensée du modèle',
+      content: `Le poste le plus lourd est le gâteau (65&nbsp;€). En reprenant le gâteau imprimé à 28&nbsp;€ (que j'avais écarté tout à l'heure), j'économise <strong>37&nbsp;€</strong>. Nouveau budget cadeaux : 10 + 37 = 47&nbsp;€. Largement suffisant pour 3 jouets. Je remplace.`,
+      annot: `L'agent ne refait pas une recherche : il se souvient des autres options déjà vues à l'étape 9. La mémoire de travail, c'est aussi ne pas refaire le travail déjà fait.`
+    },
+
+    // ÉTAPE 27 — Mise à jour mémoire (gâteau)
+    {
+      type: 'msg',
+      cls: 'tool',
+      label: 'Action · mise à jour mémoire',
+      content: `<span class="tool-fn">mémoire_locale.set</span><span class="punct">(</span><br>&nbsp;&nbsp;<span class="tool-arg-key">clé</span><span class="punct">:</span> <span class="tool-arg-val">"choix.gâteau"</span><span class="punct">,</span><br>&nbsp;&nbsp;<span class="tool-arg-key">valeur</span><span class="punct">:</span> <span class="tool-arg-val">{ nom: "Boulangerie Lutèce — imprimé", prix: 28 }</span><br><span class="punct">)</span>`
+    },
+
+    // ÉTAPE 28 — Résultat (brut)
+    {
+      type: 'msg',
+      cls: 'result',
+      label: 'Résultat',
+      content: `<span class="num-result">ok</span>`
+    },
+
+    // ============================================================
+    // MOUVEMENT 4 — REPRISE & FINALISATION
+    // ============================================================
+
+    // ÉTAPE 29 — Calcul nouveau budget
+    {
+      type: 'msg',
+      cls: 'tool',
+      label: 'Action · recalcul du budget',
+      content: `<span class="tool-fn">calcul</span><span class="punct">(</span><span class="tool-arg-val">100 - 28 - 25</span><span class="punct">)</span>`
+    },
+
+    // ÉTAPE 30 — Résultat brut
+    {
+      type: 'msg',
+      cls: 'result',
+      label: 'Résultat',
+      content: `<span class="num-result">47</span>`
+    },
+
+    // ÉTAPE 31 — Sélection des cadeaux
+    {
+      type: 'msg',
+      cls: 'thinking',
+      label: 'Pensée du modèle',
+      content: `47&nbsp;€ pour 3 cadeaux. Je choisis pour varier les usages :<br>— Figurines articulées (18&nbsp;€) — manipulation, jeu libre<br>— Livre pop-up Tyrannosaure (14&nbsp;€) — lecture, surprise<br>— Puzzle 3D Tricératops (12&nbsp;€) — défi à monter<br>Total : 44&nbsp;€, sous l'enveloppe.`,
+      annot: `L'agent ne choisit pas au hasard : il diversifie les types de cadeaux. Ce critère n'est pas dans le harnais — il émerge du raisonnement du modèle sur ce qu'est une bonne pioche d'anniversaire.`
+    },
+
+    // ÉTAPE 32 — Vérification finale
+    {
+      type: 'msg',
+      cls: 'tool',
+      label: 'Action · vérification finale',
+      content: `<span class="tool-fn">calcul</span><span class="punct">(</span><span class="tool-arg-val">28 + 25 + 18 + 14 + 12</span><span class="punct">)</span>`
+    },
+
+    // ÉTAPE 33 — Résultat brut
+    {
+      type: 'msg',
+      cls: 'result',
+      label: 'Résultat',
+      content: `<span class="num-result">97</span>`
+    },
+
+    // ÉTAPE 34 — Pensée finale : critère d'arrêt
+    {
+      type: 'msg',
+      cls: 'thinking',
+      label: 'Pensée du modèle',
+      content: `97&nbsp;€ sur 100 demandés, tous les éléments présents (gâteau, activité, 3 cadeaux), choix cohérents avec le thème dinosaure. <strong>Mission accomplie</strong> — je rédige la réponse.`,
+      annot: `L'agent vérifie son propre travail avant de conclure. Le critère d'arrêt n'est pas une horloge, c'est une auto-évaluation : "ai-je rempli ce qu'on m'a demandé, et bien ?"`
+    },
+
+    // ÉTAPE 35 — Réponse finale formatée
+    {
+      type: 'msg',
+      cls: 'final',
+      label: 'Réponse à l\'utilisateur',
+      content: `<div class="final-title">🎂 Pour l'anniversaire de Léa</div>
+
+<div class="final-section">
+  <div class="final-section-label">Le gâteau</div>
+  Boulangerie Lutèce — gâteau imprimé dinosaure, 8 parts. <span class="final-amount">28&nbsp;€</span>
+</div>
+
+<div class="final-section">
+  <div class="final-section-label">L'activité</div>
+  Kit Petit Paléontologue : les enfants déterrent des fossiles à la fête. <span class="final-amount">25&nbsp;€</span>
+</div>
+
+<div class="final-section">
+  <div class="final-section-label">Les cadeaux</div>
+  Figurines de dinosaures articulées (18&nbsp;€), livre pop-up Tyrannosaure (14&nbsp;€), puzzle 3D Tricératops (12&nbsp;€). <span class="final-amount">44&nbsp;€</span>
+</div>
+
+<div class="final-total">Total : 97&nbsp;€ sur 100&nbsp;€ de budget 🦕</div>`
+    },
+  ];
+
+  // ============================================================
+  // RENDU & CONTRÔLE
+  // ============================================================
+  const convo = document.getElementById('convo');
+  const counter = document.getElementById('counter');
+  const bar = document.getElementById('bar');
+  const nextBtn = document.getElementById('next-btn');
+  const resetBtn = document.getElementById('reset-btn');
+  const verdict = document.getElementById('verdict');
+  const moral = document.getElementById('moral');
+
+  let current = 0;
+  const total = steps.length;
+
+  // Pré-rendu : injecter tous les fragments dès le départ, masqués
+  function buildAll() {
+    convo.innerHTML = '';
+    steps.forEach((step, i) => {
+      const msgEl = document.createElement('div');
+      msgEl.className = `msg ${step.cls}`;
+      msgEl.dataset.idx = i;
+      msgEl.innerHTML = `
+        <div class="msg-label">${step.label}</div>
+        <div class="msg-inner">${step.content}</div>
+      `;
+      convo.appendChild(msgEl);
+
+      if (step.annot) {
+        const a = document.createElement('div');
+        a.className = 'annot';
+        a.dataset.annotFor = i;
+        a.innerHTML = step.annot;
+        convo.appendChild(a);
+      }
+    });
+  }
+
+  function showStep(i) {
+    const msg = convo.querySelector(`.msg[data-idx="${i}"]`);
+    if (msg) msg.classList.add('show');
+    const annot = convo.querySelector(`.annot[data-annot-for="${i}"]`);
+    if (annot) {
+      // Apparition légèrement différée pour l'annotation
+      setTimeout(() => annot.classList.add('show'), 250);
+    }
+  }
+
+  function scrollToCurrent() {
+    const msg = convo.querySelector(`.msg[data-idx="${current - 1}"]`);
+    if (msg) msg.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function updateUI() {
+    counter.textContent = `${current} / ${total}`;
+    bar.style.width = `${(current / total) * 100}%`;
+    if (current >= total) {
+      nextBtn.disabled = true;
+      nextBtn.textContent = 'Terminé';
+      verdict.classList.add('show');
+      setTimeout(() => moral.classList.add('show'), 600);
+    } else {
+      nextBtn.disabled = false;
+      nextBtn.textContent = 'Étape suivante →';
+    }
+  }
+
+  function nextStep() {
+    if (current >= total) return;
+    showStep(current);
+    current++;
+    updateUI();
+    setTimeout(scrollToCurrent, 100);
+  }
+
+  function reset() {
+    current = 0;
+    convo.querySelectorAll('.msg, .annot').forEach(el => el.classList.remove('show'));
+    verdict.classList.remove('show');
+    moral.classList.remove('show');
+    updateUI();
+    document.getElementById('scenario').scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  // Initialisation
+  buildAll();
+  updateUI();
+
+  nextBtn.addEventListener('click', nextStep);
+  resetBtn.addEventListener('click', reset);
+
+  // Raccourci clavier : espace ou flèche droite
+  document.addEventListener('keydown', (e) => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+    if (e.key === ' ' || e.key === 'ArrowRight') {
+      e.preventDefault();
+      nextStep();
+    }
+  });
+</script>
+
+</body>
+</html>

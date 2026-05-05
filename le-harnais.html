@@ -1,0 +1,2528 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Le Harnais dans l'agentique AI — Une introduction pour débutants</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:    #0F1B3D;
+    --navy-2:  #0A1230;
+    --navy-3:  #1A2750;
+    --cream:   #F5F1E8;
+    --ice:     #CADCFC;
+    --gold:    #D4A574;
+    --gold-dk: #9C7A50;
+    --ink:     #1A1A1A;
+    --muted-dk: #5C6478;
+    --muted-lt: #A8AFC0;
+    --divider-dk: #DCD4C2;
+    --divider-lt: #2A3556;
+    --red:     #E36B5A;
+    --green:   #7FBF7F;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    background: var(--navy);
+    color: var(--cream);
+    font-family: 'Inter', -apple-system, sans-serif;
+    line-height: 1.6;
+    font-size: 16px;
+    overflow-x: hidden;
+  }
+
+  /* ============================================================
+     PALETTE / SECTIONS
+  ============================================================ */
+  .section {
+    position: relative;
+    padding: 120px 0;
+    overflow: hidden;
+  }
+  .section.dark { background: var(--navy); color: var(--cream); }
+  .section.dark-2 { background: var(--navy-2); color: var(--cream); }
+  .section.light { background: var(--cream); color: var(--ink); }
+  .section.gold-bg {
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dk) 100%);
+    color: var(--navy);
+  }
+
+  .container {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+  .container-narrow {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* ============================================================
+     TYPOGRAPHY
+  ============================================================ */
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .eyebrow::before {
+    content: '';
+    width: 32px; height: 2px;
+    background: currentColor;
+    opacity: 0.9;
+  }
+  .dark .eyebrow, .dark-2 .eyebrow { color: var(--gold); }
+  .light .eyebrow { color: var(--gold-dk); }
+  .gold-bg .eyebrow { color: var(--navy); }
+
+  h1, h2, h3, h4 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.1;
+  }
+  .h-display {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-style: italic;
+    line-height: 1.0;
+    letter-spacing: -0.025em;
+    font-size: clamp(56px, 9vw, 120px);
+  }
+  h2 {
+    font-size: clamp(32px, 4.5vw, 52px);
+    font-style: italic;
+    margin-bottom: 28px;
+  }
+  h3 {
+    font-size: clamp(22px, 2.5vw, 28px);
+    margin-bottom: 14px;
+  }
+
+  .lede {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-style: italic;
+    font-size: clamp(18px, 2.2vw, 22px);
+    line-height: 1.5;
+    max-width: 720px;
+    margin-bottom: 48px;
+  }
+  .dark .lede, .dark-2 .lede { color: var(--ice); }
+  .light .lede { color: var(--muted-dk); }
+
+  p { font-size: 16px; line-height: 1.7; }
+  .light p { color: var(--ink); }
+  .dark p, .dark-2 p { color: var(--ice); }
+
+  em { font-style: italic; color: var(--gold); }
+  .light em { color: var(--gold-dk); }
+  strong { font-weight: 600; }
+
+  code, .mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.92em;
+  }
+
+  /* ============================================================
+     HERO
+  ============================================================ */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    background:
+      radial-gradient(circle at 80% 30%, rgba(212,165,116,0.12), transparent 50%),
+      radial-gradient(circle at 20% 80%, rgba(202,220,252,0.05), transparent 40%),
+      var(--navy);
+    padding: 80px 0;
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+  .hero-text h1 {
+    color: #fff;
+    margin-bottom: 32px;
+  }
+  .hero-text h1 em {
+    color: var(--gold);
+    font-style: italic;
+    font-weight: 500;
+  }
+  .hero-divider {
+    width: 60px; height: 3px;
+    background: var(--gold);
+    margin-bottom: 28px;
+  }
+  .hero-sub {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 22px;
+    color: var(--ice);
+    line-height: 1.5;
+    max-width: 560px;
+    margin-bottom: 40px;
+  }
+  .hero-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+
+  /* Hero illustration : Le harnais comme « OS de l'agent »
+     — panneau central pulsant, application au-dessus, modèle + contexte
+       en dessous, avec des particules de données circulant dans les liens. */
+  .hero-illus {
+    position: relative;
+    aspect-ratio: 460 / 480;
+    max-width: 440px;
+    justify-self: end;
+    width: 100%;
+  }
+  .hero-illus svg {
+    width: 100%; height: 100%;
+    overflow: visible;
+  }
+
+  /* Le panneau central (l'OS) : c'est lui la vedette → pulsation douce */
+  .hero-illus .harness-core {
+    transform-origin: 230px 250px;
+    animation: harness-pulse 4.5s ease-in-out infinite;
+  }
+  @keyframes harness-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.02); }
+  }
+
+  /* Pièces périphériques : flottement vertical désynchronisé */
+  .hero-illus .agent-float {
+    animation: agent-float 6s ease-in-out infinite;
+  }
+  @keyframes agent-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+  }
+  .hero-illus .cpu-float {
+    animation: cpu-float 5.5s ease-in-out infinite 0.4s;
+  }
+  @keyframes cpu-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(4px); }
+  }
+  .hero-illus .ram-float {
+    animation: ram-float 6.2s ease-in-out infinite 1.1s;
+  }
+  @keyframes ram-float {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(4px); }
+  }
+
+  /* Composants de l'OS qui scintillent à l'intérieur du panneau */
+  .hero-illus .chip-1 { animation: chip-shimmer 4s ease-in-out infinite; }
+  .hero-illus .chip-2 { animation: chip-shimmer 4s ease-in-out infinite 1s; }
+  .hero-illus .chip-3 { animation: chip-shimmer 4s ease-in-out infinite 2s; }
+  .hero-illus .chip-4 { animation: chip-shimmer 4s ease-in-out infinite 3s; }
+  @keyframes chip-shimmer {
+    0%, 100% { opacity: 0.6; }
+    50% { opacity: 1; }
+  }
+
+  /* Lignes de données : pointillés qui circulent vers l'OS */
+  .hero-illus .data-line {
+    stroke-dasharray: 4 6;
+    animation: dash-flow 1.6s linear infinite;
+  }
+  @keyframes dash-flow {
+    to { stroke-dashoffset: -20; }
+  }
+
+  /* Marque orbitale décorative très lente */
+  .hero-illus .orbit-mark {
+    transform-origin: 230px 250px;
+    animation: orbit-slow 60s linear infinite;
+  }
+  @keyframes orbit-slow {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
+  /* Cadre englobant « AGENT » : la totalité du système EST l'agent.
+     Volontairement très subtil pour ne pas voler la vedette au harnais. */
+  .hero-illus .agent-frame {
+    animation: agent-frame-breath 7s ease-in-out infinite;
+  }
+  @keyframes agent-frame-breath {
+    0%, 100% { opacity: 1; }
+    50%      { opacity: 0.55; }
+  }
+
+  .scroll-cue {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+  .scroll-cue::after {
+    content: '↓';
+    display: block;
+    margin-top: 8px;
+    font-size: 16px;
+    animation: bounce 2s ease-in-out infinite;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(6px); }
+  }
+
+  /* ============================================================
+     PROGRESS BAR (top)
+  ============================================================ */
+  .progress-top {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    width: 0%;
+    background: var(--gold);
+    z-index: 1000;
+    transition: width 0.1s linear;
+  }
+
+  /* ============================================================
+     CHAPTER MARK / NAV
+  ============================================================ */
+  .chapter-mark {
+    display: flex;
+    align-items: baseline;
+    gap: 18px;
+    margin-bottom: 16px;
+  }
+  .chapter-num {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 64px;
+    color: var(--gold);
+    line-height: 1;
+  }
+  .light .chapter-num { color: var(--gold-dk); }
+  .chapter-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3.5px;
+    text-transform: uppercase;
+    color: var(--muted-dk);
+  }
+  .dark .chapter-label, .dark-2 .chapter-label { color: var(--muted-lt); }
+
+  /* TOC sidebar (desktop) */
+  .toc {
+    position: fixed;
+    right: 32px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+  .toc.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .toc a {
+    width: 32px; height: 4px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+    transition: all 0.3s ease;
+    display: block;
+    position: relative;
+  }
+  .toc a:hover, .toc a.active {
+    background: var(--gold);
+    width: 44px;
+  }
+  .toc a span {
+    position: absolute;
+    right: 50px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--cream);
+    background: var(--navy-2);
+    padding: 4px 10px;
+    border-radius: 3px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+  }
+  .toc a:hover span { opacity: 1; }
+  @media (max-width: 1100px) {
+    .toc { display: none; }
+  }
+
+  /* ============================================================
+     METAPHOR (chapitre 1) — deux colonnes
+  ============================================================ */
+  .metaphor-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 32px;
+    margin-top: 56px;
+  }
+  .metaphor-card {
+    padding: 48px 36px;
+    border-radius: 12px;
+    text-align: center;
+    position: relative;
+  }
+  .metaphor-card.left {
+    background: var(--navy-2);
+    border: 1px solid var(--gold);
+    color: var(--cream);
+  }
+  .metaphor-card.right {
+    background: var(--gold);
+    color: var(--navy);
+  }
+  .metaphor-icon {
+    width: 72px; height: 72px;
+    margin: 0 auto 24px;
+  }
+  .metaphor-card h3 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 26px;
+    margin-bottom: 18px;
+  }
+  .metaphor-card.left h3 { color: var(--gold); }
+  .metaphor-card.right h3 { color: var(--navy); }
+  .metaphor-card p {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 16px;
+    line-height: 1.6;
+  }
+  .metaphor-card.left p { color: var(--ice); }
+  .metaphor-card.right p { color: var(--navy); }
+  .metaphor-card .arrow-tag {
+    margin-top: 28px;
+    padding-top: 20px;
+    border-top: 1px solid;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .metaphor-card.left .arrow-tag {
+    border-color: rgba(212,165,116,0.3);
+    color: var(--gold);
+  }
+  .metaphor-card.right .arrow-tag {
+    border-color: rgba(15,27,61,0.2);
+    color: var(--navy);
+  }
+
+  /* ============================================================
+     DEFINITION (chapitre 2) — citation + 3 piliers
+  ============================================================ */
+  .quote-block {
+    border-left: 3px solid var(--gold);
+    padding: 8px 0 8px 32px;
+    margin: 40px 0 64px;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: clamp(20px, 2.4vw, 26px);
+    line-height: 1.5;
+    color: var(--ink);
+    max-width: 920px;
+  }
+  .light .quote-block strong {
+    color: var(--gold-dk);
+    font-weight: 600;
+  }
+
+  .pillars {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+  }
+  .pillar {
+    background: #fff;
+    border: 1px solid var(--divider-dk);
+    border-left: 4px solid var(--gold);
+    padding: 28px 24px;
+    border-radius: 4px;
+  }
+  .pillar-icon {
+    width: 40px; height: 40px;
+    margin-bottom: 16px;
+  }
+  .pillar h4 {
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--navy);
+    margin-bottom: 12px;
+  }
+  .pillar p {
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  /* ============================================================
+     LIMITS (chapitre 3) — grille 3x2
+  ============================================================ */
+  .limits-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    margin-top: 48px;
+  }
+  .limit-card {
+    background: #fff;
+    border: 1px solid var(--divider-dk);
+    padding: 24px 22px;
+    border-radius: 4px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .limit-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(15,27,61,0.08);
+  }
+  .limit-icon {
+    width: 36px; height: 36px;
+    margin-bottom: 16px;
+  }
+  .limit-card h4 {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--navy);
+    margin-bottom: 10px;
+  }
+  .limit-card p {
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  /* ============================================================
+     LOOP (chapitre 4) — schéma circulaire animé
+  ============================================================ */
+  .loop-section {
+    text-align: center;
+  }
+  .loop-section .lede { margin: 0 auto 64px; }
+  .loop-stage {
+    position: relative;
+    width: 100%;
+    max-width: 640px;
+    aspect-ratio: 1;
+    margin: 0 auto;
+  }
+  .loop-stage svg {
+    width: 100%; height: 100%;
+    overflow: visible;
+  }
+  .loop-node {
+    fill: var(--navy-3);
+    stroke: var(--gold);
+    stroke-width: 2;
+    transition: fill 0.5s ease, stroke-width 0.5s ease, filter 0.5s ease;
+  }
+  .loop-node.active {
+    fill: var(--gold);
+    stroke-width: 3;
+    filter: drop-shadow(0 0 16px rgba(212,165,116,0.5));
+  }
+  .loop-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    fill: var(--gold);
+    font-weight: 700;
+    text-anchor: middle;
+    transition: fill 0.5s ease;
+  }
+  .loop-node.active + .loop-label,
+  .loop-label.active {
+    fill: var(--navy);
+  }
+  .loop-sub {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 11px;
+    fill: var(--ice);
+    text-anchor: middle;
+    transition: fill 0.5s ease;
+  }
+  .loop-sub.active { fill: var(--navy); }
+  .loop-arrow {
+    fill: none;
+    stroke: var(--gold);
+    stroke-width: 2;
+    stroke-dasharray: 4 6;
+    opacity: 0.5;
+    transition: opacity 0.5s ease, stroke-width 0.5s ease;
+  }
+  .loop-arrow.active {
+    opacity: 1;
+    stroke-width: 3;
+    stroke-dasharray: none;
+  }
+  .loop-center-circle {
+    fill: var(--navy-2);
+    stroke: var(--gold);
+    stroke-width: 1.5;
+  }
+  .loop-center-text {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    fill: var(--gold);
+    text-anchor: middle;
+    font-weight: 700;
+  }
+
+  .loop-controls {
+    margin-top: 40px;
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+  .loop-btn {
+    background: transparent;
+    color: var(--gold);
+    border: 1px solid var(--gold);
+    padding: 10px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    font-weight: 700;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.2s ease;
+  }
+  .loop-btn:hover {
+    background: var(--gold);
+    color: var(--navy);
+  }
+  .loop-btn.playing {
+    background: var(--gold);
+    color: var(--navy);
+  }
+
+  /* ============================================================
+     ANATOMY (chapitre 5) — 6 composants en grille 2x3
+  ============================================================ */
+  .anatomy-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 48px;
+  }
+  .anatomy-card {
+    background: #fff;
+    border: 1px solid var(--divider-dk);
+    border-left: 4px solid var(--gold);
+    padding: 24px 28px;
+    border-radius: 4px;
+    display: flex;
+    gap: 18px;
+    align-items: flex-start;
+  }
+  .anatomy-icon {
+    width: 36px; height: 36px;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+  .anatomy-card h4 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 19px;
+    color: var(--navy);
+    margin-bottom: 6px;
+  }
+  .anatomy-card p {
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.55;
+  }
+
+  /* ============================================================
+     EXAMPLE (chapitre 6) — timeline horizontale
+  ============================================================ */
+  .timeline {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+    margin: 64px 0 48px;
+    position: relative;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    top: 32px;
+    left: 8%; right: 8%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    z-index: 0;
+  }
+  .step-card {
+    background: #fff;
+    border: 1px solid var(--divider-dk);
+    padding: 60px 16px 24px;
+    border-radius: 4px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+  }
+  .step-num {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 56px; height: 56px;
+    background: var(--gold);
+    color: var(--navy);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 22px;
+    box-shadow: 0 4px 12px rgba(212,165,116,0.3);
+  }
+  .step-card h4 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 22px;
+    color: var(--navy);
+    margin-bottom: 12px;
+  }
+  .step-card p {
+    color: var(--ink);
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  .example-callout {
+    margin-top: 48px;
+    padding: 24px 28px;
+    background: var(--navy);
+    color: var(--ice);
+    border-radius: 8px;
+    display: flex;
+    gap: 18px;
+    align-items: center;
+  }
+  .example-callout .callout-icon {
+    width: 32px; height: 32px;
+    flex-shrink: 0;
+    color: var(--gold);
+  }
+  .example-callout p {
+    color: var(--ice);
+    font-style: italic;
+    font-family: 'Fraunces', serif;
+    font-size: 15.5px;
+  }
+
+  /* ============================================================
+     ROLES (chapitre 7) — face-à-face
+  ============================================================ */
+  .roles-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 48px;
+  }
+  .role-card {
+    padding: 36px 32px;
+    border-radius: 12px;
+  }
+  .role-card.model {
+    background: var(--navy-2);
+    border: 1px solid var(--gold);
+  }
+  .role-card.harness {
+    background: var(--gold);
+    color: var(--navy);
+  }
+  .role-header {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 24px;
+  }
+  .role-icon {
+    width: 36px; height: 36px;
+    flex-shrink: 0;
+  }
+  .role-card.model .role-header h3 {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .role-card.harness .role-header h3 {
+    font-family: 'Inter', sans-serif;
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--navy);
+  }
+  .role-card .divider {
+    width: 32px; height: 2px;
+    margin-bottom: 24px;
+  }
+  .role-card.model .divider { background: var(--gold); }
+  .role-card.harness .divider { background: var(--navy); }
+  .role-list {
+    list-style: none;
+  }
+  .role-list li {
+    padding: 12px 0;
+    font-size: 15px;
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    border-bottom: 1px solid;
+  }
+  .role-card.model .role-list li {
+    color: #fff;
+    border-color: rgba(212,165,116,0.15);
+  }
+  .role-card.harness .role-list li {
+    color: var(--navy);
+    border-color: rgba(15,27,61,0.15);
+  }
+  .role-list li:last-child { border-bottom: none; }
+  .role-list li::before {
+    content: '';
+    width: 6px; height: 6px;
+    border-radius: 50%;
+    margin-top: 8px;
+    flex-shrink: 0;
+  }
+  .role-card.model .role-list li::before { background: var(--gold); }
+  .role-card.harness .role-list li::before { background: var(--navy); }
+
+  .roles-tagline {
+    margin-top: 48px;
+    text-align: center;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 22px;
+    color: var(--muted-dk);
+  }
+
+  /* ============================================================
+     STATS (chapitre 8)
+  ============================================================ */
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+    margin-top: 56px;
+  }
+  .stat-card {
+    background: #fff;
+    border: 1px solid var(--divider-dk);
+    border-top: 4px solid var(--gold);
+    padding: 48px 28px;
+    text-align: center;
+    border-radius: 0 0 4px 4px;
+  }
+  .stat-big {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: clamp(60px, 8vw, 96px);
+    color: var(--navy);
+    line-height: 1;
+    margin-bottom: 24px;
+    letter-spacing: -0.02em;
+  }
+  .stat-divider {
+    width: 32px; height: 2px;
+    background: var(--gold);
+    margin: 0 auto 20px;
+  }
+  .stat-label {
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.55;
+    max-width: 260px;
+    margin: 0 auto;
+  }
+  .stats-footnote {
+    margin-top: 32px;
+    text-align: center;
+    font-size: 11px;
+    color: var(--muted-dk);
+    font-style: italic;
+  }
+
+  /* ============================================================
+     SPECTRUM (chapitre 9) — gradation horizontale
+  ============================================================ */
+  .spectrum {
+    margin-top: 56px;
+  }
+  .spectrum-axis {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .spectrum-track {
+    grid-column: 1 / -1;
+    height: 6px;
+    background: linear-gradient(
+      to right,
+      var(--divider-dk) 0%, var(--divider-dk) 12%,
+      var(--gold) 38%, var(--gold-dk) 100%
+    );
+    border-radius: 3px;
+    margin-bottom: 24px;
+  }
+  .spectrum-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    position: relative;
+  }
+  .spectrum-marker {
+    position: absolute;
+    top: -42px;
+    width: 36px; height: 36px;
+    background: var(--navy);
+    color: var(--gold);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 16px;
+    box-shadow: 0 4px 12px rgba(15,27,61,0.15);
+    left: calc(var(--col) * 25% + 12.5% - 18px);
+  }
+  .spectrum-card {
+    background: #fff;
+    border: 1px solid var(--divider-dk);
+    padding: 28px 24px;
+    border-radius: 4px;
+    text-align: center;
+    position: relative;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .spectrum-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(15,27,61,0.06);
+  }
+  .spectrum-card h4 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 24px;
+    color: var(--navy);
+    margin-bottom: 8px;
+  }
+  .spectrum-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--gold-dk);
+    margin-bottom: 18px;
+    padding-bottom: 14px;
+    border-bottom: 1px solid var(--divider-dk);
+  }
+  .spectrum-card p {
+    color: var(--ink);
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  .spectrum-legend {
+    margin-top: 32px;
+    display: flex;
+    justify-content: space-between;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted-dk);
+  }
+  .spectrum-legend .right { color: var(--gold-dk); font-weight: 700; }
+
+  /* ============================================================
+     TENSIONS (chapitre 10)
+  ============================================================ */
+  .tensions-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 48px;
+  }
+  .tension-card {
+    background: #fff;
+    border: 1px solid var(--divider-dk);
+    padding: 36px 28px;
+    border-radius: 4px;
+  }
+  .tension-icon {
+    width: 44px; height: 44px;
+    margin-bottom: 24px;
+  }
+  .tension-card h4 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 22px;
+    color: var(--navy);
+    margin-bottom: 18px;
+    line-height: 1.25;
+  }
+  .tension-card h4 span {
+    color: var(--gold-dk);
+    font-style: italic;
+    font-weight: 400;
+    margin: 0 6px;
+  }
+  .tension-divider {
+    width: 32px; height: 2px;
+    background: var(--gold);
+    margin-bottom: 18px;
+  }
+  .tension-card p {
+    color: var(--ink);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+
+  /* ============================================================
+     FORMULA (chapitre 11) — l'équation
+  ============================================================ */
+  .formula-section {
+    text-align: center;
+  }
+  .formula {
+    display: flex;
+    align-items: stretch;
+    justify-content: center;
+    gap: 20px;
+    margin: 64px 0 56px;
+    flex-wrap: wrap;
+  }
+  .formula-box {
+    flex: 1;
+    min-width: 220px;
+    max-width: 280px;
+    padding: 36px 24px;
+    border-radius: 12px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+  }
+  .formula-box.model {
+    background: var(--navy-2);
+    border: 1.5px solid var(--gold);
+    color: var(--cream);
+  }
+  .formula-box.harness {
+    background: var(--gold);
+    color: var(--navy);
+  }
+  .formula-box.agent {
+    background: #fff;
+    color: var(--navy);
+  }
+  .formula-box .formula-icon {
+    width: 56px; height: 56px;
+    margin: 0 auto 20px;
+  }
+  .formula-box .formula-name {
+    font-family: 'Inter', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    letter-spacing: 5px;
+    margin-bottom: 10px;
+  }
+  .formula-box .formula-desc {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 14px;
+  }
+  .formula-box.model .formula-name { color: var(--gold); }
+  .formula-box.model .formula-desc { color: var(--ice); }
+  .formula-box.harness .formula-name { color: var(--navy); }
+  .formula-box.harness .formula-desc { color: var(--navy); }
+  .formula-box.agent .formula-name { color: var(--navy); }
+  .formula-box.agent .formula-desc { color: var(--muted-dk); }
+
+  .formula-op {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 56px;
+    font-weight: 600;
+    color: var(--gold);
+    display: flex;
+    align-items: center;
+  }
+
+  .formula-tagline {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: clamp(22px, 3vw, 32px);
+    color: var(--ice);
+    line-height: 1.3;
+    max-width: 720px;
+    margin: 0 auto;
+    padding-top: 40px;
+    border-top: 1px solid var(--gold);
+    width: fit-content;
+  }
+
+  /* ============================================================
+     TAKEAWAYS (chapitre 12)
+  ============================================================ */
+  .takeaways {
+    margin-top: 48px;
+  }
+  .takeaway {
+    display: flex;
+    align-items: center;
+    gap: 24px;
+    padding: 22px 28px;
+    background: #fff;
+    border: 1px solid var(--divider-dk);
+    margin-bottom: 14px;
+    border-radius: 4px;
+    transition: transform 0.3s ease;
+  }
+  .takeaway:hover {
+    transform: translateX(6px);
+  }
+  .takeaway-num {
+    width: 44px; height: 44px;
+    background: var(--navy);
+    color: var(--gold);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 20px;
+    flex-shrink: 0;
+  }
+  .takeaway p {
+    color: var(--ink);
+    font-size: 16px;
+    line-height: 1.5;
+  }
+
+  /* ============================================================
+     CTA / NEXT STEPS (chapitre 13) — gold-bg
+  ============================================================ */
+  .cta-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 24px;
+    margin-top: 56px;
+  }
+  .cta-card {
+    background: rgba(15,27,61,0.06);
+    border: 1.5px solid var(--navy);
+    padding: 32px 28px;
+    border-radius: 8px;
+    transition: background 0.3s ease;
+  }
+  .cta-card:hover {
+    background: rgba(15,27,61,0.1);
+  }
+  .cta-num {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 36px;
+    color: var(--navy);
+    margin-bottom: 16px;
+    line-height: 1;
+  }
+  .cta-card h4 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 21px;
+    color: var(--navy);
+    margin-bottom: 12px;
+  }
+  .cta-card p {
+    color: var(--navy);
+    font-size: 14.5px;
+    line-height: 1.6;
+  }
+
+  .closing {
+    margin-top: 80px;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 5px;
+    color: var(--navy);
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  /* ============================================================
+     FOOTER
+  ============================================================ */
+  footer {
+    background: var(--navy-2);
+    padding: 40px 0;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--muted-dk);
+    text-transform: uppercase;
+    border-top: 1px solid var(--divider-lt);
+  }
+
+  /* ============================================================
+     SCROLL ANIMATIONS
+  ============================================================ */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+  .reveal-delay-4 { transition-delay: 0.4s; }
+  .reveal-delay-5 { transition-delay: 0.5s; }
+  .reveal-delay-6 { transition-delay: 0.6s; }
+
+  /* ============================================================
+     LUCIDE ICONS — réglages communs
+     Toutes les icônes Lucide utilisent stroke="currentColor" donc leur
+     couleur s'adapte automatiquement à la couleur du texte du parent.
+  ============================================================ */
+  .lc {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* ============================================================
+     RESPONSIVE
+  ============================================================ */
+  @media (max-width: 900px) {
+    .section { padding: 80px 0; }
+    .hero-grid { grid-template-columns: 1fr; gap: 48px; }
+    .hero-illus { justify-self: center; max-width: 340px; }
+    .metaphor-grid { grid-template-columns: 1fr; }
+    .pillars { grid-template-columns: 1fr; }
+    .limits-grid { grid-template-columns: 1fr 1fr; }
+    .anatomy-grid { grid-template-columns: 1fr; }
+    .timeline { grid-template-columns: 1fr; gap: 36px; }
+    .timeline::before { display: none; }
+    .roles-grid { grid-template-columns: 1fr; }
+    .stats-grid { grid-template-columns: 1fr; }
+    .spectrum-axis, .spectrum-grid { grid-template-columns: 1fr 1fr; }
+    .spectrum-marker { display: none; }
+    .tensions-grid { grid-template-columns: 1fr; }
+    .formula { flex-direction: column; }
+    .formula-op { justify-content: center; transform: rotate(90deg); }
+    .cta-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 540px) {
+    .container, .container-narrow { padding: 0 20px; }
+    .limits-grid { grid-template-columns: 1fr; }
+    .spectrum-axis, .spectrum-grid { grid-template-columns: 1fr; }
+    .chapter-num { font-size: 48px; }
+    .takeaway { gap: 16px; padding: 18px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     PROGRESS BAR + TOC
+============================================================ -->
+<div class="progress-top" id="progress-bar"></div>
+
+<nav class="toc" id="toc">
+  <a href="#hero"><span>Couverture</span></a>
+  <a href="#metaphor"><span>La métaphore</span></a>
+  <a href="#definition"><span>Définition</span></a>
+  <a href="#limits"><span>Le problème</span></a>
+  <a href="#loop"><span>La boucle</span></a>
+  <a href="#anatomy"><span>Anatomie</span></a>
+  <a href="#example"><span>Exemple</span></a>
+  <a href="#roles"><span>Qui fait quoi</span></a>
+  <a href="#stats"><span>Pourquoi crucial</span></a>
+  <a href="#spectrum"><span>Le spectre</span></a>
+  <a href="#tensions"><span>Les défis</span></a>
+  <a href="#formula"><span>La formule</span></a>
+  <a href="#takeaways"><span>À retenir</span></a>
+  <a href="#next"><span>Pour aller plus loin</span></a>
+</nav>
+
+<!-- ============================================================
+     HERO
+============================================================ -->
+<section class="hero" id="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div class="hero-text">
+        <div class="hero-meta">Une introduction pour débutants</div>
+        <h1 class="h-display" style="margin-top:32px;">
+          Le <em>Harnais</em><br>
+          dans l'agentique AI
+        </h1>
+        <div class="hero-divider"></div>
+        <p class="hero-sub">
+          Comment transforme-t-on un simple modèle de langage en un véritable agent autonome ?
+          La réponse tient en un mot.
+        </p>
+        <div class="hero-meta">Avril 2026 · Présentation</div>
+      </div>
+      <div class="hero-illus">
+        <svg viewBox="0 0 460 480" xmlns="http://www.w3.org/2000/svg">
+
+          <!-- Cercles décoratifs autour de l'OS -->
+          <circle cx="230" cy="250" r="220" fill="none" stroke="var(--gold)" stroke-width="1" opacity="0.08" stroke-dasharray="2 8"/>
+          <circle cx="230" cy="250" r="170" fill="none" stroke="var(--gold)" stroke-width="1" opacity="0.13" stroke-dasharray="6 4"/>
+
+          <!-- Marque orbitale (deux points qui tournent très lentement) -->
+          <g class="orbit-mark" opacity="0.55">
+            <circle cx="230" cy="50" r="2" fill="var(--gold)"/>
+            <circle cx="230" cy="450" r="1.5" fill="var(--gold)"/>
+          </g>
+
+          <!-- ============ HAUT — l'INTERFACE (l'application hôte) ============
+               Le mot « agent » est réservé au cadre englobant : ici on
+               nomme uniquement la couche UI / programme hôte. -->
+          <g class="agent-float">
+            <text x="230" y="22" text-anchor="middle" font-family="JetBrains Mono" font-size="9" letter-spacing="3" fill="var(--gold)" font-weight="700">INTERFACE</text>
+            <text x="230" y="36" text-anchor="middle" font-family="Fraunces" font-style="italic" font-size="10" fill="var(--ice)" opacity="0.65">l'application hôte</text>
+
+            <!-- Fenêtre / icône d'app -->
+            <rect x="190" y="48" width="80" height="64" rx="6" fill="var(--navy-2)" stroke="var(--gold)" stroke-width="1.6"/>
+            <circle cx="200" cy="60" r="2" fill="var(--gold)"/>
+            <circle cx="208" cy="60" r="2" fill="var(--gold)" opacity="0.6"/>
+            <circle cx="216" cy="60" r="2" fill="var(--gold)" opacity="0.4"/>
+            <line x1="190" y1="70" x2="270" y2="70" stroke="var(--gold)" stroke-width="0.8" opacity="0.4"/>
+            <rect x="198" y="78" width="48" height="4" rx="2" fill="var(--gold)" opacity="0.7"/>
+            <rect x="198" y="88" width="64" height="3" rx="1.5" fill="var(--ice)" opacity="0.45"/>
+            <rect x="198" y="95" width="40" height="3" rx="1.5" fill="var(--ice)" opacity="0.45"/>
+            <rect x="198" y="102" width="56" height="3" rx="1.5" fill="var(--ice)" opacity="0.45"/>
+          </g>
+
+          <!-- Connecteur agent ↔ harnais (flux montant et descendant) -->
+          <line class="data-line" x1="230" y1="118" x2="230" y2="170" stroke="var(--gold)" stroke-width="1.6" opacity="0.7"/>
+
+          <!-- ============ CENTRE — LE HARNAIS (l'OS) ============ -->
+          <g class="harness-core">
+            <!-- Lueur pulsante autour du panneau -->
+            <rect x="80" y="180" width="300" height="160" rx="16" fill="none" stroke="var(--gold)" stroke-width="1" opacity="0.5">
+              <animate attributeName="opacity" values="0.5;0;0.5" dur="3.8s" repeatCount="indefinite"/>
+              <animate attributeName="x" values="80;68;80" dur="3.8s" repeatCount="indefinite"/>
+              <animate attributeName="y" values="180;168;180" dur="3.8s" repeatCount="indefinite"/>
+              <animate attributeName="width" values="300;324;300" dur="3.8s" repeatCount="indefinite"/>
+              <animate attributeName="height" values="160;184;160" dur="3.8s" repeatCount="indefinite"/>
+            </rect>
+
+            <!-- Le panneau lui-même : la vedette du diagramme -->
+            <rect x="80" y="180" width="300" height="160" rx="16" fill="var(--navy-3)" stroke="var(--gold)" stroke-width="2"/>
+
+            <!-- Tag « L'OS DE L'AGENT » -->
+            <text x="230" y="208" text-anchor="middle" font-family="JetBrains Mono" font-size="9" letter-spacing="3.5" fill="var(--gold)" font-weight="700">L'OS DE L'AGENT</text>
+
+            <!-- Titre principal -->
+            <text x="230" y="248" text-anchor="middle" font-family="Fraunces" font-style="italic" font-size="38" fill="var(--cream)" font-weight="600">Harnais</text>
+
+            <!-- Composants de l'OS : 4 puces qui scintillent -->
+            <g class="chip-1">
+              <rect x="100" y="278" width="62" height="22" rx="11" fill="var(--navy-2)" stroke="var(--gold)" stroke-width="1.1"/>
+              <text x="131" y="293" text-anchor="middle" font-family="JetBrains Mono" font-size="8.5" letter-spacing="1.2" fill="var(--gold)" font-weight="700">OUTILS</text>
+            </g>
+            <g class="chip-2">
+              <rect x="170" y="278" width="62" height="22" rx="11" fill="var(--navy-2)" stroke="var(--gold)" stroke-width="1.1"/>
+              <text x="201" y="293" text-anchor="middle" font-family="JetBrains Mono" font-size="8.5" letter-spacing="1.2" fill="var(--gold)" font-weight="700">RÈGLES</text>
+            </g>
+            <g class="chip-3">
+              <rect x="240" y="278" width="62" height="22" rx="11" fill="var(--navy-2)" stroke="var(--gold)" stroke-width="1.1"/>
+              <text x="271" y="293" text-anchor="middle" font-family="JetBrains Mono" font-size="8.5" letter-spacing="1.2" fill="var(--gold)" font-weight="700">HOOKS</text>
+            </g>
+            <g class="chip-4">
+              <rect x="310" y="278" width="62" height="22" rx="11" fill="var(--navy-2)" stroke="var(--gold)" stroke-width="1.1"/>
+              <text x="341" y="293" text-anchor="middle" font-family="JetBrains Mono" font-size="8.5" letter-spacing="1.2" fill="var(--gold)" font-weight="700">BOUCLE</text>
+            </g>
+
+            <!-- Sous-titre -->
+            <text x="230" y="324" text-anchor="middle" font-family="Fraunces" font-style="italic" font-size="11" fill="var(--ice)" opacity="0.6">orchestre · décide · exécute</text>
+          </g>
+
+          <!-- Connecteurs harnais ↔ MODÈLE / CONTEXTE
+               (direction définie de bas en haut pour que les pointillés
+               s'écoulent vers l'OS, en accord avec les particules) -->
+          <line class="data-line" x1="120" y1="382" x2="155" y2="344" stroke="var(--gold)" stroke-width="1.6" opacity="0.7"/>
+          <line class="data-line" x1="340" y1="382" x2="305" y2="344" stroke="var(--gold)" stroke-width="1.6" opacity="0.7"/>
+
+          <!-- ============ BAS GAUCHE — MODÈLE (CPU) ============ -->
+          <g class="cpu-float">
+            <!-- Boîtier du chip -->
+            <rect x="70" y="385" width="100" height="72" rx="6" fill="var(--navy-2)" stroke="var(--gold)" stroke-width="1.6"/>
+            <rect x="84" y="399" width="72" height="44" rx="3" fill="var(--navy-3)" stroke="var(--gold)" stroke-width="1" opacity="0.85"/>
+
+            <!-- Pins -->
+            <line x1="70" y1="395" x2="62" y2="395" stroke="var(--gold)" stroke-width="1.4"/>
+            <line x1="70" y1="410" x2="62" y2="410" stroke="var(--gold)" stroke-width="1.4"/>
+            <line x1="70" y1="425" x2="62" y2="425" stroke="var(--gold)" stroke-width="1.4"/>
+            <line x1="70" y1="440" x2="62" y2="440" stroke="var(--gold)" stroke-width="1.4"/>
+            <line x1="170" y1="395" x2="178" y2="395" stroke="var(--gold)" stroke-width="1.4"/>
+            <line x1="170" y1="410" x2="178" y2="410" stroke="var(--gold)" stroke-width="1.4"/>
+            <line x1="170" y1="425" x2="178" y2="425" stroke="var(--gold)" stroke-width="1.4"/>
+            <line x1="170" y1="440" x2="178" y2="440" stroke="var(--gold)" stroke-width="1.4"/>
+            <line x1="95" y1="385" x2="95" y2="378" stroke="var(--gold)" stroke-width="1.4"/>
+            <line x1="110" y1="385" x2="110" y2="378" stroke="var(--gold)" stroke-width="1.4"/>
+            <line x1="125" y1="385" x2="125" y2="378" stroke="var(--gold)" stroke-width="1.4"/>
+            <line x1="140" y1="385" x2="140" y2="378" stroke="var(--gold)" stroke-width="1.4"/>
+
+            <!-- Petite icône cerveau dans le chip -->
+            <g transform="translate(108, 405) scale(1.15)" fill="none" stroke="var(--gold)" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M12 18V5"/>
+              <path d="M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4"/>
+              <path d="M17.598 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5"/>
+              <path d="M17.997 5.125a4 4 0 0 1 2.526 5.77"/>
+              <path d="M18 18a4 4 0 0 0 2-7.464"/>
+              <path d="M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517"/>
+              <path d="M6 18a4 4 0 0 1-2-7.464"/>
+              <path d="M6.003 5.125a4 4 0 0 0-2.526 5.77"/>
+            </g>
+
+            <text x="120" y="476" text-anchor="middle" font-family="JetBrains Mono" font-size="9" letter-spacing="2.5" fill="var(--gold)" font-weight="700">MODÈLE</text>
+          </g>
+
+          <!-- ============ BAS DROITE — CONTEXTE (RAM) ============ -->
+          <g class="ram-float">
+            <!-- Barrette RAM -->
+            <rect x="285" y="395" width="115" height="52" rx="3" fill="var(--navy-2)" stroke="var(--gold)" stroke-width="1.6"/>
+            <!-- Puces alignées -->
+            <rect x="295" y="403" width="18" height="26" rx="1" fill="var(--gold)" opacity="0.7"/>
+            <rect x="318" y="403" width="18" height="26" rx="1" fill="var(--gold)" opacity="0.55"/>
+            <rect x="341" y="403" width="18" height="26" rx="1" fill="var(--gold)" opacity="0.7"/>
+            <rect x="364" y="403" width="18" height="26" rx="1" fill="var(--gold)" opacity="0.55"/>
+            <!-- Encoche du connecteur -->
+            <path d="M285 447 L 322 447 L 326 453 L 360 453 L 364 447 L 400 447" stroke="var(--gold)" stroke-width="1.6" fill="none" stroke-linejoin="round"/>
+            <!-- Contacts -->
+            <line x1="290" y1="447" x2="290" y2="454" stroke="var(--gold)" stroke-width="1" opacity="0.6"/>
+            <line x1="298" y1="447" x2="298" y2="454" stroke="var(--gold)" stroke-width="1" opacity="0.6"/>
+            <line x1="306" y1="447" x2="306" y2="454" stroke="var(--gold)" stroke-width="1" opacity="0.6"/>
+            <line x1="314" y1="447" x2="314" y2="454" stroke="var(--gold)" stroke-width="1" opacity="0.6"/>
+            <line x1="378" y1="447" x2="378" y2="454" stroke="var(--gold)" stroke-width="1" opacity="0.6"/>
+            <line x1="386" y1="447" x2="386" y2="454" stroke="var(--gold)" stroke-width="1" opacity="0.6"/>
+            <line x1="394" y1="447" x2="394" y2="454" stroke="var(--gold)" stroke-width="1" opacity="0.6"/>
+
+            <text x="342" y="476" text-anchor="middle" font-family="JetBrains Mono" font-size="9" letter-spacing="2.5" fill="var(--gold)" font-weight="700">CONTEXTE</text>
+          </g>
+
+          <!-- Particules de données : positionnées par JS le long des connecteurs -->
+          <circle id="flow-dot-1" class="flow-dot" cx="230" cy="118" r="3" fill="var(--gold)"/>
+          <circle id="flow-dot-2" class="flow-dot" cx="155" cy="344" r="3" fill="var(--gold)"/>
+          <circle id="flow-dot-3" class="flow-dot" cx="305" cy="344" r="3" fill="var(--gold)"/>
+
+          <!-- Étincelles décoratives -->
+          <g opacity="0.5">
+            <circle cx="40" cy="240" r="2" fill="var(--gold)"/>
+            <circle cx="430" cy="220" r="1.5" fill="var(--gold)"/>
+            <circle cx="50" cy="80" r="1.5" fill="var(--ice)"/>
+            <circle cx="410" cy="380" r="2" fill="var(--ice)"/>
+          </g>
+
+          <!-- ============ CADRE ENGLOBANT « AGENT » ============
+               Tout ce qui est dedans (interface + harnais + modèle + contexte)
+               compose l'agent. Étiquette désaxée en haut-droite, en
+               transparence et respiration douce — pour suggérer la portée
+               sans concurrencer le harnais. -->
+          <g class="agent-frame">
+            <!-- 4 coins de marquise -->
+            <path d="M 14 28 L 14 10 L 32 10"       stroke="var(--gold)" stroke-width="1.5" fill="none" opacity="0.55" stroke-linecap="round"/>
+            <path d="M 428 10 L 446 10 L 446 28"    stroke="var(--gold)" stroke-width="1.5" fill="none" opacity="0.55" stroke-linecap="round"/>
+            <path d="M 14 452 L 14 470 L 32 470"    stroke="var(--gold)" stroke-width="1.5" fill="none" opacity="0.55" stroke-linecap="round"/>
+            <path d="M 446 452 L 446 470 L 428 470" stroke="var(--gold)" stroke-width="1.5" fill="none" opacity="0.55" stroke-linecap="round"/>
+
+            <!-- Étiquette désaxée vers le haut-droite, sous le coin -->
+            <text x="438" y="50" text-anchor="end"
+                  font-family="JetBrains Mono" font-size="15" letter-spacing="5"
+                  fill="var(--gold)" font-weight="700" opacity="0.75">AGENT</text>
+            <line x1="438" y1="58" x2="378" y2="58"
+                  stroke="var(--gold)" stroke-width="1" opacity="0.5" stroke-linecap="round"/>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-cue">Faites défiler</div>
+</section>
+
+<!-- ============================================================
+     CHAPITRE 1 — LA MÉTAPHORE
+============================================================ -->
+<section class="section dark-2" id="metaphor">
+  <div class="container">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">01</span>
+        <span class="chapter-label">La métaphore</span>
+      </div>
+      <h2>D'où vient ce mot étrange ?</h2>
+    </div>
+
+    <div class="metaphor-grid">
+      <div class="metaphor-card left reveal reveal-delay-1">
+        <svg class="metaphor-icon lc" viewBox="0 0 24 24" style="color: var(--gold); stroke-width: 1.6;">
+          <path d="M5 20a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v1a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1z" />
+          <path d="M16.5 18c1-2 2.5-5 2.5-9a7 7 0 0 0-7-7H6.635a1 1 0 0 0-.768 1.64L7 5l-2.32 5.802a2 2 0 0 0 .95 2.526l2.87 1.456" />
+          <path d="m15 5 1.425-1.425" />
+          <path d="m17 8 1.53-1.53" />
+          <path d="M9.713 12.185 7 18" />
+        </svg>
+        <h3>À l'origine : le cheval</h3>
+        <p>
+          Un cheval, seul, est puissant mais ne sert à rien. Pour qu'il devienne utile,
+          il faut un harnais : sangles, mors, rênes, attaches. Cet équipement ne change pas
+          le cheval, mais le relie au monde et permet de le diriger.
+        </p>
+        <div class="arrow-tag">Puissance brute → Puissance utile</div>
+      </div>
+
+      <div class="metaphor-card right reveal reveal-delay-2">
+        <svg class="metaphor-icon lc" viewBox="0 0 24 24" style="color: var(--navy); stroke-width: 1.6;">
+          <path d="M12 18V5" />
+          <path d="M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4" />
+          <path d="M17.598 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5" />
+          <path d="M17.997 5.125a4 4 0 0 1 2.526 5.77" />
+          <path d="M18 18a4 4 0 0 0 2-7.464" />
+          <path d="M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517" />
+          <path d="M6 18a4 4 0 0 1-2-7.464" />
+          <path d="M6.003 5.125a4 4 0 0 0-2.526 5.77" />
+        </svg>
+        <h3>En IA : le modèle</h3>
+        <p>
+          Un grand modèle de langage (LLM), seul, ne fait qu'une chose : produire du texte.
+          Pour qu'il agisse — lire des fichiers, naviguer, exécuter du code —
+          il lui faut tout un équipement autour. Cet équipement, c'est le harnais.
+        </p>
+        <div class="arrow-tag">Texte brut → Action dans le monde</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CHAPITRE 2 — DÉFINITION
+============================================================ -->
+<section class="section light" id="definition">
+  <div class="container">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">02</span>
+        <span class="chapter-label">Définition</span>
+      </div>
+      <h2 style="color: var(--navy);">Qu'est-ce qu'un harnais, précisément ?</h2>
+    </div>
+
+    <div class="quote-block reveal reveal-delay-1">
+      Le harnais (« <em>harness</em> » en anglais) est l'ensemble du
+      <strong>code</strong>, des <strong>outils</strong>, des <strong>règles</strong> et
+      des <strong>boucles d'exécution</strong> qui entoure un modèle d'IA pour le transformer
+      en agent capable d'agir de façon autonome dans un environnement.
+    </div>
+
+    <div class="pillars">
+      <div class="pillar reveal reveal-delay-1">
+        <svg class="pillar-icon lc" viewBox="0 0 24 24" style="color: var(--navy);">
+          <path d="M12 18V5" />
+          <path d="M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4" />
+          <path d="M17.598 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5" />
+          <path d="M17.997 5.125a4 4 0 0 1 2.526 5.77" />
+          <path d="M18 18a4 4 0 0 0 2-7.464" />
+          <path d="M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517" />
+          <path d="M6 18a4 4 0 0 1-2-7.464" />
+          <path d="M6.003 5.125a4 4 0 0 0-2.526 5.77" />
+        </svg>
+        <h4>Le modèle</h4>
+        <p>Le « cerveau » : il décide quoi faire à chaque étape.</p>
+      </div>
+      <div class="pillar reveal reveal-delay-2">
+        <svg class="pillar-icon lc" viewBox="0 0 24 24" style="color: var(--navy);">
+          <path d="M11 10.27 7 3.34" />
+          <path d="m11 13.73-4 6.93" />
+          <path d="M12 22v-2" />
+          <path d="M12 2v2" />
+          <path d="M14 12h8" />
+          <path d="m17 20.66-1-1.73" />
+          <path d="m17 3.34-1 1.73" />
+          <path d="M2 12h2" />
+          <path d="m20.66 17-1.73-1" />
+          <path d="m20.66 7-1.73 1" />
+          <path d="m3.34 17 1.73-1" />
+          <path d="m3.34 7 1.73 1" />
+          <circle cx="12" cy="12" r="2" />
+          <circle cx="12" cy="12" r="8" />
+        </svg>
+        <h4>Le harnais</h4>
+        <p>Le « corps » : tout ce qui exécute, observe et contrôle.</p>
+      </div>
+      <div class="pillar reveal reveal-delay-3">
+        <svg class="pillar-icon lc" viewBox="0 0 24 24" style="color: var(--navy);">
+          <circle cx="12" cy="12" r="10" />
+          <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+          <path d="M2 12h20" />
+        </svg>
+        <h4>L'environnement</h4>
+        <p>Le « monde » : fichiers, web, APIs, systèmes que l'agent manipule.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CHAPITRE 3 — POURQUOI EN A-T-ON BESOIN ?
+============================================================ -->
+<section class="section light" id="limits" style="background: #FAF7F0; padding-top: 60px;">
+  <div class="container">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">03</span>
+        <span class="chapter-label">Pourquoi en a-t-on besoin ?</span>
+      </div>
+      <h2 style="color: var(--navy);">Un LLM, tout seul, ne peut pas grand-chose</h2>
+      <p class="lede">
+        Imaginez ChatGPT à l'état brut : une fonction qui prend du texte en entrée et renvoie
+        du texte en sortie. C'est tout. Sans harnais, voici ce qui lui manque.
+      </p>
+    </div>
+
+    <div class="limits-grid">
+      <div class="limit-card reveal reveal-delay-1">
+        <svg class="limit-icon lc" viewBox="0 0 24 24" style="color: var(--navy);">
+          <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" />
+          <path d="m9.5 10.5 5 5" />
+          <path d="m14.5 10.5-5 5" />
+        </svg>
+        <h4>Aucun accès aux fichiers</h4>
+        <p>Ne peut ni lire votre code, ni ouvrir un PDF, ni écrire un document.</p>
+      </div>
+      <div class="limit-card reveal reveal-delay-2">
+        <svg class="limit-icon lc" viewBox="0 0 24 24" style="color: var(--navy);">
+          <path d="M12 20h.01" />
+          <path d="M8.5 16.429a5 5 0 0 1 7 0" />
+          <path d="M5 12.859a10 10 0 0 1 5.17-2.69" />
+          <path d="M19 12.859a10 10 0 0 0-2.007-1.523" />
+          <path d="M2 8.82a15 15 0 0 1 4.177-2.643" />
+          <path d="M22 8.82a15 15 0 0 0-11.288-3.764" />
+          <path d="m2 2 20 20" />
+        </svg>
+        <h4>Aucun accès au web</h4>
+        <p>Ne peut pas chercher d'info actuelle, ni consulter une page, ni appeler une API.</p>
+      </div>
+      <div class="limit-card reveal reveal-delay-3">
+        <svg class="limit-icon lc" viewBox="0 0 24 24" style="color: var(--navy);">
+          <ellipse cx="12" cy="5" rx="9" ry="3" />
+          <path d="M3 5V19A9 3 0 0 0 15 21.84" />
+          <path d="M21 5V8" />
+          <path d="M21 12L18 17H22L19 22" />
+          <path d="M3 12A9 3 0 0 0 14.59 14.87" />
+        </svg>
+        <h4>Aucune mémoire persistante</h4>
+        <p>Oublie tout entre deux conversations. Pas de notes, pas d'historique propre.</p>
+      </div>
+      <div class="limit-card reveal reveal-delay-1">
+        <svg class="limit-icon lc" viewBox="0 0 24 24" style="color: var(--navy);">
+          <path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+          <path d="M3 3v5h5" />
+        </svg>
+        <h4>Aucune boucle d'exécution</h4>
+        <p>Ne peut pas dire « je viens d'essayer X, ça a échoué, j'essaie Y ».</p>
+      </div>
+      <div class="limit-card reveal reveal-delay-2">
+        <svg class="limit-icon lc" viewBox="0 0 24 24" style="color: var(--navy);">
+          <path d="m2 2 20 20" />
+          <path d="M5 5a1 1 0 0 0-1 1v7c0 5 3.5 7.5 7.67 8.94a1 1 0 0 0 .67.01c2.35-.82 4.48-1.97 5.9-3.71" />
+          <path d="M9.309 3.652A12.252 12.252 0 0 0 11.24 2.28a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1v7a9.784 9.784 0 0 1-.08 1.264" />
+        </svg>
+        <h4>Aucune limite ni garde-fou</h4>
+        <p>Sans cadre, rien n'empêche les actions dangereuses ou les boucles infinies.</p>
+      </div>
+      <div class="limit-card reveal reveal-delay-3">
+        <svg class="limit-icon lc" viewBox="0 0 24 24" style="color: var(--navy);">
+          <path d="M10.733 5.076a10.744 10.744 0 0 1 11.205 6.575 1 1 0 0 1 0 .696 10.747 10.747 0 0 1-1.444 2.49" />
+          <path d="M14.084 14.158a3 3 0 0 1-4.242-4.242" />
+          <path d="M17.479 17.499a10.75 10.75 0 0 1-15.417-5.151 1 1 0 0 1 0-.696 10.75 10.75 0 0 1 4.446-5.143" />
+          <path d="m2 2 20 20" />
+        </svg>
+        <h4>Aucune perception du résultat</h4>
+        <p>Produit du texte mais ne « voit » jamais l'effet réel de ce qu'il propose.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CHAPITRE 4 — LA BOUCLE AGENTIQUE (animée)
+============================================================ -->
+<section class="section dark" id="loop">
+  <div class="container loop-section">
+    <div class="reveal">
+      <div class="chapter-mark" style="justify-content:center;">
+        <span class="chapter-num">04</span>
+        <span class="chapter-label">Le fonctionnement</span>
+      </div>
+      <h2 style="color:#fff;">Le cœur du harnais : la boucle agentique</h2>
+      <p class="lede">
+        Le harnais orchestre un cycle qui se répète tour après tour, jusqu'à ce que la tâche
+        soit terminée. À chaque tour, le modèle décide, le harnais exécute, et le résultat
+        redevient une nouvelle entrée.
+      </p>
+    </div>
+
+    <div class="loop-stage reveal reveal-delay-1">
+      <svg viewBox="0 0 600 600">
+        <!-- Cercle central -->
+        <circle cx="300" cy="300" r="80" class="loop-center-circle"/>
+        <text x="300" y="295" class="loop-center-text">BOUCLE</text>
+        <text x="300" y="313" class="loop-center-text">AGENTIQUE</text>
+
+        <!-- Flèches courbes entre nœuds (sens horaire) -->
+        <!-- 1→2 (haut → droite) -->
+        <path id="arc-1" class="loop-arrow" d="M 380 130 A 200 200 0 0 1 470 220"/>
+        <!-- 2→3 (droite → bas) -->
+        <path id="arc-2" class="loop-arrow" d="M 470 380 A 200 200 0 0 1 380 470"/>
+        <!-- 3→4 (bas → gauche) -->
+        <path id="arc-3" class="loop-arrow" d="M 220 470 A 200 200 0 0 1 130 380"/>
+        <!-- 4→1 (gauche → haut) -->
+        <path id="arc-4" class="loop-arrow" d="M 130 220 A 200 200 0 0 1 220 130"/>
+
+        <!-- 4 nœuds aux positions horaires : 12, 3, 6, 9 -->
+        <!-- Nœud 1 : haut -->
+        <g id="node-1">
+          <circle cx="300" cy="100" r="64" class="loop-node"/>
+          <text x="300" y="92" class="loop-label">1. PENSÉE</text>
+          <text x="300" y="113" class="loop-sub">Le modèle</text>
+          <text x="300" y="127" class="loop-sub">réfléchit</text>
+        </g>
+        <!-- Nœud 2 : droite -->
+        <g id="node-2">
+          <circle cx="500" cy="300" r="64" class="loop-node"/>
+          <text x="500" y="292" class="loop-label">2. ACTION</text>
+          <text x="500" y="313" class="loop-sub">Il choisit</text>
+          <text x="500" y="327" class="loop-sub">un outil</text>
+        </g>
+        <!-- Nœud 3 : bas -->
+        <g id="node-3">
+          <circle cx="300" cy="500" r="64" class="loop-node"/>
+          <text x="300" y="492" class="loop-label">3. EXÉCUTION</text>
+          <text x="300" y="513" class="loop-sub">Le harnais</text>
+          <text x="300" y="527" class="loop-sub">l'exécute</text>
+        </g>
+        <!-- Nœud 4 : gauche -->
+        <g id="node-4">
+          <circle cx="100" cy="300" r="64" class="loop-node"/>
+          <text x="100" y="288" class="loop-label">4. OBSER-</text>
+          <text x="100" y="304" class="loop-label">VATION</text>
+          <text x="100" y="323" class="loop-sub">Le résultat</text>
+          <text x="100" y="337" class="loop-sub">revient</text>
+        </g>
+      </svg>
+    </div>
+
+    <div class="loop-controls reveal reveal-delay-2">
+      <button class="loop-btn" id="loop-play">▶ Lancer la boucle</button>
+      <button class="loop-btn" id="loop-step">→ Étape suivante</button>
+      <button class="loop-btn" id="loop-reset">↻ Réinitialiser</button>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CHAPITRE 5 — ANATOMIE
+============================================================ -->
+<section class="section light" id="anatomy">
+  <div class="container">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">05</span>
+        <span class="chapter-label">Anatomie d'un harnais</span>
+      </div>
+      <h2 style="color: var(--navy);">Ce qu'il y a, en pratique, dans un harnais</h2>
+    </div>
+
+    <div class="anatomy-grid">
+      <div class="anatomy-card reveal reveal-delay-1">
+        <svg class="anatomy-icon lc" viewBox="0 0 24 24" style="color: var(--gold-dk);">
+          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z" />
+        </svg>
+        <div>
+          <h4>Les outils (tools)</h4>
+          <p>Fonctions que le modèle peut appeler : lecture/écriture de fichiers, recherche web, exécution de code, requêtes SQL, envoi d'emails, etc.</p>
+        </div>
+      </div>
+      <div class="anatomy-card reveal reveal-delay-2">
+        <svg class="anatomy-icon lc" viewBox="0 0 24 24" style="color: var(--gold-dk);">
+          <path d="M21 12a9 9 0 1 1-9-9c2.52 0 4.93 1 6.74 2.74L21 8" />
+          <path d="M21 3v5h-5" />
+        </svg>
+        <div>
+          <h4>La boucle d'exécution</h4>
+          <p>Le code qui rappelle le modèle à chaque tour, exécute les actions, transmet les résultats. C'est ce qui permet l'autonomie.</p>
+        </div>
+      </div>
+      <div class="anatomy-card reveal reveal-delay-1">
+        <svg class="anatomy-icon lc" viewBox="0 0 24 24" style="color: var(--gold-dk);">
+          <ellipse cx="12" cy="5" rx="9" ry="3" />
+          <path d="M3 5V19A9 3 0 0 0 21 19V5" />
+          <path d="M3 12A9 3 0 0 0 21 12" />
+        </svg>
+        <div>
+          <h4>La gestion du contexte</h4>
+          <p>Décide de ce qu'on garde, résume, ou évacue de la conversation pour ne pas dépasser la fenêtre du modèle.</p>
+        </div>
+      </div>
+      <div class="anatomy-card reveal reveal-delay-2">
+        <svg class="anatomy-icon lc" viewBox="0 0 24 24" style="color: var(--gold-dk);">
+          <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+          <path d="m9 12 2 2 4-4" />
+        </svg>
+        <div>
+          <h4>Les garde-fous</h4>
+          <p>Limites de temps, d'argent, d'actions ; vérifications avant exécution ; permissions ; sandbox d'exécution.</p>
+        </div>
+      </div>
+      <div class="anatomy-card reveal reveal-delay-1">
+        <svg class="anatomy-icon lc" viewBox="0 0 24 24" style="color: var(--gold-dk);">
+          <path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0" />
+          <circle cx="12" cy="12" r="3" />
+        </svg>
+        <div>
+          <h4>L'observation & la trace</h4>
+          <p>Logs détaillés de chaque étape pour pouvoir comprendre, déboguer ou auditer le comportement de l'agent.</p>
+        </div>
+      </div>
+      <div class="anatomy-card reveal reveal-delay-2">
+        <svg class="anatomy-icon lc" viewBox="0 0 24 24" style="color: var(--gold-dk);">
+          <path d="M4 22V4a1 1 0 0 1 .4-.8A6 6 0 0 1 8 2c3 0 5 2 7.333 2q2 0 3.067-.8A1 1 0 0 1 20 4v10a1 1 0 0 1-.4.8A6 6 0 0 1 16 16c-3 0-5-2-8-2a6 6 0 0 0-4 1.528" />
+        </svg>
+        <div>
+          <h4>Le critère d'arrêt</h4>
+          <p>Comment l'agent sait que la tâche est finie : signal explicite du modèle, succès d'un test, limite atteinte…</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CHAPITRE 6 — EXEMPLE CONCRET
+============================================================ -->
+<section class="section light" id="example" style="background: #FAF7F0;">
+  <div class="container">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">06</span>
+        <span class="chapter-label">Un exemple concret</span>
+      </div>
+      <h2 style="color: var(--navy);">Un agent qui code</h2>
+      <p class="lede">
+        « Corrige le bug dans mon application Python. » Voici comment un harnais d'agent
+        de codage transforme cette demande en travail réel.
+      </p>
+    </div>
+
+    <div class="timeline">
+      <div class="step-card reveal reveal-delay-1">
+        <div class="step-num">1</div>
+        <h4>Lire</h4>
+        <p>Liste les fichiers, ouvre ceux qui semblent pertinents, comprend la structure.</p>
+      </div>
+      <div class="step-card reveal reveal-delay-2">
+        <div class="step-num">2</div>
+        <h4>Analyser</h4>
+        <p>Identifie l'origine probable du bug, formule une hypothèse précise.</p>
+      </div>
+      <div class="step-card reveal reveal-delay-3">
+        <div class="step-num">3</div>
+        <h4>Modifier</h4>
+        <p>Édite les fichiers concernés via l'outil d'édition du harnais.</p>
+      </div>
+      <div class="step-card reveal reveal-delay-4">
+        <div class="step-num">4</div>
+        <h4>Tester</h4>
+        <p>Lance la suite de tests dans une sandbox isolée, observe la sortie.</p>
+      </div>
+      <div class="step-card reveal reveal-delay-5">
+        <div class="step-num">5</div>
+        <h4>Itérer</h4>
+        <p>Si un test échoue, ajuste et recommence. Sinon, signale la fin.</p>
+      </div>
+    </div>
+
+    <div class="example-callout reveal reveal-delay-2">
+      <svg class="callout-icon lc" viewBox="0 0 24 24">
+        <path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5" />
+        <path d="M9 18h6" />
+        <path d="M10 22h4" />
+      </svg>
+      <p>
+        À chaque phase, c'est le harnais qui rend l'action possible : il fournit l'outil,
+        l'exécute, capture la sortie, et la renvoie au modèle. Le modèle, lui, ne fait que
+        décider.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CHAPITRE 7 — QUI FAIT QUOI ?
+============================================================ -->
+<section class="section light" id="roles">
+  <div class="container">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">07</span>
+        <span class="chapter-label">Qui fait quoi ?</span>
+      </div>
+      <h2 style="color: var(--navy);">Modèle vs harnais : la division du travail</h2>
+    </div>
+
+    <div class="roles-grid">
+      <div class="role-card model reveal reveal-delay-1">
+        <div class="role-header">
+          <svg class="role-icon lc" viewBox="0 0 24 24" style="color: var(--gold);">
+            <path d="M12 18V5" />
+            <path d="M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4" />
+            <path d="M17.598 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5" />
+            <path d="M17.997 5.125a4 4 0 0 1 2.526 5.77" />
+            <path d="M18 18a4 4 0 0 0 2-7.464" />
+            <path d="M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517" />
+            <path d="M6 18a4 4 0 0 1-2-7.464" />
+            <path d="M6.003 5.125a4 4 0 0 0-2.526 5.77" />
+          </svg>
+          <h3>Le modèle · décide</h3>
+        </div>
+        <div class="divider"></div>
+        <ul class="role-list">
+          <li>Comprendre la demande</li>
+          <li>Choisir une stratégie</li>
+          <li>Décider quel outil utiliser</li>
+          <li>Formuler les bons paramètres</li>
+          <li>Interpréter ce qu'il observe</li>
+          <li>Reconnaître quand s'arrêter</li>
+        </ul>
+      </div>
+
+      <div class="role-card harness reveal reveal-delay-2">
+        <div class="role-header">
+          <svg class="role-icon lc" viewBox="0 0 24 24" style="color: var(--navy);">
+            <path d="M11 10.27 7 3.34" />
+            <path d="m11 13.73-4 6.93" />
+            <path d="M12 22v-2" />
+            <path d="M12 2v2" />
+            <path d="M14 12h8" />
+            <path d="m17 20.66-1-1.73" />
+            <path d="m17 3.34-1 1.73" />
+            <path d="M2 12h2" />
+            <path d="m20.66 17-1.73-1" />
+            <path d="m20.66 7-1.73 1" />
+            <path d="m3.34 17 1.73-1" />
+            <path d="m3.34 7 1.73 1" />
+            <circle cx="12" cy="12" r="2" />
+            <circle cx="12" cy="12" r="8" />
+          </svg>
+          <h3>Le harnais · exécute</h3>
+        </div>
+        <div class="divider"></div>
+        <ul class="role-list">
+          <li>Mettre les outils à disposition</li>
+          <li>Exécuter chaque action demandée</li>
+          <li>Renvoyer les résultats au modèle</li>
+          <li>Gérer la mémoire et le contexte</li>
+          <li>Faire respecter les garde-fous</li>
+          <li>Tracer, logger, surveiller</li>
+        </ul>
+      </div>
+    </div>
+
+    <p class="roles-tagline reveal reveal-delay-2">
+      « Le modèle est l'intelligence ; le harnais est la possibilité d'agir. »
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================
+     CHAPITRE 8 — POURQUOI C'EST CRUCIAL (stats animées)
+============================================================ -->
+<section class="section light" id="stats" style="background: #FAF7F0;">
+  <div class="container">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">08</span>
+        <span class="chapter-label">Pourquoi c'est crucial</span>
+      </div>
+      <h2 style="color: var(--navy);">Le harnais, c'est souvent là que tout se joue</h2>
+      <p class="lede">
+        Avec le même modèle, deux harnais différents peuvent produire des agents radicalement
+        différents — l'un brillant, l'autre inutilisable.
+      </p>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card reveal reveal-delay-1">
+        <div class="stat-big" data-target="10" data-prefix="×">×0</div>
+        <div class="stat-divider"></div>
+        <div class="stat-label">L'écart de performance entre un bon et un mauvais harnais sur la même tâche, à modèle identique.</div>
+      </div>
+      <div class="stat-card reveal reveal-delay-2">
+        <div class="stat-big" data-target="80" data-suffix="%">0%</div>
+        <div class="stat-divider"></div>
+        <div class="stat-label">La part du travail d'ingénierie d'un agent en production qui concerne le harnais, pas le modèle.</div>
+      </div>
+      <div class="stat-card reveal reveal-delay-3">
+        <div class="stat-big" data-target="0">—</div>
+        <div class="stat-divider"></div>
+        <div class="stat-label">Le nombre d'agents utiles qui existent sans harnais. Un LLM brut ne fait rien d'autonome.</div>
+      </div>
+    </div>
+
+    <p class="stats-footnote reveal">* Ordres de grandeur indicatifs, observés dans les benchmarks publics et les retours d'expérience industriels.</p>
+  </div>
+</section>
+
+<!-- ============================================================
+     CHAPITRE 9 — LE SPECTRE
+============================================================ -->
+<section class="section light" id="spectrum">
+  <div class="container">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">09</span>
+        <span class="chapter-label">Le spectre des harnais</span>
+      </div>
+      <h2 style="color: var(--navy);">Tous les harnais ne se ressemblent pas</h2>
+      <p class="lede">
+        Du plus minimal au plus complet, on rencontre une gradation continue. Plus on monte,
+        plus l'agent peut faire de choses sans aide humaine — et plus il faut soigner les
+        garde-fous.
+      </p>
+    </div>
+
+    <div class="spectrum">
+      <div class="spectrum-track"></div>
+      <div class="spectrum-grid">
+        <div class="spectrum-marker" style="--col:0;">1</div>
+        <div class="spectrum-marker" style="--col:1;">2</div>
+        <div class="spectrum-marker" style="--col:2;">3</div>
+        <div class="spectrum-marker" style="--col:3;">4</div>
+
+        <div class="spectrum-card reveal reveal-delay-1">
+          <h4>Minimal</h4>
+          <div class="spectrum-tag">Chatbot</div>
+          <p>Aucun outil. Le modèle ne fait que produire du texte. Pas vraiment un « agent ».</p>
+        </div>
+        <div class="spectrum-card reveal reveal-delay-2">
+          <h4>Outillé</h4>
+          <div class="spectrum-tag">Assistant</div>
+          <p>Quelques outils ponctuels (recherche web, calcul). L'humain garde la main à chaque étape.</p>
+        </div>
+        <div class="spectrum-card reveal reveal-delay-3">
+          <h4>Agentique</h4>
+          <div class="spectrum-tag">Agent autonome</div>
+          <p>Boucle complète : le modèle agit en plusieurs tours sans intervention pour des tâches définies.</p>
+        </div>
+        <div class="spectrum-card reveal reveal-delay-4">
+          <h4>Multi-agent</h4>
+          <div class="spectrum-tag">Système d'agents</div>
+          <p>Plusieurs agents coordonnés, chacun avec son harnais, qui se passent des sous-tâches.</p>
+        </div>
+      </div>
+      <div class="spectrum-legend">
+        <span>Moins autonome</span>
+        <span class="right">Plus autonome →</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CHAPITRE 10 — LES TENSIONS
+============================================================ -->
+<section class="section light" id="tensions" style="background: #FAF7F0;">
+  <div class="container">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">10</span>
+        <span class="chapter-label">Les défis du concepteur</span>
+      </div>
+      <h2 style="color: var(--navy);">Concevoir un harnais : un art difficile</h2>
+      <p class="lede">
+        Trois tensions reviennent dans toutes les conceptions de harnais. Bien les arbitrer,
+        c'est faire la différence entre un agent jouet et un agent fiable.
+      </p>
+    </div>
+
+    <div class="tensions-grid">
+      <div class="tension-card reveal reveal-delay-1">
+        <svg class="tension-icon lc" viewBox="0 0 24 24" style="color: var(--gold-dk);">
+          <path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z" />
+        </svg>
+        <h4>Autonomie<span>↔</span>Sécurité</h4>
+        <div class="tension-divider"></div>
+        <p>Plus on laisse l'agent libre d'agir, plus il accomplit de choses — mais plus il peut aussi causer de dégâts. Le harnais doit ouvrir la porte juste assez.</p>
+      </div>
+      <div class="tension-card reveal reveal-delay-2">
+        <svg class="tension-icon lc" viewBox="0 0 24 24" style="color: var(--gold-dk);">
+          <ellipse cx="12" cy="5" rx="9" ry="3" />
+          <path d="M3 5V19A9 3 0 0 0 21 19V5" />
+          <path d="M3 12A9 3 0 0 0 21 12" />
+        </svg>
+        <h4>Contexte<span>↔</span>Coût</h4>
+        <div class="tension-divider"></div>
+        <p>Donner tout l'historique au modèle améliore ses décisions, mais coûte cher en tokens. Le harnais doit choisir intelligemment ce qu'il garde.</p>
+      </div>
+      <div class="tension-card reveal reveal-delay-3">
+        <svg class="tension-icon lc" viewBox="0 0 24 24" style="color: var(--gold-dk);">
+          <path d="M10 8h4" />
+          <path d="M12 21v-9" />
+          <path d="M12 8V3" />
+          <path d="M17 16h4" />
+          <path d="M19 12V3" />
+          <path d="M19 21v-5" />
+          <path d="M3 14h4" />
+          <path d="M5 10V3" />
+          <path d="M5 21v-7" />
+        </svg>
+        <h4>Richesse<span>↔</span>Simplicité</h4>
+        <div class="tension-divider"></div>
+        <p>Beaucoup d'outils donnent à l'agent plus de pouvoir, mais le saturent et le perdent. Un bon harnais offre les bons outils, pas tous les outils.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CHAPITRE 11 — LA FORMULE
+============================================================ -->
+<section class="section dark" id="formula">
+  <div class="container formula-section">
+    <div class="reveal">
+      <div class="chapter-mark" style="justify-content:center;">
+        <span class="chapter-num">11</span>
+        <span class="chapter-label">Récapitulatif</span>
+      </div>
+      <h2 style="color:#fff;">La formule à retenir</h2>
+    </div>
+
+    <div class="formula">
+      <div class="formula-box model reveal reveal-delay-1">
+        <svg class="formula-icon lc" viewBox="0 0 24 24" style="color: var(--gold); stroke-width: 1.8;">
+          <path d="M12 18V5" />
+          <path d="M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4" />
+          <path d="M17.598 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5" />
+          <path d="M17.997 5.125a4 4 0 0 1 2.526 5.77" />
+          <path d="M18 18a4 4 0 0 0 2-7.464" />
+          <path d="M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517" />
+          <path d="M6 18a4 4 0 0 1-2-7.464" />
+          <path d="M6.003 5.125a4 4 0 0 0-2.526 5.77" />
+        </svg>
+        <div class="formula-name">MODÈLE</div>
+        <div class="formula-desc">L'intelligence brute</div>
+      </div>
+      <div class="formula-op reveal reveal-delay-2">+</div>
+      <div class="formula-box harness reveal reveal-delay-3">
+        <svg class="formula-icon lc" viewBox="0 0 24 24" style="color: var(--navy); stroke-width: 1.8;">
+          <path d="M11 10.27 7 3.34" />
+          <path d="m11 13.73-4 6.93" />
+          <path d="M12 22v-2" />
+          <path d="M12 2v2" />
+          <path d="M14 12h8" />
+          <path d="m17 20.66-1-1.73" />
+          <path d="m17 3.34-1 1.73" />
+          <path d="M2 12h2" />
+          <path d="m20.66 17-1.73-1" />
+          <path d="m20.66 7-1.73 1" />
+          <path d="m3.34 17 1.73-1" />
+          <path d="m3.34 7 1.73 1" />
+          <circle cx="12" cy="12" r="2" />
+          <circle cx="12" cy="12" r="8" />
+        </svg>
+        <div class="formula-name">HARNAIS</div>
+        <div class="formula-desc">Le pouvoir d'agir</div>
+      </div>
+      <div class="formula-op reveal reveal-delay-4">=</div>
+      <div class="formula-box agent reveal reveal-delay-5">
+        <svg class="formula-icon lc" viewBox="0 0 24 24" style="color: var(--navy); stroke-width: 1.8;">
+          <path d="M12 15v5s3.03-.55 4-2c1.08-1.62 0-5 0-5" />
+          <path d="M4.5 16.5c-1.5 1.26-2 5-2 5s3.74-.5 5-2c.71-.84.7-2.13-.09-2.91a2.18 2.18 0 0 0-2.91-.09" />
+          <path d="M9 12a22 22 0 0 1 2-3.95A12.88 12.88 0 0 1 22 2c0 2.72-.78 7.5-6 11a22.4 22.4 0 0 1-4 2z" />
+          <path d="M9 12H4s.55-3.03 2-4c1.62-1.08 5 .05 5 .05" />
+        </svg>
+        <div class="formula-name">AGENT</div>
+        <div class="formula-desc">Capable d'agir</div>
+      </div>
+    </div>
+
+    <p class="formula-tagline reveal reveal-delay-3">
+      Sans harnais, l'IA pense.<br>
+      Avec un harnais, elle agit.
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================
+     CHAPITRE 12 — À RETENIR
+============================================================ -->
+<section class="section light" id="takeaways">
+  <div class="container-narrow">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">12</span>
+        <span class="chapter-label">À retenir</span>
+      </div>
+      <h2 style="color: var(--navy);">Si vous ne deviez retenir que cinq choses…</h2>
+    </div>
+
+    <div class="takeaways">
+      <div class="takeaway reveal reveal-delay-1">
+        <div class="takeaway-num">1</div>
+        <p>Un LLM seul ne fait que produire du texte. Le harnais est ce qui le rend capable d'agir.</p>
+      </div>
+      <div class="takeaway reveal reveal-delay-2">
+        <div class="takeaway-num">2</div>
+        <p>Le harnais comprend des outils, une boucle d'exécution, une gestion du contexte et des garde-fous.</p>
+      </div>
+      <div class="takeaway reveal reveal-delay-3">
+        <div class="takeaway-num">3</div>
+        <p>À chaque tour, le modèle décide ; le harnais exécute, observe, et renvoie le résultat.</p>
+      </div>
+      <div class="takeaway reveal reveal-delay-4">
+        <div class="takeaway-num">4</div>
+        <p>Avec le même modèle, deux harnais peuvent produire des agents radicalement différents.</p>
+      </div>
+      <div class="takeaway reveal reveal-delay-5">
+        <div class="takeaway-num">5</div>
+        <p>Concevoir un bon harnais, c'est arbitrer entre autonomie, sécurité, contexte, coût et richesse d'outillage.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     CHAPITRE 13 — POUR ALLER PLUS LOIN
+============================================================ -->
+<section class="section gold-bg" id="next">
+  <div class="container">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num" style="color: var(--navy);">13</span>
+        <span class="chapter-label" style="color: var(--navy); opacity: 0.8;">Pour aller plus loin</span>
+      </div>
+      <h2 style="color: var(--navy);">Et maintenant ?</h2>
+      <p class="lede" style="color: var(--navy); opacity: 0.85;">
+        Trois pistes concrètes pour passer de la compréhension théorique à la pratique.
+      </p>
+    </div>
+
+    <div class="cta-grid">
+      <div class="cta-card reveal reveal-delay-1">
+        <div class="cta-num">01</div>
+        <h4>Observer un harnais en action</h4>
+        <p>Lancer un agent comme Claude Code ou un agent open-source, regarder ses logs, suivre ce qu'il appelle à chaque tour.</p>
+      </div>
+      <div class="cta-card reveal reveal-delay-2">
+        <div class="cta-num">02</div>
+        <h4>Lire un harnais existant</h4>
+        <p>Plusieurs frameworks open-source publient leur code : c'est la meilleure école pour comprendre les choix concrets.</p>
+      </div>
+      <div class="cta-card reveal reveal-delay-3">
+        <div class="cta-num">03</div>
+        <h4>Construire un mini-harnais</h4>
+        <p>Une boucle de quelques dizaines de lignes avec deux ou trois outils suffit pour saisir profondément le concept.</p>
+      </div>
+    </div>
+
+    <div class="closing reveal reveal-delay-4">— Merci · Questions bienvenues —</div>
+  </div>
+</section>
+
+<footer>
+  Le harnais dans l'agentique AI · Une introduction pour débutants · Avril 2026
+</footer>
+
+<script>
+  // ============================================================
+  // PROGRESS BAR
+  // ============================================================
+  const progressBar = document.getElementById('progress-bar');
+  function updateProgress() {
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const pct = (scrollTop / height) * 100;
+    progressBar.style.width = pct + '%';
+  }
+
+  // ============================================================
+  // TOC visibility + active link
+  // ============================================================
+  const toc = document.getElementById('toc');
+  const tocLinks = toc.querySelectorAll('a');
+  const sections = Array.from(tocLinks).map(a => document.querySelector(a.getAttribute('href')));
+
+  function updateToc() {
+    const scrollY = window.pageYOffset;
+    // Show TOC after the hero
+    const hero = document.getElementById('hero');
+    if (scrollY > hero.offsetHeight - 200) {
+      toc.classList.add('visible');
+    } else {
+      toc.classList.remove('visible');
+    }
+    // Find active section
+    let active = 0;
+    for (let i = 0; i < sections.length; i++) {
+      if (sections[i].offsetTop <= scrollY + window.innerHeight / 3) {
+        active = i;
+      }
+    }
+    tocLinks.forEach((a, i) => a.classList.toggle('active', i === active));
+  }
+
+  // ============================================================
+  // REVEAL ON SCROLL
+  // ============================================================
+  const reveals = document.querySelectorAll('.reveal');
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+  reveals.forEach(el => revealObserver.observe(el));
+
+  // ============================================================
+  // STATS COUNTERS
+  // ============================================================
+  const stats = document.querySelectorAll('.stat-big[data-target]');
+  const statsObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (!entry.isIntersecting) return;
+      const el = entry.target;
+      const target = parseInt(el.dataset.target, 10);
+      const prefix = el.dataset.prefix || '';
+      const suffix = el.dataset.suffix || '';
+      if (target === 0) {
+        // Cas spécial : on affiche directement "0"
+        el.textContent = '0';
+      } else {
+        const duration = 1400;
+        const start = performance.now();
+        function tick(now) {
+          const t = Math.min(1, (now - start) / duration);
+          // Easing : ease-out cubic
+          const eased = 1 - Math.pow(1 - t, 3);
+          const v = Math.round(eased * target);
+          el.textContent = prefix + v + suffix;
+          if (t < 1) requestAnimationFrame(tick);
+        }
+        requestAnimationFrame(tick);
+      }
+      statsObserver.unobserve(el);
+    });
+  }, { threshold: 0.4 });
+  stats.forEach(el => statsObserver.observe(el));
+
+  // ============================================================
+  // BOUCLE AGENTIQUE — animation
+  // ============================================================
+  const loopBtn = document.getElementById('loop-play');
+  const stepBtn = document.getElementById('loop-step');
+  const resetBtn = document.getElementById('loop-reset');
+  let currentStep = 0; // 0 = rien d'allumé, 1-4 = nœuds
+  let autoTimer = null;
+  let autoPlaying = false;
+
+  function setLoopStep(step) {
+    currentStep = step;
+    for (let i = 1; i <= 4; i++) {
+      const node = document.getElementById('node-' + i);
+      const arc = document.getElementById('arc-' + i);
+      if (i === step) {
+        node.querySelector('.loop-node').classList.add('active');
+        node.querySelectorAll('.loop-label').forEach(t => t.classList.add('active'));
+        node.querySelectorAll('.loop-sub').forEach(t => t.classList.add('active'));
+      } else {
+        node.querySelector('.loop-node').classList.remove('active');
+        node.querySelectorAll('.loop-label').forEach(t => t.classList.remove('active'));
+        node.querySelectorAll('.loop-sub').forEach(t => t.classList.remove('active'));
+      }
+      // Arc i va de nœud i à nœud (i+1) — actif quand on arrive sur le nœud (i+1)
+      // arc-1 = de 1 à 2 ; actif quand step=2. arc-2 = de 2 à 3 ; actif quand step=3. etc.
+      // arc-4 = de 4 à 1 ; actif quand on revient au début (step=1 après être passé par 4).
+      const arcActiveAt = (i % 4) + 1;
+      if (step === arcActiveAt && step !== 0) {
+        arc.classList.add('active');
+      } else {
+        arc.classList.remove('active');
+      }
+    }
+  }
+
+  function nextLoopStep() {
+    const next = currentStep >= 4 ? 1 : currentStep + 1;
+    setLoopStep(next);
+  }
+
+  function startAuto() {
+    autoPlaying = true;
+    loopBtn.textContent = '⏸ Pause';
+    loopBtn.classList.add('playing');
+    nextLoopStep();
+    autoTimer = setInterval(nextLoopStep, 1600);
+  }
+  function stopAuto() {
+    autoPlaying = false;
+    loopBtn.textContent = '▶ Lancer la boucle';
+    loopBtn.classList.remove('playing');
+    if (autoTimer) clearInterval(autoTimer);
+    autoTimer = null;
+  }
+
+  loopBtn.addEventListener('click', () => {
+    if (autoPlaying) stopAuto(); else startAuto();
+  });
+  stepBtn.addEventListener('click', () => {
+    if (autoPlaying) stopAuto();
+    nextLoopStep();
+  });
+  resetBtn.addEventListener('click', () => {
+    if (autoPlaying) stopAuto();
+    setLoopStep(0);
+  });
+
+  // Démarrage automatique de la boucle quand elle entre en vue (une seule fois)
+  const loopSection = document.getElementById('loop');
+  let loopAutoStarted = false;
+  const loopObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting && !loopAutoStarted) {
+        loopAutoStarted = true;
+        // On laisse 800 ms pour que la révélation se termine, puis on lance
+        setTimeout(() => {
+          if (!autoPlaying && currentStep === 0) startAuto();
+        }, 800);
+      }
+    });
+  }, { threshold: 0.4 });
+  loopObserver.observe(loopSection);
+
+  // ============================================================
+  // SCROLL HANDLER
+  // ============================================================
+  let scrollTicking = false;
+  window.addEventListener('scroll', () => {
+    if (!scrollTicking) {
+      requestAnimationFrame(() => {
+        updateProgress();
+        updateToc();
+        scrollTicking = false;
+      });
+      scrollTicking = true;
+    }
+  });
+  updateProgress();
+  updateToc();
+
+  // ============================================================
+  // HERO — particules de données qui circulent dans les connecteurs
+  // (l'agent et le matériel envoient/reçoivent du contexte vers l'OS)
+  // ============================================================
+  const flowSegments = [
+    { id: 'flow-dot-1', x1: 230, y1: 118, x2: 230, y2: 170, offset: 0.0 },
+    { id: 'flow-dot-2', x1: 120, y1: 382, x2: 155, y2: 344, offset: 0.33 },
+    { id: 'flow-dot-3', x1: 340, y1: 382, x2: 305, y2: 344, offset: 0.66 },
+  ];
+  const flowDots = flowSegments.map(s => ({ ...s, el: document.getElementById(s.id) }));
+  const flowDuration = 2000;
+
+  function tickFlow(ts) {
+    const base = (ts % flowDuration) / flowDuration;
+    flowDots.forEach(d => {
+      if (!d.el) return;
+      const t = (base + d.offset) % 1;
+      d.el.setAttribute('cx', d.x1 + (d.x2 - d.x1) * t);
+      d.el.setAttribute('cy', d.y1 + (d.y2 - d.y1) * t);
+      // fondu aux extrémités pour adoucir le « saut »
+      d.el.setAttribute('opacity', Math.sin(t * Math.PI).toFixed(3));
+    });
+    requestAnimationFrame(tickFlow);
+  }
+  requestAnimationFrame(tickFlow);
+</script>
+
+</body>
+</html>

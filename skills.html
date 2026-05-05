@@ -1,0 +1,2416 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Skills, Rules, Workflows… toute la même famille</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:    #0F1B3D;
+    --navy-2:  #0A1230;
+    --navy-3:  #1A2750;
+    --cream:   #F5F1E8;
+    --cream-2: #EDE5D2;
+    --ice:     #CADCFC;
+    --gold:    #D4A574;
+    --gold-dk: #9C7A50;
+    --ink:     #1A1A1A;
+    --muted-dk: #5C6478;
+    --muted-lt: #A8AFC0;
+    --divider-dk: #DCD4C2;
+    --divider-lt: #2A3556;
+    --red:     #E36B5A;
+    --green:   #7FBF7F;
+    --orange:  #E8A55A;
+    /* Couleurs des mécanismes */
+    --mech-rule:     #6FA5D4;   /* Toujours-actif (Rules) — bleu */
+    --mech-skill:    #D4A574;   /* On-demand agent-decides (Skills) — doré */
+    --mech-workflow: #C77DD4;   /* User-triggered (Workflows/Commands) — violet */
+    --mech-hook:     #7FBF7F;   /* Déterministe (Hooks) — vert */
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--navy);
+    color: var(--cream);
+    font-family: 'Inter', -apple-system, sans-serif;
+    line-height: 1.6;
+    font-size: 16px;
+  }
+
+  /* Lucide icon helper */
+  .lc {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* ============================================================
+     SECTIONS
+  ============================================================ */
+  .section {
+    position: relative;
+    padding: 100px 0;
+    overflow: hidden;
+  }
+  .section.dark { background: var(--navy); color: var(--cream); }
+  .section.dark-2 { background: var(--navy-2); color: var(--cream); }
+  .section.light { background: var(--cream); color: var(--ink); }
+
+  .container {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+  .container-narrow {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* ============================================================
+     TYPOGRAPHIE
+  ============================================================ */
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .eyebrow::before {
+    content: '';
+    width: 32px; height: 2px;
+    background: currentColor;
+    opacity: 0.9;
+  }
+  .dark .eyebrow, .dark-2 .eyebrow { color: var(--gold); }
+  .light .eyebrow { color: var(--gold-dk); }
+
+  h1, h2, h3, h4 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.1;
+  }
+  .h-display {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-style: italic;
+    line-height: 1.0;
+    letter-spacing: -0.025em;
+    font-size: clamp(46px, 7.5vw, 88px);
+  }
+  h2 {
+    font-size: clamp(30px, 4vw, 46px);
+    font-style: italic;
+    margin-bottom: 24px;
+  }
+  h3 {
+    font-size: clamp(20px, 2.4vw, 26px);
+    margin-bottom: 12px;
+  }
+
+  .lede {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-style: italic;
+    font-size: clamp(17px, 2vw, 21px);
+    line-height: 1.5;
+    max-width: 760px;
+    margin-bottom: 48px;
+  }
+  .dark .lede, .dark-2 .lede { color: var(--ice); }
+  .light .lede { color: var(--muted-dk); }
+
+  p { font-size: 16px; line-height: 1.7; }
+  .light p { color: var(--ink); }
+  .dark p, .dark-2 p { color: var(--ice); }
+
+  em { font-style: italic; color: var(--gold); }
+  .light em { color: var(--gold-dk); }
+  strong { font-weight: 600; }
+  .dark strong, .dark-2 strong { color: var(--cream); }
+
+  code, .mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.92em;
+    background: rgba(212,165,116,0.12);
+    padding: 1px 6px;
+    border-radius: 3px;
+    color: var(--gold);
+  }
+  .light code, .light .mono {
+    background: rgba(15,27,61,0.06);
+    color: var(--gold-dk);
+  }
+
+  /* Chapitre */
+  .chapter-mark {
+    display: flex;
+    align-items: baseline;
+    gap: 18px;
+    margin-bottom: 16px;
+  }
+  .chapter-num {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 56px;
+    color: var(--gold);
+    line-height: 1;
+  }
+  .light .chapter-num { color: var(--gold-dk); }
+  .chapter-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3.5px;
+    text-transform: uppercase;
+    color: var(--muted-lt);
+  }
+  .light .chapter-label { color: var(--muted-dk); }
+
+  /* ============================================================
+     PROGRESS BAR
+  ============================================================ */
+  .progress-top {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    width: 0%;
+    background: var(--gold);
+    z-index: 1000;
+    transition: width 0.1s linear;
+  }
+
+  /* ============================================================
+     HERO
+  ============================================================ */
+  .hero {
+    min-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    background:
+      radial-gradient(circle at 75% 25%, rgba(212,165,116,0.13), transparent 50%),
+      radial-gradient(circle at 15% 80%, rgba(202,220,252,0.06), transparent 45%),
+      var(--navy);
+    padding: 80px 0;
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.25fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+  .hero-text h1 {
+    color: #fff;
+    margin-bottom: 32px;
+  }
+  .hero-text h1 em {
+    color: var(--gold);
+    font-style: italic;
+    font-weight: 500;
+  }
+  .hero-divider {
+    width: 60px; height: 3px;
+    background: var(--gold);
+    margin-bottom: 28px;
+  }
+  .hero-sub {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 21px;
+    color: var(--ice);
+    line-height: 1.5;
+    max-width: 560px;
+    margin-bottom: 40px;
+  }
+  .hero-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+
+  /* Hero illustration : un nuage de termes équivalents en orbite autour d'un concept central */
+  .hero-illus {
+    position: relative;
+    aspect-ratio: 1;
+    max-width: 460px;
+    justify-self: end;
+    width: 100%;
+  }
+  .hero-illus svg { width: 100%; height: 100%; overflow: visible; }
+  .term-bubble {
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    text-anchor: middle;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+  }
+  .hero-illus .orbit-outer { animation: orbit-slow 50s linear infinite; transform-origin: 230px 230px; }
+  .hero-illus .orbit-inner { animation: orbit-slow 35s linear infinite reverse; transform-origin: 230px 230px; }
+  @keyframes orbit-slow {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+  /* Texte qui contre-tourne pour rester droit */
+  .hero-illus .counter-outer { animation: counter-slow 50s linear infinite; transform-box: fill-box; transform-origin: center; }
+  .hero-illus .counter-inner { animation: counter-slow 35s linear infinite reverse; transform-box: fill-box; transform-origin: center; }
+  @keyframes counter-slow {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(-360deg); }
+  }
+  .hero-illus .core-pulse {
+    transform-origin: 230px 230px;
+    animation: core-pulse 4s ease-in-out infinite;
+  }
+  @keyframes core-pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.05); opacity: 0.92; }
+  }
+
+  .scroll-cue {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+  .scroll-cue::after {
+    content: '↓';
+    display: block;
+    margin-top: 8px;
+    font-size: 16px;
+    animation: bounce 2s ease-in-out infinite;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(6px); }
+  }
+
+  /* ============================================================
+     SECTION 1 — LE PROBLÈME COMMUN
+  ============================================================ */
+  .problem-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 56px;
+    margin-top: 48px;
+    align-items: stretch;
+  }
+  .problem-side {
+    padding: 32px;
+    border-radius: 12px;
+    display: flex;
+    flex-direction: column;
+  }
+  .problem-side.bad {
+    background: rgba(227,107,90,0.08);
+    border: 1px solid rgba(227,107,90,0.3);
+  }
+  .problem-side.good {
+    background: rgba(127,191,127,0.08);
+    border: 1px solid rgba(127,191,127,0.3);
+  }
+  .problem-icon {
+    width: 36px; height: 36px;
+    margin-bottom: 18px;
+  }
+  .problem-side.bad .problem-icon { color: var(--red); }
+  .problem-side.good .problem-icon { color: var(--green); }
+  .problem-side h3 {
+    font-style: italic;
+    margin-bottom: 14px;
+  }
+  .problem-side.bad h3 { color: var(--red); }
+  .problem-side.good h3 { color: var(--green); }
+  .problem-side p {
+    color: var(--ice);
+    font-size: 14.5px;
+    line-height: 1.65;
+    margin-bottom: 12px;
+  }
+  .problem-side p:last-child { margin-bottom: 0; }
+  .problem-side .demo {
+    margin-top: 18px;
+    padding: 14px 16px;
+    background: rgba(15,27,61,0.45);
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ice);
+    line-height: 1.6;
+  }
+  .problem-side .demo .lbl {
+    color: var(--gold);
+    font-size: 9.5px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    display: block;
+    margin-bottom: 6px;
+  }
+
+  /* ============================================================
+     SECTION 2 — LES SKILLS D'ANTHROPIC
+  ============================================================ */
+  .skill-anatomy {
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    gap: 56px;
+    margin-top: 56px;
+    align-items: start;
+  }
+  .skill-tree {
+    background: rgba(15,27,61,0.04);
+    border: 1px solid var(--divider-dk);
+    border-radius: 8px;
+    padding: 28px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--ink);
+    line-height: 1.9;
+  }
+  .skill-tree .tree-comment { color: var(--gold-dk); font-style: italic; }
+  .skill-tree .tree-required { color: var(--navy); font-weight: 700; }
+  .skill-tree .tree-optional { color: var(--muted-dk); }
+  .skill-tree-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    color: var(--gold-dk);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--divider-dk);
+    font-weight: 700;
+  }
+
+  .skill-explain h3 {
+    color: var(--navy);
+    font-style: italic;
+    margin-bottom: 16px;
+  }
+  .skill-explain p {
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.7;
+    margin-bottom: 16px;
+  }
+  .skill-md-example {
+    margin-top: 24px;
+    background: var(--navy-2);
+    border-radius: 8px;
+    padding: 24px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--ice);
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .skill-md-example .frontmatter { color: var(--gold); }
+  .skill-md-example .key { color: var(--mech-rule); }
+  .skill-md-example .value { color: var(--cream); }
+  .skill-md-example .heading { color: var(--gold); font-weight: 700; }
+
+  /* Schéma de la progressive disclosure */
+  .pd-stage {
+    margin-top: 80px;
+    padding: 48px;
+    background: rgba(15,27,61,0.03);
+    border-radius: 16px;
+    border: 1px solid var(--divider-dk);
+  }
+  .pd-title {
+    text-align: center;
+    margin-bottom: 12px;
+  }
+  .pd-title h3 {
+    color: var(--navy);
+    font-style: italic;
+    margin-bottom: 8px;
+  }
+  .pd-title p {
+    color: var(--muted-dk);
+    font-size: 14.5px;
+    max-width: 580px;
+    margin: 0 auto;
+  }
+
+  .pd-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 18px;
+    margin: 32px 0 36px;
+    flex-wrap: wrap;
+  }
+  .pd-step-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 18px;
+    background: #fff;
+    border: 1px solid var(--divider-dk);
+    border-radius: 30px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    color: var(--muted-dk);
+    text-transform: uppercase;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .pd-step-btn .pd-num {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: rgba(15,27,61,0.08);
+    color: var(--muted-dk);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+  }
+  .pd-step-btn.active {
+    background: var(--gold);
+    color: var(--navy);
+    border-color: var(--gold);
+    box-shadow: 0 4px 14px rgba(212,165,116,0.3);
+  }
+  .pd-step-btn.active .pd-num {
+    background: var(--navy);
+    color: var(--gold);
+  }
+  .pd-step-btn:hover:not(.active) {
+    border-color: var(--gold);
+    color: var(--navy);
+  }
+  .pd-arrow {
+    color: var(--gold);
+    font-size: 18px;
+    margin: 0 -4px;
+    opacity: 0.5;
+  }
+  @media (max-width: 700px) {
+    .pd-arrow { display: none; }
+  }
+
+  .pd-scene {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 24px;
+    align-items: stretch;
+    min-height: 380px;
+  }
+  .pd-col {
+    background: #fff;
+    border: 1px solid var(--divider-dk);
+    border-radius: 10px;
+    padding: 22px;
+    display: flex;
+    flex-direction: column;
+  }
+  .pd-col-head {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid var(--divider-dk);
+  }
+  .pd-col-icon {
+    width: 30px; height: 30px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .pd-col-icon svg { width: 16px; height: 16px; }
+  .pd-col-icon.harness { background: var(--mech-rule); }
+  .pd-col-icon.llm { background: var(--mech-skill); color: var(--navy); }
+  .pd-col-icon.fs { background: var(--mech-workflow); }
+  .pd-col-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--muted-dk);
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .pd-col-title {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 17px;
+    color: var(--navy);
+    font-weight: 600;
+  }
+
+  .pd-item {
+    background: rgba(15,27,61,0.03);
+    border: 1px solid var(--divider-dk);
+    border-radius: 6px;
+    padding: 12px 14px;
+    margin-bottom: 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ink);
+    transition: all 0.6s ease;
+    line-height: 1.5;
+    position: relative;
+  }
+  .pd-item:last-child { margin-bottom: 0; }
+  .pd-item .pd-item-tag {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    margin-right: 6px;
+    font-weight: 700;
+  }
+  .pd-item.dim { opacity: 0.3; filter: grayscale(0.5); }
+  .pd-item.highlight {
+    background: rgba(212,165,116,0.12);
+    border-color: var(--gold);
+    box-shadow: 0 4px 14px rgba(212,165,116,0.2);
+  }
+  .pd-item small {
+    display: block;
+    color: var(--muted-dk);
+    font-style: italic;
+    font-family: 'Inter', sans-serif;
+    font-size: 11.5px;
+    margin-top: 4px;
+    letter-spacing: 0;
+  }
+
+  .pd-token-counter {
+    margin-bottom: 12px;
+    padding: 8px 12px;
+    background: rgba(212,165,116,0.06);
+    border: 1px dashed var(--gold-dk);
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    color: var(--gold-dk);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    text-align: center;
+    transition: all 0.5s ease;
+  }
+  .pd-token-counter strong {
+    color: var(--navy);
+    font-size: 13px;
+    font-weight: 700;
+    letter-spacing: 0;
+    margin-left: 6px;
+  }
+
+  .pd-narration {
+    margin-top: 32px;
+    padding: 22px 28px;
+    background: var(--navy-2);
+    border-radius: 8px;
+    color: var(--ice);
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 16.5px;
+    line-height: 1.6;
+    text-align: center;
+    transition: opacity 0.4s ease;
+  }
+  .pd-narration strong {
+    color: var(--gold);
+    font-style: normal;
+    font-weight: 600;
+  }
+
+  /* Rôle harnais vs rôle LLM */
+  .roles-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    margin-top: 56px;
+  }
+  .role-card {
+    padding: 28px 32px;
+    background: #fff;
+    border: 1px solid var(--divider-dk);
+    border-radius: 10px;
+  }
+  .role-card .role-icon {
+    width: 44px; height: 44px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 18px;
+    color: #fff;
+  }
+  .role-card.harness .role-icon { background: var(--mech-rule); }
+  .role-card.llm .role-icon { background: var(--mech-skill); color: var(--navy); }
+  .role-card .role-icon svg { width: 22px; height: 22px; }
+  .role-card h3 {
+    color: var(--navy);
+    font-style: italic;
+    margin-bottom: 12px;
+  }
+  .role-card p {
+    color: var(--ink);
+    font-size: 14.5px;
+    line-height: 1.65;
+    margin-bottom: 14px;
+  }
+  .role-card ul {
+    list-style: none;
+    padding: 0;
+    margin-top: 16px;
+  }
+  .role-card ul li {
+    position: relative;
+    padding-left: 22px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: var(--ink);
+    line-height: 1.55;
+  }
+  .role-card ul li::before {
+    content: '→';
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--gold-dk);
+    font-weight: 700;
+  }
+
+  /* Standard ouvert encadré */
+  .open-standard {
+    margin-top: 56px;
+    padding: 32px;
+    background: linear-gradient(135deg, rgba(212,165,116,0.1), rgba(212,165,116,0.04));
+    border: 1px solid var(--gold);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 24px;
+  }
+  .open-standard-icon {
+    width: 56px; height: 56px;
+    background: var(--gold);
+    color: var(--navy);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .open-standard-icon svg { width: 28px; height: 28px; }
+  .open-standard h4 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 22px;
+    color: var(--navy);
+    margin-bottom: 6px;
+  }
+  .open-standard p {
+    color: var(--ink);
+    font-size: 14.5px;
+    line-height: 1.6;
+    margin: 0;
+  }
+  .open-standard p strong { color: var(--gold-dk); }
+
+  @media (max-width: 900px) {
+    .skill-anatomy { grid-template-columns: 1fr; gap: 28px; }
+    .pd-scene { grid-template-columns: 1fr; }
+    .roles-grid { grid-template-columns: 1fr; }
+    .open-standard { flex-direction: column; text-align: center; }
+  }
+
+  /* ============================================================
+     SECTION 3 — LES AXES DE DIFFÉRENCIATION
+  ============================================================ */
+  .axis-block {
+    margin-top: 56px;
+  }
+  .axis-card {
+    background: rgba(202,220,252,0.04);
+    border: 1px solid var(--divider-lt);
+    border-radius: 12px;
+    padding: 32px 36px;
+    margin-bottom: 28px;
+  }
+  .axis-card:last-child { margin-bottom: 0; }
+  .axis-header {
+    display: flex;
+    align-items: baseline;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .axis-num {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 36px;
+    color: var(--gold);
+    line-height: 1;
+  }
+  .axis-card h3 {
+    font-style: italic;
+    color: var(--cream);
+    margin: 0;
+    flex: 1;
+  }
+  .axis-card > p.lede-axis {
+    color: var(--ice);
+    font-size: 14.5px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+
+  /* Ligne avec deux extrémités */
+  .axis-spectrum {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr;
+    gap: 24px;
+    align-items: center;
+    margin-top: 18px;
+  }
+  .axis-end {
+    padding: 20px 22px;
+    background: rgba(15,27,61,0.5);
+    border: 1px solid var(--divider-lt);
+    border-radius: 8px;
+  }
+  .axis-end .axis-end-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+    font-weight: 700;
+  }
+  .axis-end.left .axis-end-label { color: var(--mech-rule); }
+  .axis-end.right .axis-end-label { color: var(--mech-skill); }
+  .axis-end h4 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 19px;
+    color: var(--cream);
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  .axis-end p {
+    color: var(--ice);
+    font-size: 13.5px;
+    line-height: 1.6;
+    margin: 0;
+  }
+  .axis-end p.examples {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--divider-lt);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--gold);
+    letter-spacing: 0.5px;
+  }
+  .axis-arrow {
+    font-size: 22px;
+    color: var(--gold);
+    opacity: 0.6;
+  }
+  @media (max-width: 700px) {
+    .axis-spectrum { grid-template-columns: 1fr; }
+    .axis-arrow { transform: rotate(90deg); justify-self: center; }
+  }
+
+  /* Encart spécial : exemple camelCase */
+  .axis-callout {
+    margin-top: 24px;
+    padding: 24px 28px;
+    background: rgba(212,165,116,0.08);
+    border-left: 4px solid var(--gold);
+    border-radius: 0 8px 8px 0;
+  }
+  .axis-callout-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 2.5px;
+    color: var(--gold);
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 10px;
+    padding: 3px 10px;
+    background: rgba(212,165,116,0.15);
+    border-radius: 3px;
+  }
+  .axis-callout h4 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 19px;
+    color: var(--gold);
+    margin-bottom: 10px;
+  }
+  .axis-callout p {
+    color: var(--ice);
+    font-size: 14.5px;
+    line-height: 1.65;
+    margin-bottom: 10px;
+  }
+  .axis-callout p:last-child { margin-bottom: 0; }
+  .axis-callout strong {
+    color: var(--gold);
+    font-weight: 600;
+  }
+
+  /* ============================================================
+     SECTION 4 — LE PANORAMA PAR OUTIL
+  ============================================================ */
+  .tool-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 24px;
+    margin-top: 56px;
+  }
+  .tool-card {
+    background: #fff;
+    border: 1px solid var(--divider-dk);
+    border-top-width: 4px;
+    border-radius: 8px;
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  .tool-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 12px 28px rgba(15,27,61,0.08);
+  }
+  .tool-card.cnonical { border-top-color: var(--gold); }      /* Anthropic */
+  .tool-card.gold { border-top-color: var(--gold); }          /* Anthropic */
+  .tool-card.violet { border-top-color: var(--mech-workflow); }/* Antigravity */
+  .tool-card.blue { border-top-color: var(--mech-rule); }     /* Cursor */
+  .tool-card.green { border-top-color: var(--green); }        /* Copilot */
+  .tool-card.orange { border-top-color: var(--orange); }      /* Codex */
+  .tool-card.gray { border-top-color: var(--muted-dk); }      /* Cline / autres */
+  .tool-card.red { border-top-color: var(--red); }            /* Junie */
+
+  .tool-head {
+    display: flex;
+    align-items: baseline;
+    gap: 14px;
+    margin-bottom: 10px;
+  }
+  .tool-name {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 24px;
+    color: var(--navy);
+    flex: 1;
+  }
+  .tool-vendor {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 2px;
+    color: var(--muted-dk);
+    text-transform: uppercase;
+  }
+  .tool-tagline {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 13.5px;
+    color: var(--gold-dk);
+    margin-bottom: 18px;
+    line-height: 1.5;
+  }
+
+  .tool-mechanisms {
+    margin-top: 4px;
+    flex: 1;
+  }
+  .mech-row {
+    display: grid;
+    grid-template-columns: 110px 1fr;
+    gap: 14px;
+    align-items: start;
+    padding: 12px 0;
+    border-bottom: 1px dashed var(--divider-dk);
+    font-size: 13.5px;
+  }
+  .mech-row:last-child { border-bottom: none; }
+  .mech-tag {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: #fff;
+    height: fit-content;
+  }
+  .mech-tag.rule { background: var(--mech-rule); }
+  .mech-tag.skill { background: var(--mech-skill); color: var(--navy); }
+  .mech-tag.workflow { background: var(--mech-workflow); }
+  .mech-tag.hook { background: var(--mech-hook); color: var(--navy); }
+  .mech-tag.misc { background: var(--muted-dk); }
+  .mech-content {
+    color: var(--ink);
+    line-height: 1.55;
+  }
+  .mech-content code {
+    font-size: 11.5px;
+    padding: 1px 5px;
+  }
+  .mech-content small {
+    display: block;
+    color: var(--muted-dk);
+    font-size: 12px;
+    line-height: 1.5;
+    margin-top: 3px;
+    font-style: italic;
+  }
+
+  .tool-note {
+    margin-top: 16px;
+    padding: 12px 14px;
+    background: rgba(212,165,116,0.08);
+    border-radius: 4px;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 13px;
+    color: var(--gold-dk);
+    line-height: 1.5;
+  }
+  .tool-note::before {
+    content: '◆ ';
+    margin-right: 4px;
+  }
+
+  @media (max-width: 900px) {
+    .tool-grid { grid-template-columns: 1fr; }
+    .mech-row { grid-template-columns: 90px 1fr; }
+  }
+
+  /* ============================================================
+     SECTION 5 — STANDARD AGENTS.md
+  ============================================================ */
+  .agents-stage {
+    margin-top: 56px;
+    display: grid;
+    grid-template-columns: 1.1fr 1fr;
+    gap: 56px;
+    align-items: center;
+  }
+  .agents-narrative h3 {
+    font-style: italic;
+    color: var(--cream);
+    margin-bottom: 18px;
+  }
+  .agents-narrative p {
+    font-size: 15px;
+    line-height: 1.7;
+    margin-bottom: 16px;
+  }
+  .agents-narrative ul {
+    list-style: none;
+    padding: 0;
+    margin: 16px 0;
+  }
+  .agents-narrative ul li {
+    position: relative;
+    padding-left: 22px;
+    margin-bottom: 8px;
+    font-size: 14.5px;
+    color: var(--ice);
+    line-height: 1.55;
+  }
+  .agents-narrative ul li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    top: 0;
+    color: var(--green);
+    font-weight: 700;
+  }
+
+  .agents-cloud {
+    background: rgba(15,27,61,0.5);
+    border: 1px solid var(--gold);
+    border-radius: 16px;
+    padding: 36px;
+    text-align: center;
+  }
+  .agents-cloud-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 18px;
+    font-weight: 700;
+  }
+  .agents-cloud-file {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: clamp(28px, 4vw, 38px);
+    color: var(--gold);
+    margin-bottom: 14px;
+  }
+  .agents-cloud-sub {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    color: var(--ice);
+    font-size: 14.5px;
+    margin-bottom: 22px;
+  }
+  .agents-vendors {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+  }
+  .vendor-tag {
+    padding: 6px 12px;
+    background: rgba(212,165,116,0.1);
+    border: 1px solid rgba(212,165,116,0.3);
+    border-radius: 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--ice);
+    letter-spacing: 0.5px;
+  }
+  .vendor-tag.major {
+    background: rgba(212,165,116,0.2);
+    border-color: var(--gold);
+    color: var(--gold);
+    font-weight: 700;
+  }
+
+  .agents-fact {
+    margin-top: 56px;
+    padding: 28px 36px;
+    background: rgba(212,165,116,0.05);
+    border: 1px dashed var(--gold);
+    border-radius: 8px;
+    text-align: center;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 17px;
+    line-height: 1.6;
+    color: var(--ice);
+  }
+  .agents-fact strong {
+    color: var(--gold);
+    font-weight: 600;
+  }
+  .agents-fact .big-num {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 56px;
+    color: var(--gold);
+    line-height: 1;
+    margin-right: 14px;
+    vertical-align: middle;
+  }
+
+  @media (max-width: 900px) {
+    .agents-stage { grid-template-columns: 1fr; gap: 32px; }
+  }
+
+  /* ============================================================
+     SECTION 6 — CONCLUSION
+  ============================================================ */
+  .conclusion-formula-final {
+    margin-top: 32px;
+    padding: 48px;
+    background: rgba(15,27,61,0.3);
+    border: 1px solid var(--gold);
+    border-radius: 12px;
+    text-align: center;
+  }
+  .conclusion-formula-final h3 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    color: var(--gold);
+    margin-bottom: 22px;
+  }
+  .conclusion-formula-final p {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: clamp(17px, 2vw, 20px);
+    line-height: 1.6;
+    color: var(--ice);
+    max-width: 720px;
+    margin: 0 auto 14px;
+  }
+  .conclusion-formula-final p:last-child { margin-bottom: 0; }
+  .conclusion-formula-final p strong {
+    color: var(--gold);
+    font-weight: 600;
+  }
+
+  /* Footer */
+  footer {
+    background: var(--navy-2);
+    padding: 40px 0;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--muted-dk);
+    text-transform: uppercase;
+    border-top: 1px solid var(--divider-lt);
+  }
+
+  /* ============================================================
+     SCROLL ANIMATIONS
+  ============================================================ */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .reveal-d-1 { transition-delay: 0.08s; }
+  .reveal-d-2 { transition-delay: 0.16s; }
+  .reveal-d-3 { transition-delay: 0.24s; }
+  .reveal-d-4 { transition-delay: 0.32s; }
+
+  /* ============================================================
+     RESPONSIVE
+  ============================================================ */
+  @media (max-width: 900px) {
+    .section { padding: 70px 0; }
+    .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+    .hero-illus { justify-self: center; max-width: 340px; }
+    .problem-grid { grid-template-columns: 1fr; gap: 28px; }
+  }
+  @media (max-width: 600px) {
+    .container, .container-narrow { padding: 0 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     PROGRESS BAR
+============================================================ -->
+<div class="progress-top" id="progress-bar"></div>
+
+<!-- ============================================================
+     HERO
+============================================================ -->
+<section class="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div class="hero-text">
+        <div class="hero-meta">Bonus avancé · Skills & co.</div>
+        <h1 class="h-display" style="margin-top:32px;">
+          <em>Skills</em>, Rules,<br>
+          Workflows…<br>
+          toute la même <em>famille</em>
+        </h1>
+        <div class="hero-divider"></div>
+        <p class="hero-sub">
+          Anthropic les appelle <em>Skills</em>. Antigravity les appelle <em>Rules</em>,
+          <em>Skills</em> et <em>Workflows</em>. Cursor parle de <em>Rules</em>.
+          GitHub Copilot a <em>Instructions</em>, <em>Prompts</em>, <em>Custom Agents</em>…
+          Sous le zoo de noms, un seul concept.
+        </p>
+        <div class="hero-meta">Avril 2026 · État de l'art</div>
+      </div>
+
+      <div class="hero-illus">
+        <svg viewBox="0 0 460 460" xmlns="http://www.w3.org/2000/svg">
+          <!-- Cercles décoratifs -->
+          <circle cx="230" cy="230" r="210" fill="none" stroke="var(--gold)" stroke-width="1" opacity="0.1" stroke-dasharray="2 8"/>
+          <circle cx="230" cy="230" r="160" fill="none" stroke="var(--gold)" stroke-width="1" opacity="0.18" stroke-dasharray="6 4"/>
+          <circle cx="230" cy="230" r="105" fill="none" stroke="var(--gold)" stroke-width="1" opacity="0.25"/>
+
+          <!-- Orbite extérieure : termes en circulation -->
+          <g class="orbit-outer">
+            <!-- Bulle 1 : Rules (haut) -->
+            <g transform="translate(230, 70)">
+              <g class="counter-outer">
+                <rect x="-44" y="-15" width="88" height="30" rx="15" fill="var(--navy-2)" stroke="var(--mech-rule)" stroke-width="1.8"/>
+                <text class="term-bubble" font-size="11" y="4" fill="var(--mech-rule)">RULES</text>
+              </g>
+            </g>
+            <!-- Bulle 2 : Skills (bas-droite) -->
+            <g transform="translate(370, 320)">
+              <g class="counter-outer">
+                <rect x="-44" y="-15" width="88" height="30" rx="15" fill="var(--navy-2)" stroke="var(--mech-skill)" stroke-width="1.8"/>
+                <text class="term-bubble" font-size="11" y="4" fill="var(--mech-skill)">SKILLS</text>
+              </g>
+            </g>
+            <!-- Bulle 3 : Workflows (bas-gauche) -->
+            <g transform="translate(90, 320)">
+              <g class="counter-outer">
+                <rect x="-54" y="-15" width="108" height="30" rx="15" fill="var(--navy-2)" stroke="var(--mech-workflow)" stroke-width="1.8"/>
+                <text class="term-bubble" font-size="11" y="4" fill="var(--mech-workflow)">WORKFLOWS</text>
+              </g>
+            </g>
+          </g>
+
+          <!-- Orbite intérieure : termes secondaires -->
+          <g class="orbit-inner">
+            <!-- Commands (gauche) -->
+            <g transform="translate(125, 230)">
+              <g class="counter-inner">
+                <rect x="-50" y="-13" width="100" height="26" rx="13" fill="var(--navy-2)" stroke="var(--gold-dk)" stroke-width="1.4" opacity="0.85"/>
+                <text class="term-bubble" font-size="10" y="3.5" fill="var(--gold)">COMMANDS</text>
+              </g>
+            </g>
+            <!-- Instructions (droite) -->
+            <g transform="translate(335, 230)">
+              <g class="counter-inner">
+                <rect x="-58" y="-13" width="116" height="26" rx="13" fill="var(--navy-2)" stroke="var(--gold-dk)" stroke-width="1.4" opacity="0.85"/>
+                <text class="term-bubble" font-size="10" y="3.5" fill="var(--gold)">INSTRUCTIONS</text>
+              </g>
+            </g>
+            <!-- Prompts (haut-gauche) -->
+            <g transform="translate(150, 130)">
+              <g class="counter-inner">
+                <rect x="-40" y="-12" width="80" height="24" rx="12" fill="var(--navy-2)" stroke="var(--gold-dk)" stroke-width="1.3" opacity="0.7"/>
+                <text class="term-bubble" font-size="9.5" y="3" fill="var(--gold)" opacity="0.85">PROMPTS</text>
+              </g>
+            </g>
+            <!-- Hooks (bas-droite) -->
+            <g transform="translate(310, 330)">
+              <g class="counter-inner">
+                <rect x="-36" y="-12" width="72" height="24" rx="12" fill="var(--navy-2)" stroke="var(--gold-dk)" stroke-width="1.3" opacity="0.7"/>
+                <text class="term-bubble" font-size="9.5" y="3" fill="var(--gold)" opacity="0.85">HOOKS</text>
+              </g>
+            </g>
+          </g>
+
+          <!-- Liens centraux discrets -->
+          <line x1="230" y1="180" x2="230" y2="100" stroke="var(--gold)" stroke-width="1" opacity="0.18" stroke-dasharray="3 4"/>
+          <line x1="270" y1="260" x2="340" y2="305" stroke="var(--gold)" stroke-width="1" opacity="0.18" stroke-dasharray="3 4"/>
+          <line x1="190" y1="260" x2="120" y2="305" stroke="var(--gold)" stroke-width="1" opacity="0.18" stroke-dasharray="3 4"/>
+
+          <!-- Cœur central : LE concept commun -->
+          <g class="core-pulse">
+            <circle cx="230" cy="230" r="68" fill="var(--gold)"/>
+            <circle cx="230" cy="230" r="68" fill="none" stroke="var(--gold)" stroke-width="1" opacity="0.4">
+              <animate attributeName="r" from="68" to="100" dur="3.5s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" from="0.5" to="0" dur="3.5s" repeatCount="indefinite"/>
+            </circle>
+            <text x="230" y="222" text-anchor="middle" font-family="JetBrains Mono" font-size="9" letter-spacing="2.5" fill="var(--navy)" font-weight="700">UN SEUL</text>
+            <text x="230" y="240" text-anchor="middle" font-family="Fraunces" font-style="italic" font-size="20" fill="var(--navy)" font-weight="600">concept</text>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-cue">Faites défiler</div>
+</section>
+
+<!-- ============================================================
+     SECTION 1 — LE PROBLÈME COMMUN
+============================================================ -->
+<section class="section dark-2" id="probleme">
+  <div class="container-narrow">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">01</span>
+        <span class="chapter-label">Le problème commun</span>
+      </div>
+      <h2>Pourquoi tous ces outils existent</h2>
+      <p class="lede">
+        Un harnais est livré « générique ». Il ne connaît ni votre projet,
+        ni vos conventions, ni les habitudes de votre équipe. Si vous voulez
+        que l'agent suive vos règles, vous avez deux choix.
+      </p>
+    </div>
+
+    <div class="problem-grid">
+      <div class="problem-side bad reveal reveal-d-1">
+        <svg class="problem-icon lc" viewBox="0 0 24 24">
+          <path d="M22 17a2 2 0 0 1-2 2H6.828a2 2 0 0 0-1.414.586l-2.202 2.202A.71.71 0 0 1 2 21.286V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2z"/>
+          <path d="M8 9h8"/>
+          <path d="M8 13h6"/>
+        </svg>
+        <h3>Option 1 : tout retaper, à chaque fois</h3>
+        <p>
+          Au début de chaque conversation, vous rappelez à l'agent vos
+          conventions, votre stack, ce qu'il ne doit pas toucher.
+          Ça marche pour deux ou trois règles. Au-delà, vous oubliez,
+          vous abrégez, et l'agent code à côté de la plaque.
+        </p>
+        <div class="demo">
+          <span class="lbl">Vos prompts, en boucle</span>
+          « Utilise du camelCase pour les variables… utilise TypeScript strict…
+          n'écris jamais dans le dossier <code>/legacy</code>… nos tests sont en
+          Vitest, pas en Jest… »
+        </div>
+      </div>
+
+      <div class="problem-side good reveal reveal-d-2">
+        <svg class="problem-icon lc" viewBox="0 0 24 24">
+          <path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z"/>
+          <path d="M9 13h6"/>
+          <path d="M9 17h6"/>
+          <path d="M9 9h2"/>
+        </svg>
+        <h3>Option 2 : codifier, une fois pour toutes</h3>
+        <p>
+          Vous écrivez vos conventions dans des fichiers que le harnais
+          charge automatiquement. L'agent les voit à chaque session,
+          sans que vous ayez à les retaper. Vos collègues les voient aussi.
+          C'est versionné dans Git.
+        </p>
+        <div class="demo">
+          <span class="lbl">Un fichier dans votre projet</span>
+          <code>.claude/skills/conventions/SKILL.md</code><br>
+          <code>.cursor/rules/typescript.mdc</code><br>
+          <code>.github/copilot-instructions.md</code><br>
+          <code>AGENTS.md</code>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal reveal-d-3" style="margin-top: 56px;">
+      <p style="font-family: 'Fraunces', serif; font-style: italic; font-size: 19px; color: var(--gold); text-align: center; max-width: 780px; margin: 0 auto;">
+        Tous les harnais sérieux ont implémenté la deuxième option.
+        Mais chacun à sa sauce, avec son vocabulaire propre. C'est cette
+        diversité qu'on va démêler.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SECTION 2 — LES SKILLS D'ANTHROPIC EN DÉTAIL
+============================================================ -->
+<section class="section light" id="skills">
+  <div class="container">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">02</span>
+        <span class="chapter-label">Le concept canonique</span>
+      </div>
+      <h2 style="color: var(--navy);">Les <em>Skills</em> d'Anthropic, en détail</h2>
+      <p class="lede">
+        Commençons par le concept tel qu'Anthropic l'a formalisé : un standard
+        propre, simple à comprendre, et — fait remarquable — devenu en quelques
+        mois le standard ouvert du secteur.
+      </p>
+    </div>
+
+    <!-- Anatomie d'un skill -->
+    <div class="skill-anatomy">
+      <div class="skill-tree reveal reveal-d-1">
+        <div class="skill-tree-title">Structure d'un Skill</div>
+        <div><span class="tree-required">mon-skill/</span></div>
+        <div>├── <span class="tree-required">SKILL.md</span> &nbsp;&nbsp;<span class="tree-comment"># obligatoire</span></div>
+        <div>│ &nbsp;&nbsp;├── frontmatter YAML <span class="tree-comment">(nom + description)</span></div>
+        <div>│ &nbsp;&nbsp;└── instructions Markdown</div>
+        <div>├── <span class="tree-optional">scripts/</span> &nbsp;&nbsp;<span class="tree-comment"># code exécutable, optionnel</span></div>
+        <div>├── <span class="tree-optional">references/</span> &nbsp;<span class="tree-comment"># docs détaillées, optionnel</span></div>
+        <div>└── <span class="tree-optional">assets/</span> &nbsp;&nbsp;&nbsp;<span class="tree-comment"># templates, fonts, etc.</span></div>
+      </div>
+
+      <div class="skill-explain reveal reveal-d-2">
+        <h3>Un dossier, point.</h3>
+        <p>
+          Un Skill, c'est tout simplement un dossier avec un fichier
+          <code>SKILL.md</code> à la racine. Le fichier comporte deux parties :
+          un <em>frontmatter YAML</em> avec un nom et une description, puis
+          du Markdown ordinaire qui contient les instructions.
+        </p>
+        <p>
+          Optionnellement, le dossier peut contenir des scripts exécutables,
+          des fichiers de référence supplémentaires, et des assets (templates,
+          polices, etc.). Tout ça reste sur disque tant que ce n'est pas
+          explicitement utilisé.
+        </p>
+
+        <div class="skill-md-example">
+<span class="frontmatter">---</span>
+<span class="key">name</span>: <span class="value">commit-conventions</span>
+<span class="key">description</span>: <span class="value">Règles pour rédiger des messages de commit Git.</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="value">Utiliser dès qu'il faut commiter du code, ou rédiger</span>
+&nbsp;&nbsp;&nbsp;&nbsp;<span class="value">un message de PR.</span>
+<span class="frontmatter">---</span>
+
+<span class="heading"># Conventions de commit</span>
+
+Format : <span class="key">type(scope): description</span>
+
+- type : feat, fix, refactor, docs, test, chore
+- scope : optionnel, en minuscules
+- description : impératif, sans point final
+- max 72 caractères
+        </div>
+      </div>
+    </div>
+
+    <!-- Schéma de la progressive disclosure -->
+    <div class="pd-stage reveal">
+      <div class="pd-title">
+        <h3>L'astuce : la <em>progressive disclosure</em></h3>
+        <p>
+          C'est la mécanique qui fait toute l'élégance des Skills. Trois niveaux
+          de chargement, du plus léger au plus complet. Cliquez les phases pour voir
+          comment ça se passe.
+        </p>
+      </div>
+
+      <div class="pd-controls">
+        <button class="pd-step-btn active" data-phase="1">
+          <span class="pd-num">1</span>
+          <span>Découverte</span>
+        </button>
+        <span class="pd-arrow">→</span>
+        <button class="pd-step-btn" data-phase="2">
+          <span class="pd-num">2</span>
+          <span>Activation</span>
+        </button>
+        <span class="pd-arrow">→</span>
+        <button class="pd-step-btn" data-phase="3">
+          <span class="pd-num">3</span>
+          <span>Détails à la demande</span>
+        </button>
+      </div>
+
+      <div class="pd-scene">
+        <!-- Colonne 1 : Système de fichiers -->
+        <div class="pd-col">
+          <div class="pd-col-head">
+            <div class="pd-col-icon fs">
+              <svg class="lc" viewBox="0 0 24 24"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>
+            </div>
+            <div>
+              <div class="pd-col-name">Sur disque</div>
+              <div class="pd-col-title">Les Skills</div>
+            </div>
+          </div>
+          <div class="pd-item" id="fs-skill1">
+            <span class="pd-item-tag" style="background: rgba(127,191,127,0.2); color: var(--green);">SKILL</span>
+            commit-conventions/<br>
+            <small>SKILL.md (250 mots)</small>
+          </div>
+          <div class="pd-item" id="fs-skill2">
+            <span class="pd-item-tag" style="background: rgba(127,191,127,0.2); color: var(--green);">SKILL</span>
+            pdf-generator/<br>
+            <small>SKILL.md + 2 scripts + forms.md</small>
+          </div>
+          <div class="pd-item" id="fs-skill3">
+            <span class="pd-item-tag" style="background: rgba(127,191,127,0.2); color: var(--green);">SKILL</span>
+            api-conventions/<br>
+            <small>SKILL.md (180 mots)</small>
+          </div>
+        </div>
+
+        <!-- Colonne 2 : Harnais -->
+        <div class="pd-col">
+          <div class="pd-col-head">
+            <div class="pd-col-icon harness">
+              <svg class="lc" viewBox="0 0 24 24"><path d="M20.5 7.27 12 12l-8.5-4.73"/><path d="M12 22V12"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg>
+            </div>
+            <div>
+              <div class="pd-col-name">Mécanique</div>
+              <div class="pd-col-title">Le Harnais</div>
+            </div>
+          </div>
+          <div class="pd-token-counter" id="harness-tokens">
+            Contexte : <strong>~50 tokens</strong>
+          </div>
+          <div class="pd-item" id="harness-meta">
+            <span class="pd-item-tag" style="background: rgba(212,165,116,0.2); color: var(--gold-dk);">META</span>
+            commit-conventions<br>
+            <small>« Règles pour rédiger des messages de commit Git… »</small>
+          </div>
+          <div class="pd-item" id="harness-load">
+            <span class="pd-item-tag" style="background: rgba(212,165,116,0.2); color: var(--gold-dk);">CHARGÉ</span>
+            SKILL.md<br>
+            <small>contenu complet injecté dans le contexte</small>
+          </div>
+        </div>
+
+        <!-- Colonne 3 : LLM -->
+        <div class="pd-col">
+          <div class="pd-col-head">
+            <div class="pd-col-icon llm">
+              <svg class="lc" viewBox="0 0 24 24"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+            </div>
+            <div>
+              <div class="pd-col-name">Décideur</div>
+              <div class="pd-col-title">Le LLM</div>
+            </div>
+          </div>
+          <div class="pd-item" id="llm-think">
+            <span class="pd-item-tag" style="background: rgba(111,165,212,0.2); color: var(--mech-rule);">THINK</span>
+            <span id="llm-think-text">je vois 3 skills disponibles</span>
+            <small id="llm-think-sub">je connais leur description, je sais quand les utiliser</small>
+          </div>
+          <div class="pd-item" id="llm-action">
+            <span class="pd-item-tag" style="background: rgba(199,125,212,0.2); color: var(--mech-workflow);">ACTION</span>
+            <span id="llm-action-text">aucune</span>
+            <small id="llm-action-sub">en attente de la requête utilisateur</small>
+          </div>
+        </div>
+      </div>
+
+      <div class="pd-narration" id="pd-narration">
+        <strong>Phase 1 — Découverte.</strong> Au démarrage, le harnais ne charge dans le contexte
+        du LLM que les <em>métadonnées</em> de chaque skill (nom + description). Léger,
+        rapide. Le LLM sait juste qu'ils existent.
+      </div>
+    </div>
+
+    <!-- Rôle du harnais vs rôle du LLM -->
+    <div class="reveal" style="margin-top: 80px;">
+      <h3 style="color: var(--navy); font-style: italic; text-align: center; margin-bottom: 14px;">
+        Qui fait quoi ?
+      </h3>
+      <p style="text-align: center; color: var(--muted-dk); max-width: 620px; margin: 0 auto;">
+        Le mécanisme repose sur une division claire des rôles entre le harnais
+        (la mécanique) et le LLM (le décideur).
+      </p>
+    </div>
+
+    <div class="roles-grid">
+      <div class="role-card harness reveal reveal-d-1">
+        <div class="role-icon">
+          <svg class="lc" viewBox="0 0 24 24">
+            <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/>
+            <path d="m3.3 7 8.7 5 8.7-5"/>
+            <path d="M12 22V12"/>
+          </svg>
+        </div>
+        <h3>Le harnais — la mécanique</h3>
+        <p>Il met le système en place et exécute les opérations sur le système de fichiers. Il ne « comprend » pas le contenu — il le manipule.</p>
+        <ul>
+          <li>Scanne les dossiers de skills au démarrage</li>
+          <li>Injecte les métadonnées (nom + description) dans le contexte initial du LLM</li>
+          <li>Fournit au LLM les outils <code>bash</code> / <code>read</code> nécessaires pour lire les fichiers</li>
+          <li>Exécute les scripts quand le LLM le demande, et lui rend la sortie</li>
+        </ul>
+      </div>
+
+      <div class="role-card llm reveal reveal-d-2">
+        <div class="role-icon">
+          <svg class="lc" viewBox="0 0 24 24">
+            <path d="M12 8V4H8"/>
+            <rect width="16" height="12" x="4" y="8" rx="2"/>
+            <path d="M2 14h2"/>
+            <path d="M20 14h2"/>
+            <path d="M15 13v2"/>
+            <path d="M9 13v2"/>
+          </svg>
+        </div>
+        <h3>Le LLM — le décideur</h3>
+        <p>Il lit les descriptions de skills disponibles et décide, à chaque tour, lesquels sont pertinents pour la requête en cours.</p>
+        <ul>
+          <li>Lit les descriptions des skills disponibles dans son contexte</li>
+          <li>Juge si une description correspond à la tâche demandée</li>
+          <li>Demande au harnais de lire un <code>SKILL.md</code> via l'outil <code>bash</code></li>
+          <li>Décide si des fichiers référencés (<code>forms.md</code>, schéma, etc.) sont nécessaires, et les lit aussi</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Standard ouvert -->
+    <div class="open-standard reveal">
+      <div class="open-standard-icon">
+        <svg class="lc" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20"/><path d="M2 12h20"/></svg>
+      </div>
+      <div>
+        <h4>Un standard ouvert : <code style="background: transparent; color: var(--gold-dk); padding: 0;">agentskills.io</code></h4>
+        <p>
+          Anthropic a publié la spécification des Skills comme <strong>standard ouvert</strong>
+          en décembre 2025, sous l'égide de la <strong>Linux Foundation</strong>. Résultat :
+          le format <code>SKILL.md</code> est aujourd'hui adopté par
+          <strong>Microsoft, OpenAI, Cursor, Goose, Amp, OpenCode, Gemini CLI</strong>…
+          Un Skill écrit pour Claude fonctionne sur la plupart des autres harnais.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SECTION 3 — LES AXES DE DIFFÉRENCIATION
+============================================================ -->
+<section class="section dark" id="axes">
+  <div class="container">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">03</span>
+        <span class="chapter-label">La grille de lecture</span>
+      </div>
+      <h2>Trois axes pour comprendre <em>tous</em> les mécanismes</h2>
+      <p class="lede">
+        Les Skills d'Anthropic ne sont qu'un point dans un espace plus large.
+        Avant d'entrer dans le panorama des outils, voici trois axes qui
+        permettent de comparer n'importe quels deux mécanismes — chez Anthropic,
+        Antigravity, Cursor, ou ailleurs.
+      </p>
+    </div>
+
+    <div class="axis-block">
+      <!-- Axe 1 : Toujours-actif vs On-demand -->
+      <div class="axis-card reveal reveal-d-1">
+        <div class="axis-header">
+          <span class="axis-num">01</span>
+          <h3>Toujours actif <span style="color: var(--muted-lt); font-style: normal; font-weight: 400;">/</span> Chargé à la demande</h3>
+        </div>
+        <p class="lede-axis">
+          Est-ce que le contenu est <em>tout le temps dans le contexte</em> du LLM,
+          ou est-ce qu'il n'est chargé que <em>quand pertinent</em> ? C'est la
+          différence fondamentale entre une « Rule » et un « Skill ».
+        </p>
+
+        <div class="axis-spectrum">
+          <div class="axis-end left">
+            <div class="axis-end-label">Toujours actif</div>
+            <h4>Le contenu vit dans le contexte</h4>
+            <p>
+              Chargé au démarrage de chaque session. Le LLM le voit en permanence.
+              Pratique pour les conventions universelles. Mais ça consomme des tokens
+              à chaque tour, qu'on en ait besoin ou pas.
+            </p>
+            <p class="examples">CLAUDE.md, AGENTS.md, .cursorrules, Rules</p>
+          </div>
+          <div class="axis-arrow">⇆</div>
+          <div class="axis-end right">
+            <div class="axis-end-label">À la demande</div>
+            <h4>Le contenu reste sur disque</h4>
+            <p>
+              Le LLM ne voit que la <em>description</em> au démarrage.
+              Il charge le contenu complet seulement si la tâche le justifie.
+              Bien plus économe en tokens, surtout avec beaucoup de skills installés.
+            </p>
+            <p class="examples">Skills (Anthropic, Codex, Antigravity)</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Axe 2 : Qui décide ? -->
+      <div class="axis-card reveal reveal-d-2">
+        <div class="axis-header">
+          <span class="axis-num">02</span>
+          <h3>L'utilisateur décide <span style="color: var(--muted-lt); font-style: normal; font-weight: 400;">/</span> L'agent décide</h3>
+        </div>
+        <p class="lede-axis">
+          Qui déclenche le mécanisme ? Est-ce l'utilisateur qui invoque
+          explicitement (<code>/test</code>, <code>/deploy</code>), ou l'agent qui juge
+          lui-même que c'est pertinent en lisant la description ?
+        </p>
+
+        <div class="axis-spectrum">
+          <div class="axis-end left">
+            <div class="axis-end-label">User-triggered</div>
+            <h4>Slash command, invocation explicite</h4>
+            <p>
+              L'utilisateur tape <code>/cmd</code> et l'agent exécute. Pas d'ambiguïté,
+              ça part toujours à la demande. Bon pour les workflows ponctuels qu'on
+              ne veut pas voir se déclencher tout seul.
+            </p>
+            <p class="examples">Workflows, Commands, Prompt files</p>
+          </div>
+          <div class="axis-arrow">⇆</div>
+          <div class="axis-end right">
+            <div class="axis-end-label">Agent-triggered</div>
+            <h4>L'agent juge lui-même la pertinence</h4>
+            <p>
+              L'agent lit les descriptions disponibles et décide tout seul, à chaque
+              tour, si l'une d'elles correspond à la tâche. Pas besoin de penser à
+              l'invoquer, mais ça suppose des descriptions bien rédigées.
+            </p>
+            <p class="examples">Skills, Agent Requested rules (Cursor)</p>
+          </div>
+        </div>
+
+        <!-- Encart : ton exemple camelCase -->
+        <div class="axis-callout">
+          <span class="axis-callout-tag">Exemple parlant</span>
+          <h4>Pourquoi « l'agent décide » est plus économe</h4>
+          <p>
+            Imaginons une règle pour <strong>nommer mes fichiers en camelCase</strong>.
+            Si elle est <em>toujours active</em>, elle entre dans le contexte à chaque
+            tour — y compris quand je demande à l'agent d'éditer une classe (où la
+            règle ne sert à rien).
+          </p>
+          <p>
+            Si c'est l'agent qui décide, il lit la description (<em>« règle de nommage
+            de fichiers »</em>) et la <strong>charge uniquement quand on parle de fichiers</strong>.
+            Pour ma classe, il l'ignore. Multiplié par toutes les règles du projet, l'économie
+            de tokens est massive.
+          </p>
+          <p>
+            <strong>C'est exactement la philosophie d'Antigravity</strong> avec ses Skills,
+            et celle de Cursor avec son mode « Agent Requested ».
+          </p>
+        </div>
+      </div>
+
+      <!-- Axe 3 : Statique vs Progressive -->
+      <div class="axis-card reveal reveal-d-3">
+        <div class="axis-header">
+          <span class="axis-num">03</span>
+          <h3>Fichier monolithique <span style="color: var(--muted-lt); font-style: normal; font-weight: 400;">/</span> Progressive disclosure</h3>
+        </div>
+        <p class="lede-axis">
+          Quand le contenu est chargé, est-ce qu'il l'est en <em>un bloc</em>,
+          ou par paliers, en chargeant seulement les sous-parties pertinentes ?
+        </p>
+
+        <div class="axis-spectrum">
+          <div class="axis-end left">
+            <div class="axis-end-label">Monolithique</div>
+            <h4>Tout ou rien</h4>
+            <p>
+              Le fichier est chargé en entier. Simple à comprendre, mais quand le
+              fichier devient gros, on consomme des tokens même pour les parties
+              non utilisées dans la tâche en cours.
+            </p>
+            <p class="examples">CLAUDE.md, .cursorrules legacy</p>
+          </div>
+          <div class="axis-arrow">⇆</div>
+          <div class="axis-end right">
+            <div class="axis-end-label">Progressive</div>
+            <h4>En 3 niveaux</h4>
+            <p>
+              D'abord les métadonnées, puis le SKILL.md, puis les fichiers
+              référencés à la demande. Permet de packager des skills très riches
+              sans payer le coût en tokens si on ne s'en sert pas.
+            </p>
+            <p class="examples">Skills (toutes implémentations)</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal" style="margin-top: 56px; text-align: center;">
+      <p style="font-family: 'Fraunces', serif; font-style: italic; font-size: 19px; color: var(--gold); max-width: 780px; margin: 0 auto;">
+        Avec ces trois axes, vous pouvez maintenant <em>cataloguer</em> n'importe quel
+        mécanisme proposé par n'importe quel harnais. C'est ce qu'on va faire dans
+        la section suivante.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SECTION 4 — LE PANORAMA PAR OUTIL
+============================================================ -->
+<section class="section light" id="panorama">
+  <div class="container">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">04</span>
+        <span class="chapter-label">Outil par outil</span>
+      </div>
+      <h2 style="color: var(--navy);">Le panorama complet</h2>
+      <p class="lede">
+        Chaque harnais a sa propre palette de mécanismes. Pour les comparer,
+        on les classe selon les couleurs des trois familles principales :
+        <span style="color: var(--mech-rule); font-weight: 600;">Rules</span> (toujours actifs),
+        <span style="color: var(--gold-dk); font-weight: 600;">Skills</span> (à la demande, agent décide),
+        <span style="color: var(--mech-workflow); font-weight: 600;">Workflows</span> (à la demande, user décide),
+        <span style="color: var(--green); font-weight: 600;">Hooks</span> (déterministes).
+      </p>
+    </div>
+
+    <div class="tool-grid">
+
+      <!-- Anthropic Claude Code -->
+      <div class="tool-card gold reveal reveal-d-1">
+        <div class="tool-head">
+          <span class="tool-name">Claude Code</span>
+          <span class="tool-vendor">Anthropic</span>
+        </div>
+        <div class="tool-tagline">Le concept canonique. Anthropic a posé le standard, les autres ont suivi.</div>
+        <div class="tool-mechanisms">
+          <div class="mech-row">
+            <span class="mech-tag rule">Rule</span>
+            <div class="mech-content">
+              <code>CLAUDE.md</code>
+              <small>Mémoire du projet. Hiérarchique : project, nested directories, et <code>~/.claude/</code> global. Toujours actif.</small>
+            </div>
+          </div>
+          <div class="mech-row">
+            <span class="mech-tag skill">Skill</span>
+            <div class="mech-content">
+              <code>.claude/skills/&lt;nom&gt;/SKILL.md</code>
+              <small>Format standard <code>agentskills.io</code>. Chargé à la demande, agent décide. Peut aussi être invoqué via <code>/nom</code>.</small>
+            </div>
+          </div>
+          <div class="mech-row">
+            <span class="mech-tag workflow">Command</span>
+            <div class="mech-content">
+              <code>.claude/commands/*.md</code>
+              <small>Format <em>legacy</em>. Slash commands avec frontmatter (<code>allowed-tools</code>, <code>argument-hint</code>). Remplacé par les Skills.</small>
+            </div>
+          </div>
+          <div class="mech-row">
+            <span class="mech-tag hook">Hook</span>
+            <div class="mech-content">
+              25+ points de hook (PreToolUse, PostToolUse, SessionStart…)
+              <small>Code déterministe qui s'exécute autour des appels d'outils. Pour ce qui doit <em>toujours</em> se passer.</small>
+            </div>
+          </div>
+        </div>
+        <div class="tool-note">
+          Les <em>Skills</em> remplacent désormais les <em>Commands</em>. Une migration progressive est en cours.
+        </div>
+      </div>
+
+      <!-- Antigravity -->
+      <div class="tool-card violet reveal reveal-d-2">
+        <div class="tool-head">
+          <span class="tool-name">Antigravity</span>
+          <span class="tool-vendor">Google</span>
+        </div>
+        <div class="tool-tagline">La trinité la plus claire : Rules, Skills et Workflows nettement séparés.</div>
+        <div class="tool-mechanisms">
+          <div class="mech-row">
+            <span class="mech-tag rule">Rule</span>
+            <div class="mech-content">
+              <code>.agent/rules/</code> ou <code>AGENTS.md</code> / <code>GEMINI.md</code>
+              <small>Garde-fous toujours actifs ou déclenchés par type de fichier. Injectés dans le system prompt.</small>
+            </div>
+          </div>
+          <div class="mech-row">
+            <span class="mech-tag skill">Skill</span>
+            <div class="mech-content">
+              <code>~/.gemini/antigravity/skills/</code>
+              <small>Format <code>SKILL.md</code> standard. <strong>L'agent juge lui-même</strong> s'il l'applique selon la description.</small>
+            </div>
+          </div>
+          <div class="mech-row">
+            <span class="mech-tag workflow">Workflow</span>
+            <div class="mech-content">
+              <code>.agent/workflows/</code> avec <code>/nom</code>
+              <small>Recettes step-by-step déclenchées par l'utilisateur. Support du <code>// turbo</code> pour auto-exécuter les commandes shell.</small>
+            </div>
+          </div>
+        </div>
+        <div class="tool-note">
+          Composabilité notable : une <em>Rule</em> peut imposer l'usage d'un <em>Skill</em>, et un <em>Workflow</em> peut chaîner plusieurs <em>Skills</em>.
+        </div>
+      </div>
+
+      <!-- Cursor -->
+      <div class="tool-card blue reveal reveal-d-3">
+        <div class="tool-head">
+          <span class="tool-name">Cursor</span>
+          <span class="tool-vendor">Anysphere</span>
+        </div>
+        <div class="tool-tagline">Une seule famille — les Rules — mais avec quatre modes d'application très fins.</div>
+        <div class="tool-mechanisms">
+          <div class="mech-row">
+            <span class="mech-tag rule">Rule</span>
+            <div class="mech-content">
+              <code>.cursor/rules/*.mdc</code>
+              <small>Markdown + frontmatter YAML. Quatre modes : <strong>Always</strong>, <strong>Auto Attached</strong> (via globs), <strong>Agent Requested</strong> (description), <strong>Manual</strong>.</small>
+            </div>
+          </div>
+          <div class="mech-row">
+            <span class="mech-tag rule">Rule (legacy)</span>
+            <div class="mech-content">
+              <code>.cursorrules</code>
+              <small>Fichier unique au root, déprécié mais toujours supporté. Migration recommandée vers <code>.cursor/rules/</code>.</small>
+            </div>
+          </div>
+          <div class="mech-row">
+            <span class="mech-tag misc">Précédence</span>
+            <div class="mech-content">
+              Team Rules → Project Rules → User Rules
+              <small>Les User Rules sont globales (texte libre dans Settings). Les Project Rules vivent dans le repo.</small>
+            </div>
+          </div>
+        </div>
+        <div class="tool-note">
+          Le mode <em>Agent Requested</em> rejoint la philosophie des Skills d'Anthropic : c'est le LLM qui juge si la règle s'applique.
+        </div>
+      </div>
+
+      <!-- GitHub Copilot -->
+      <div class="tool-card green reveal reveal-d-4">
+        <div class="tool-head">
+          <span class="tool-name">GitHub Copilot</span>
+          <span class="tool-vendor">Microsoft</span>
+        </div>
+        <div class="tool-tagline">L'architecture la plus stratifiée — six familles distinctes pour des rôles précis.</div>
+        <div class="tool-mechanisms">
+          <div class="mech-row">
+            <span class="mech-tag rule">Instruction</span>
+            <div class="mech-content">
+              <code>.github/copilot-instructions.md</code>
+              <small>Repository-wide, toujours actif. Plus <code>.github/instructions/*.instructions.md</code> avec <code>applyTo</code> glob pour des règles ciblées.</small>
+            </div>
+          </div>
+          <div class="mech-row">
+            <span class="mech-tag workflow">Prompt file</span>
+            <div class="mech-content">
+              <code>.github/prompts/*.prompt.md</code>
+              <small>Slash commands user-triggered. Frontmatter avec <code>agent</code>, <code>tools</code>, <code>model</code>.</small>
+            </div>
+          </div>
+          <div class="mech-row">
+            <span class="mech-tag skill">Custom Agent</span>
+            <div class="mech-content">
+              <code>.github/agents/*.agent.md</code>
+              <small>Personas spécialisées avec un set d'outils défini (« reviewer Python », « architect frontend »…).</small>
+            </div>
+          </div>
+          <div class="mech-row">
+            <span class="mech-tag skill">Skill</span>
+            <div class="mech-content">
+              Format <code>SKILL.md</code> standard
+              <small>Workflows réutilisables avec scripts et templates bundled. Compatible avec le standard ouvert.</small>
+            </div>
+          </div>
+          <div class="mech-row">
+            <span class="mech-tag hook">Hook</span>
+            <div class="mech-content">
+              Hard-stop enforcement
+              <small>Pour les politiques qui ne doivent <em>jamais</em> être contournées par le modèle.</small>
+            </div>
+          </div>
+        </div>
+        <div class="tool-note">
+          Reconnaît nativement <code>AGENTS.md</code> en plus de son format propre. Les deux peuvent coexister.
+        </div>
+      </div>
+
+      <!-- OpenAI Codex CLI -->
+      <div class="tool-card orange reveal reveal-d-1">
+        <div class="tool-head">
+          <span class="tool-name">Codex CLI</span>
+          <span class="tool-vendor">OpenAI</span>
+        </div>
+        <div class="tool-tagline">L'inventeur d'<code>AGENTS.md</code>. Adopte aussi les Skills d'Anthropic.</div>
+        <div class="tool-mechanisms">
+          <div class="mech-row">
+            <span class="mech-tag rule">AGENTS.md</span>
+            <div class="mech-content">
+              Au root du repo, hiérarchique
+              <small>OpenAI a créé ce standard en août 2025. Le repo Codex contient lui-même <strong>88 fichiers AGENTS.md</strong> à différents niveaux.</small>
+            </div>
+          </div>
+          <div class="mech-row">
+            <span class="mech-tag skill">Skill</span>
+            <div class="mech-content">
+              <code>~/.agents/skills/</code> ou <code>.agents/skills/</code>
+              <small>Format <code>SKILL.md</code> identique à Anthropic. Capping intéressant : la liste initiale est plafonnée à ~2% du context window.</small>
+            </div>
+          </div>
+          <div class="mech-row">
+            <span class="mech-tag misc">Subagent</span>
+            <div class="mech-content">
+              <code>[agents]</code> dans <code>config.toml</code>
+              <small>Workflows multi-agents : Codex peut spawner des subagents avec leurs propres rôles et outils.</small>
+            </div>
+          </div>
+          <div class="mech-row">
+            <span class="mech-tag workflow">Automation</span>
+            <div class="mech-content">
+              Skills + cadence
+              <small>« Skills define the method, automations define the schedule. » Un workflow stable + une cadence (toutes les 6h, etc.).</small>
+            </div>
+          </div>
+        </div>
+        <div class="tool-note">
+          Précédence : <code>AGENTS.override.md</code> → <code>AGENTS.md</code> le plus proche → parents → <code>~/.codex/AGENTS.md</code>.
+        </div>
+      </div>
+
+      <!-- Cline / Roo Code -->
+      <div class="tool-card gray reveal reveal-d-2">
+        <div class="tool-head">
+          <span class="tool-name">Cline / Roo Code</span>
+          <span class="tool-vendor">Open source</span>
+        </div>
+        <div class="tool-tagline">Approche dossier-based pure. Modulaire avec des toggles individuels.</div>
+        <div class="tool-mechanisms">
+          <div class="mech-row">
+            <span class="mech-tag rule">Rule</span>
+            <div class="mech-content">
+              <code>.clinerules/</code> ou <code>.roo/rules/</code>
+              <small>Dossier de fichiers <code>.md</code> ou <code>.txt</code>. Frontmatter YAML supporté avec <code>paths</code> (globs) pour activation conditionnelle.</small>
+            </div>
+          </div>
+          <div class="mech-row">
+            <span class="mech-tag rule">AGENTS.md</span>
+            <div class="mech-content">
+              Reconnu nativement
+              <small>Cline et Roo Code chargent <code>AGENTS.md</code> en plus de leurs propres formats. Plan & Act modes spécifiques à Cline.</small>
+            </div>
+          </div>
+          <div class="mech-row">
+            <span class="mech-tag workflow">Workflow</span>
+            <div class="mech-content">
+              Slash commands avec sous-dossiers <code>rules-{mode}/</code>
+              <small>Roo Code a des modes (Architect, Code, Debug…) avec leurs propres rules. Cline a Plan & Act.</small>
+            </div>
+          </div>
+          <div class="mech-row">
+            <span class="mech-tag hook">Hook</span>
+            <div class="mech-content">
+              Récents (Cline)
+              <small>Plus Skills et Workflows séparés depuis 2025. Toggle UI pour activer/désactiver chaque rule individuellement.</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- JetBrains Junie -->
+      <div class="tool-card red reveal reveal-d-3">
+        <div class="tool-head">
+          <span class="tool-name">Junie</span>
+          <span class="tool-vendor">JetBrains</span>
+        </div>
+        <div class="tool-tagline">L'approche minimaliste. Un seul fichier, et c'est suffisant.</div>
+        <div class="tool-mechanisms">
+          <div class="mech-row">
+            <span class="mech-tag rule">Guideline</span>
+            <div class="mech-content">
+              <code>.junie/guidelines.md</code>
+              <small>Équivalent de <code>CLAUDE.md</code>. Versionnable. Junie peut le générer pour vous en explorant le projet.</small>
+            </div>
+          </div>
+          <div class="mech-row">
+            <span class="mech-tag misc">Ignore</span>
+            <div class="mech-content">
+              <code>.aiignore</code>
+              <small>Pour exclure des fichiers ou dossiers de l'analyse de l'agent. Comme un <code>.gitignore</code> dédié à l'IA.</small>
+            </div>
+          </div>
+        </div>
+        <div class="tool-note">
+          Junie est LLM-agnostique : Anthropic, OpenAI, Google, Grok ou BYOK. Mais sa configuration reste la même.
+        </div>
+      </div>
+
+      <!-- Aider / Continue.dev / Gemini CLI / autres minimalistes -->
+      <div class="tool-card gray reveal reveal-d-4">
+        <div class="tool-head">
+          <span class="tool-name">Aider, Gemini CLI, Continue…</span>
+          <span class="tool-vendor">Outils minimalistes</span>
+        </div>
+        <div class="tool-tagline">Un fichier de conventions, parfois une convergence vers le standard.</div>
+        <div class="tool-mechanisms">
+          <div class="mech-row">
+            <span class="mech-tag rule">Convention</span>
+            <div class="mech-content">
+              <code>conventions.md</code> (Aider), <code>GEMINI.md</code>, etc.
+              <small>Un fichier markdown au root. Toujours actif. La forme la plus simple — un README pour l'agent.</small>
+            </div>
+          </div>
+          <div class="mech-row">
+            <span class="mech-tag skill">Skill (récent)</span>
+            <div class="mech-content">
+              Gemini CLI adopte le standard
+              <small>Format <code>SKILL.md</code> avec progressive disclosure. Compatible avec les Skills écrits pour Claude.</small>
+            </div>
+          </div>
+          <div class="mech-row">
+            <span class="mech-tag rule">AGENTS.md</span>
+            <div class="mech-content">
+              Quasiment tous le supportent
+              <small>Aider, goose, opencode, Zed, Warp, VS Code, Devin, Junie, Amp, RooCode, Gemini CLI, Windsurf, Augment Code…</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SECTION 5 — LE STANDARD AGENTS.md
+============================================================ -->
+<section class="section dark-2" id="agents-md">
+  <div class="container">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">05</span>
+        <span class="chapter-label">Une lingua franca émerge</span>
+      </div>
+      <h2>Le standard <code style="background: rgba(212,165,116,0.15); color: var(--gold); padding: 4px 12px; border-radius: 4px;">AGENTS.md</code></h2>
+      <p class="lede">
+        Au milieu de cette diversité de formats, un standard inter-outils
+        a discrètement émergé fin 2025 et s'impose à grande vitesse :
+        <code style="background: rgba(212,165,116,0.15); color: var(--gold);">AGENTS.md</code>,
+        un simple fichier markdown au root de votre projet, lu nativement
+        par presque tous les harnais sérieux.
+      </p>
+    </div>
+
+    <div class="agents-stage">
+      <div class="agents-narrative reveal reveal-d-1">
+        <h3>« Un README pour les agents »</h3>
+        <p>
+          Origine : OpenAI a créé le format avec Codex CLI en août 2025.
+          Confié fin 2025 à la <strong>Linux Foundation / Agentic AI Foundation</strong>
+          comme standard ouvert. La métaphore officielle :
+          <em>« think of it as a README for agents »</em>.
+        </p>
+        <p>Pas de syntaxe particulière, pas de schéma à apprendre :</p>
+        <ul>
+          <li>Un fichier <code>AGENTS.md</code> au root du repo</li>
+          <li>Lu automatiquement par les agents au démarrage</li>
+          <li>Markdown libre — décrit la stack, les conventions, les contraintes</li>
+          <li>Hiérarchique : un par sous-dossier si besoin (le plus proche prime)</li>
+          <li>Versionné dans Git, partagé avec toute l'équipe</li>
+        </ul>
+      </div>
+
+      <div class="agents-cloud reveal reveal-d-2">
+        <div class="agents-cloud-title">Adopté nativement par</div>
+        <div class="agents-cloud-file">AGENTS.md</div>
+        <div class="agents-cloud-sub">la lingua franca des agents</div>
+        <div class="agents-vendors">
+          <span class="vendor-tag major">Codex (OpenAI)</span>
+          <span class="vendor-tag major">GitHub Copilot</span>
+          <span class="vendor-tag major">Cursor</span>
+          <span class="vendor-tag">Jules</span>
+          <span class="vendor-tag">Devin</span>
+          <span class="vendor-tag">Aider</span>
+          <span class="vendor-tag">goose</span>
+          <span class="vendor-tag">opencode</span>
+          <span class="vendor-tag">Zed</span>
+          <span class="vendor-tag">Warp</span>
+          <span class="vendor-tag">VS Code</span>
+          <span class="vendor-tag">Junie</span>
+          <span class="vendor-tag">Amp</span>
+          <span class="vendor-tag">RooCode</span>
+          <span class="vendor-tag">Gemini CLI</span>
+          <span class="vendor-tag">Cline</span>
+          <span class="vendor-tag">Augment Code</span>
+          <span class="vendor-tag">Factory</span>
+          <span class="vendor-tag">Kilo Code</span>
+          <span class="vendor-tag">UiPath Autopilot</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="agents-fact reveal reveal-d-3">
+      <span class="big-num">88</span>
+      Anecdote parlante : le repo OpenAI Codex contient <strong>88 fichiers AGENTS.md</strong> à différents niveaux. Quand on dit que le format est hiérarchique, ce n'est pas anecdotique — chaque sous-projet peut avoir son propre <code style="background: rgba(212,165,116,0.15); color: var(--gold);">AGENTS.md</code>, et celui le plus proche du fichier édité prime.
+    </div>
+
+    <div class="reveal" style="margin-top: 48px; text-align: center;">
+      <p style="font-family: 'Fraunces', serif; font-style: italic; font-size: 16px; color: var(--ice); max-width: 720px; margin: 0 auto;">
+        Notable absent : <strong style="color: var(--gold);">Claude Code</strong> utilise toujours
+        <code style="background: rgba(212,165,116,0.15); color: var(--gold);">CLAUDE.md</code>,
+        et Gemini CLI son propre <code style="background: rgba(212,165,116,0.15); color: var(--gold);">GEMINI.md</code>.
+        En pratique, beaucoup d'équipes mettent les règles communes dans
+        <code style="background: rgba(212,165,116,0.15); color: var(--gold);">AGENTS.md</code>
+        et les spécificités outil-par-outil dans les fichiers dédiés.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SECTION 6 — CONCLUSION
+============================================================ -->
+<section class="section dark" id="conclusion">
+  <div class="container-narrow">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">06</span>
+        <span class="chapter-label">Pour conclure</span>
+      </div>
+      <h2>La règle qui explique tout</h2>
+      <p>
+        Vous avez maintenant traversé un zoo de noms : <em>Skills</em>, <em>Rules</em>,
+        <em>Workflows</em>, <em>Commands</em>, <em>Instructions</em>, <em>Custom Agents</em>,
+        <em>Hooks</em>, <em>Guidelines</em>, <em>Conventions</em>… et derrière, à chaque fois,
+        le même besoin et la même solution.
+      </p>
+      <p>
+        Tous ces mécanismes sont des manières de <strong>pré-charger du contexte
+        dans le harnais</strong>, sans avoir à le retaper à chaque conversation.
+        La compétition entre vendors se joue sur l'ergonomie — la lourdeur du fichier,
+        la granularité du déclenchement, l'économie de tokens, la composabilité — pas sur le concept.
+      </p>
+      <p>
+        L'innovation pédagogiquement intéressante de ces derniers mois, c'est la
+        <em>progressive disclosure</em> popularisée par les Skills d'Anthropic et reprise
+        par Antigravity, Codex et Gemini CLI : <strong>permettre à l'agent de juger lui-même
+        ce dont il a besoin</strong>, plutôt que d'imposer le contexte d'office. C'est
+        cette idée qui change le plus l'expérience à grande échelle.
+      </p>
+    </div>
+
+    <div class="conclusion-formula-final reveal reveal-d-1">
+      <h3>À retenir, en trois phrases</h3>
+      <p>
+        Au-delà des noms, tous ces mécanismes répondent à la même question :
+        <em>« comment customiser un harnais générique sans tout retaper ? ».</em>
+      </p>
+      <p style="margin-top: 22px;">
+        Ils se classent sur trois axes : <strong>toujours-actif vs à la demande</strong>,
+        <strong>l'utilisateur décide vs l'agent décide</strong>, et
+        <strong>monolithique vs progressive</strong>.
+      </p>
+      <p style="margin-top: 22px;">
+        Et un standard ouvert émerge — <code style="background: rgba(212,165,116,0.2); color: var(--gold); padding: 2px 8px;">AGENTS.md</code>
+        et <code style="background: rgba(212,165,116,0.2); color: var(--gold); padding: 2px 8px;">SKILL.md</code> —
+        qui devrait, à terme, faire converger l'écosystème.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FOOTER
+============================================================ -->
+<footer>
+  Le harnais dans l'agentique AI · Bonus avancé · Skills &amp; co. · Avril 2026
+</footer>
+
+<script>
+// Progress bar
+const progressBar = document.getElementById('progress-bar');
+window.addEventListener('scroll', () => {
+  const max = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = (window.scrollY / max) * 100;
+  if (progressBar) progressBar.style.width = pct + '%';
+});
+
+// Reveal au scroll
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+// ============================================================
+// SECTION 2 — Progressive Disclosure animation
+// ============================================================
+const phases = {
+  1: {
+    label: '1 — Découverte',
+    narration: '<strong>Phase 1 — Découverte.</strong> Au démarrage, le harnais ne charge dans le contexte du LLM que les <em>métadonnées</em> de chaque skill (nom + description). Léger, rapide. Le LLM sait juste qu\'ils existent.',
+    fs: { skill1: 'normal', skill2: 'normal', skill3: 'normal' },
+    harnessTokens: '~50 tokens',
+    harnessMeta: 'highlight',
+    harnessLoad: 'dim',
+    llmThinkText: 'je vois 3 skills disponibles',
+    llmThinkSub: 'je connais leur description, je sais quand les utiliser',
+    llmActionText: 'aucune',
+    llmActionSub: 'en attente de la requête utilisateur'
+  },
+  2: {
+    label: '2 — Activation',
+    narration: '<strong>Phase 2 — Activation.</strong> L\'utilisateur demande de commiter. Le LLM reconnaît que la description de <code style="background: rgba(212,165,116,0.2); color: var(--gold);">commit-conventions</code> correspond. Il appelle <code style="background: rgba(212,165,116,0.2); color: var(--gold);">bash</code> pour lire le SKILL.md complet. Le harnais charge le contenu dans le contexte.',
+    fs: { skill1: 'highlight', skill2: 'normal', skill3: 'normal' },
+    harnessTokens: '~350 tokens',
+    harnessMeta: 'highlight',
+    harnessLoad: 'highlight',
+    llmThinkText: 'commit-conventions correspond',
+    llmThinkSub: 'la description matche la requête, je dois charger le SKILL.md',
+    llmActionText: 'bash: read commit-conventions/SKILL.md',
+    llmActionSub: 'le harnais exécute, le contenu rentre dans le contexte'
+  },
+  3: {
+    label: '3 — Détails à la demande',
+    narration: '<strong>Phase 3 — Détails à la demande.</strong> Si le SKILL.md référence d\'autres fichiers (par exemple un schéma DB ou un guide complémentaire), le LLM les lit aussi — mais seulement ceux dont il a besoin. Le reste du dossier reste sur disque.',
+    fs: { skill1: 'highlight', skill2: 'normal', skill3: 'normal' },
+    harnessTokens: '~480 tokens',
+    harnessMeta: 'highlight',
+    harnessLoad: 'highlight',
+    llmThinkText: 'je vois @schema.md référencé',
+    llmThinkSub: 'cette tâche le nécessite, je le lis. Pas les autres fichiers.',
+    llmActionText: 'bash: read schema.md',
+    llmActionSub: 'fichier additionnel chargé, le reste reste sur disque'
+  }
+};
+
+function applyPhase(phaseNum) {
+  const ph = phases[phaseNum];
+  if (!ph) return;
+
+  // Boutons
+  document.querySelectorAll('.pd-step-btn').forEach(b => {
+    b.classList.toggle('active', parseInt(b.dataset.phase) === phaseNum);
+  });
+
+  // Narration
+  document.getElementById('pd-narration').innerHTML = ph.narration;
+
+  // Filesystem items
+  ['skill1', 'skill2', 'skill3'].forEach(k => {
+    const el = document.getElementById('fs-' + k);
+    if (!el) return;
+    el.classList.remove('dim', 'highlight');
+    if (ph.fs[k] === 'highlight') el.classList.add('highlight');
+    if (ph.fs[k] === 'dim') el.classList.add('dim');
+  });
+
+  // Harness
+  document.getElementById('harness-tokens').innerHTML = 'Contexte : <strong>' + ph.harnessTokens + '</strong>';
+  const harnessMeta = document.getElementById('harness-meta');
+  const harnessLoad = document.getElementById('harness-load');
+  harnessMeta.classList.remove('dim', 'highlight');
+  harnessLoad.classList.remove('dim', 'highlight');
+  if (ph.harnessMeta === 'highlight') harnessMeta.classList.add('highlight');
+  if (ph.harnessLoad === 'highlight') harnessLoad.classList.add('highlight');
+  if (ph.harnessLoad === 'dim') harnessLoad.classList.add('dim');
+
+  // LLM
+  document.getElementById('llm-think-text').textContent = ph.llmThinkText;
+  document.getElementById('llm-think-sub').textContent = ph.llmThinkSub;
+  document.getElementById('llm-action-text').textContent = ph.llmActionText;
+  document.getElementById('llm-action-sub').textContent = ph.llmActionSub;
+}
+
+document.querySelectorAll('.pd-step-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    applyPhase(parseInt(btn.dataset.phase));
+  });
+});
+
+// État initial
+applyPhase(1);
+</script>
+
+</body>
+</html>
