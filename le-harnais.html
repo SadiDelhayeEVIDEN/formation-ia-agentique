@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Le Harnais dans l'agentique AI — Une introduction pour débutants</title>
+<title>Le harnais dans l'IA agentique — Une introduction pour débutants</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -371,6 +371,15 @@
   .toc a:hover, .toc a.active {
     background: var(--gold);
     width: 44px;
+  }
+  /* Variante : section claire (cream, ou gold-bg) sous la TOC.
+     Les barres en blanc transparent disparaissent sur ces fonds, donc
+     on bascule vers du navy transparent + or sombre pour rester lisible. */
+  .toc.on-light a {
+    background: rgba(15,27,61,0.22);
+  }
+  .toc.on-light a:hover, .toc.on-light a.active {
+    background: var(--gold-dk);
   }
   .toc a span {
     position: absolute;
@@ -1330,7 +1339,7 @@
         <div class="hero-meta">Une introduction pour débutants</div>
         <h1 class="h-display" style="margin-top:32px;">
           Le <em>Harnais</em><br>
-          dans l'agentique AI
+          dans l'IA agentique
         </h1>
         <div class="hero-divider"></div>
         <p class="hero-sub">
@@ -2008,7 +2017,7 @@
     </div>
 
     <p class="roles-tagline reveal reveal-delay-2">
-      « Le modèle est l'intelligence ; le harnais est la possibilité d'agir. »
+      « Le modèle est l'intelligence ; le harnais est la possibilité d'agir. Ensemble, ils forment l'agent. »
     </p>
   </div>
 </section>
@@ -2032,9 +2041,9 @@
 
     <div class="stats-grid">
       <div class="stat-card reveal reveal-delay-1">
-        <div class="stat-big" data-target="10" data-prefix="×">×0</div>
+        <div class="stat-big" data-target="2" data-decimals="1" data-prefix="×">×0,0</div>
         <div class="stat-divider"></div>
-        <div class="stat-label">L'écart de performance entre un bon et un mauvais harnais sur la même tâche, à modèle identique.</div>
+        <div class="stat-label">À modèle identique, le harnais peut presque doubler la réussite : Claude Opus 4.5 passe de 42 % à 78 % sur CORE-Bench Hard (2025).</div>
       </div>
       <div class="stat-card reveal reveal-delay-2">
         <div class="stat-big" data-target="80" data-suffix="%">0%</div>
@@ -2309,7 +2318,7 @@
 </section>
 
 <footer>
-  Le harnais dans l'agentique AI · Une introduction pour débutants · Avril 2026
+  Le harnais dans l'IA agentique · Une introduction pour débutants · Avril 2026
 </footer>
 
 <script>
@@ -2348,6 +2357,12 @@
       }
     }
     tocLinks.forEach((a, i) => a.classList.toggle('active', i === active));
+
+    // Adapte la TOC à la teinte du fond actif : barres assombries sur
+    // sections claires (.light, .gold-bg), sinon mode par défaut.
+    const sec = sections[active];
+    const isLight = !!sec && (sec.classList.contains('light') || sec.classList.contains('gold-bg'));
+    toc.classList.toggle('on-light', isLight);
   }
 
   // ============================================================
@@ -2372,7 +2387,8 @@
     entries.forEach(entry => {
       if (!entry.isIntersecting) return;
       const el = entry.target;
-      const target = parseInt(el.dataset.target, 10);
+      const target = parseFloat(el.dataset.target);
+      const decimals = parseInt(el.dataset.decimals || '0', 10);
       const prefix = el.dataset.prefix || '';
       const suffix = el.dataset.suffix || '';
       if (target === 0) {
@@ -2385,8 +2401,11 @@
           const t = Math.min(1, (now - start) / duration);
           // Easing : ease-out cubic
           const eased = 1 - Math.pow(1 - t, 3);
-          const v = Math.round(eased * target);
-          el.textContent = prefix + v + suffix;
+          const raw = eased * target;
+          const formatted = decimals > 0
+            ? raw.toFixed(decimals).replace('.', ',')   // format français
+            : String(Math.round(raw));
+          el.textContent = prefix + formatted + suffix;
           if (t < 1) requestAnimationFrame(tick);
         }
         requestAnimationFrame(tick);

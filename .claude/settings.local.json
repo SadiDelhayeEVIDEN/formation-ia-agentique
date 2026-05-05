@@ -1,7 +1,12 @@
 {
   "permissions": {
     "allow": [
-      "Bash(start \"\" \"e:\\\\workspace\\\\prez\\\\le-harnais.html\")"
+      "Bash(start \"\" \"e:\\\\workspace\\\\prez\\\\le-harnais.html\")",
+      "WebFetch(domain:yoonholee.com)",
+      "WebFetch(domain:www.verdent.ai)",
+      "WebFetch(domain:www.morphllm.com)",
+      "WebFetch(domain:particula.tech)",
+      "WebFetch(domain:hal.cs.princeton.edu)"
     ]
   }
 }
