@@ -1,0 +1,2391 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Le LLM — Une introduction pour curieux</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:    #0F1B3D;
+    --navy-2:  #0A1230;
+    --navy-3:  #1A2750;
+    --cream:   #F5F1E8;
+    --ice:     #CADCFC;
+    --gold:    #D4A574;
+    --gold-dk: #9C7A50;
+    --ink:     #1A1A1A;
+    --muted-dk: #5C6478;
+    --muted-lt: #A8AFC0;
+    --divider-dk: #DCD4C2;
+    --divider-lt: #2A3556;
+    --red:     #E36B5A;
+    --green:   #7FBF7F;
+
+    /* Palette de couleurs pour les tokens — cycle de 7 teintes pastel */
+    --token-1: rgba(212,165,116,0.7);  /* gold */
+    --token-2: rgba(127,191,127,0.65); /* green */
+    --token-3: rgba(199,125,212,0.6);  /* purple */
+    --token-4: rgba(111,165,212,0.65); /* blue */
+    --token-5: rgba(255,184,118,0.65); /* orange */
+    --token-6: rgba(202,220,252,0.7);  /* ice */
+    --token-7: rgba(227,107,90,0.55);  /* red */
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--navy);
+    color: var(--cream);
+    font-family: 'Inter', -apple-system, sans-serif;
+    line-height: 1.6;
+    font-size: 16px;
+    overflow-x: hidden;
+  }
+
+  /* ============================================================
+     SECTIONS
+  ============================================================ */
+  .section {
+    position: relative;
+    padding: 100px 0;
+    overflow: hidden;
+  }
+  .section.dark { background: var(--navy); color: var(--cream); }
+  .section.dark-2 { background: var(--navy-2); color: var(--cream); }
+  .section.light { background: var(--cream); color: var(--ink); }
+
+  .container {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+  .container-narrow {
+    max-width: 880px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* ============================================================
+     TYPOGRAPHIE
+  ============================================================ */
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+  }
+
+  h1, h2, h3, h4 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.1;
+  }
+  .h-display {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-style: italic;
+    line-height: 1.0;
+    letter-spacing: -0.025em;
+    font-size: clamp(48px, 8vw, 100px);
+  }
+  h2 {
+    font-size: clamp(32px, 4.5vw, 52px);
+    font-style: italic;
+    margin-bottom: 28px;
+  }
+  h3 {
+    font-size: clamp(22px, 2.5vw, 28px);
+    margin-bottom: 14px;
+  }
+
+  .lede {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-style: italic;
+    font-size: clamp(18px, 2.2vw, 22px);
+    line-height: 1.5;
+    max-width: 720px;
+    margin-bottom: 48px;
+  }
+  .dark .lede, .dark-2 .lede { color: var(--ice); }
+  .light .lede { color: var(--muted-dk); }
+
+  p { font-size: 16px; line-height: 1.7; }
+  .light p { color: var(--ink); }
+  .dark p, .dark-2 p { color: var(--ice); }
+
+  em { font-style: italic; color: var(--gold); }
+  .light em { color: var(--gold-dk); }
+  strong { font-weight: 600; }
+
+  code, .mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.92em;
+  }
+  .light code {
+    background: rgba(15,27,61,0.06);
+    color: var(--gold-dk);
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+  .dark code, .dark-2 code {
+    background: rgba(212,165,116,0.15);
+    color: var(--gold);
+    padding: 1px 6px;
+    border-radius: 3px;
+  }
+
+  /* ============================================================
+     PROGRESS BAR
+  ============================================================ */
+  .progress-top {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    width: 0%;
+    background: var(--gold);
+    z-index: 1000;
+    transition: width 0.1s linear;
+  }
+
+  /* ============================================================
+     TOC SIDEBAR
+  ============================================================ */
+  .toc {
+    position: fixed;
+    right: 32px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+  .toc.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .toc a {
+    width: 32px; height: 4px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+    transition: all 0.3s ease;
+    display: block;
+    position: relative;
+  }
+  .toc a:hover, .toc a.active {
+    background: var(--gold);
+    width: 44px;
+  }
+  .toc.on-light a {
+    background: rgba(15,27,61,0.22);
+  }
+  .toc.on-light a:hover, .toc.on-light a.active {
+    background: var(--gold-dk);
+  }
+  .toc a span {
+    position: absolute;
+    right: 50px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--cream);
+    background: var(--navy-2);
+    padding: 4px 10px;
+    border-radius: 3px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+  }
+  .toc a:hover span { opacity: 1; }
+  @media (max-width: 1100px) {
+    .toc { display: none; }
+  }
+
+  /* ============================================================
+     CHAPTER MARK
+  ============================================================ */
+  .chapter-mark {
+    display: flex;
+    align-items: baseline;
+    gap: 18px;
+    margin-bottom: 16px;
+  }
+  .chapter-num {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 64px;
+    color: var(--gold);
+    line-height: 1;
+  }
+  .light .chapter-num { color: var(--gold-dk); }
+  .chapter-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    color: var(--muted-lt);
+  }
+  .dark .chapter-label, .dark-2 .chapter-label { color: var(--muted-lt); }
+  .light .chapter-label { color: var(--muted-dk); }
+
+  /* Helper Lucide */
+  .lc {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* ============================================================
+     HERO
+  ============================================================ */
+  .hero {
+    min-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    background:
+      radial-gradient(circle at 80% 30%, rgba(212,165,116,0.12), transparent 50%),
+      radial-gradient(circle at 20% 80%, rgba(202,220,252,0.05), transparent 40%),
+      var(--navy);
+    padding: 80px 0;
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1fr 1.15fr;
+    gap: 64px;
+    align-items: center;
+  }
+  .hero-text h1 { color: #fff; margin-bottom: 32px; }
+  .hero-text h1 em {
+    color: var(--gold);
+    font-style: italic;
+    font-weight: 500;
+  }
+  .hero-divider {
+    width: 60px; height: 3px;
+    background: var(--gold);
+    margin-bottom: 28px;
+  }
+  .hero-sub {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 21px;
+    color: var(--ice);
+    line-height: 1.5;
+    max-width: 580px;
+    margin-bottom: 40px;
+  }
+  .hero-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+
+  .hero-illus {
+    position: relative;
+    aspect-ratio: 720 / 460;
+    max-width: 580px;
+    justify-self: end;
+    width: 100%;
+  }
+  .hero-illus svg {
+    width: 100%; height: 100%;
+    overflow: visible;
+  }
+  /* Pulsation du cerveau central — origine déplacée vers (340, 230) car le
+     cerveau n'est plus au centre horizontal mais décalé vers la droite. */
+  .hero-illus .core-pulse {
+    transform-origin: 340px 230px;
+    animation: core-pulse 4.5s ease-in-out infinite;
+  }
+  @keyframes core-pulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.04); }
+  }
+
+  /* Vague douce sur les tokens déjà générés (à gauche) — chaque token
+     bouge légèrement en y avec un déphasage qui crée un effet de vague
+     descendant la colonne. */
+  .hero-illus .left-token {
+    animation: hero-leftwave 3.4s ease-in-out infinite;
+  }
+  .hero-illus .left-token.l-1 { animation-delay: 0s; }
+  .hero-illus .left-token.l-2 { animation-delay: -0.4s; }
+  .hero-illus .left-token.l-3 { animation-delay: -0.8s; }
+  .hero-illus .left-token.l-4 { animation-delay: -1.2s; }
+  @keyframes hero-leftwave {
+    0%, 100% { transform: translateY(-2.5px); }
+    50%      { transform: translateY( 2.5px); }
+  }
+
+  /* Candidat « ciblé » par le trait : surlignage subtil quand le trait
+     est posé dessus. La transition rend le passage fluide. */
+  .hero-illus .right-cand rect {
+    transition: stroke 0.4s ease, stroke-width 0.4s ease;
+  }
+  .hero-illus .right-cand.targeted rect {
+    stroke: var(--gold);
+    stroke-width: 1.8;
+  }
+
+  /* Trait du cerveau vers un candidat — visible en permanence, son
+     extrémité est animée par JS pour glisser doucement entre les candidats. */
+  .hero-illus .selector-line {
+    stroke: var(--gold);
+    stroke-width: 1.4;
+    stroke-dasharray: 4 4;
+    opacity: 0.7;
+  }
+
+  .scroll-cue {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+  .scroll-cue::after {
+    content: '↓';
+    display: block;
+    margin-top: 8px;
+    font-size: 16px;
+    animation: bounce 2s ease-in-out infinite;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(6px); }
+  }
+
+  /* ============================================================
+     SECTION 1 — LA GRANDE IDÉE
+  ============================================================ */
+  .big-idea-card {
+    margin-top: 56px;
+    padding: 40px 48px;
+    background: rgba(212,165,116,0.06);
+    border: 1px solid rgba(212,165,116,0.25);
+    border-left: 4px solid var(--gold);
+    border-radius: 8px;
+  }
+  .big-idea-card h3 {
+    color: var(--gold);
+    font-style: italic;
+    margin-bottom: 16px;
+  }
+  .big-idea-card p { color: var(--ice); }
+  .big-idea-card p + p { margin-top: 14px; }
+  .big-idea-flow {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    margin-top: 36px;
+    padding: 28px 24px;
+    background: rgba(15,27,61,0.5);
+    border-radius: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+  }
+  .big-idea-flow .flow-text {
+    color: var(--ice);
+    background: var(--token-6);
+    color: var(--ink);
+    padding: 8px 14px;
+    border-radius: 4px;
+    font-weight: 600;
+  }
+  .big-idea-flow .flow-arrow {
+    color: var(--gold);
+    font-size: 22px;
+  }
+  .big-idea-flow .flow-model {
+    padding: 8px 16px;
+    background: var(--gold);
+    color: var(--navy);
+    border-radius: 6px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    font-size: 11px;
+  }
+  .big-idea-flow .flow-out {
+    background: var(--token-1);
+    color: var(--ink);
+    padding: 8px 14px;
+    border-radius: 4px;
+    font-weight: 600;
+    box-shadow: 0 0 0 2px var(--gold);
+  }
+
+  /* ============================================================
+     SECTION 2 — LA MACHINE EN MARCHE (animation tokens)
+  ============================================================ */
+  .gen-stage {
+    margin-top: 56px;
+    background: #fff;
+    border: 1px solid var(--divider-dk);
+    border-radius: 12px;
+    padding: 36px 40px;
+    box-shadow: 0 4px 24px rgba(15,27,61,0.04);
+  }
+  .gen-prompt-label,
+  .gen-cand-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    color: var(--muted-dk);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .gen-prompt-wrap {
+    margin-bottom: 24px;
+    min-height: 80px;
+  }
+  .gen-prompt {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 17px;
+    line-height: 2;
+    word-wrap: break-word;
+  }
+  .gen-token {
+    display: inline-block;
+    padding: 4px 6px;
+    margin: 0 1px;
+    border-radius: 4px;
+    color: var(--ink);
+    white-space: pre;
+    font-weight: 600;
+    transition: opacity 0.3s ease, transform 0.3s ease;
+  }
+  .gen-token-new {
+    animation: token-arrive 0.6s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  @keyframes token-arrive {
+    0% {
+      opacity: 0;
+      transform: translateY(-30px) scale(0.6);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0) scale(1);
+    }
+  }
+  .gen-arrow {
+    text-align: center;
+    color: var(--gold);
+    font-size: 28px;
+    margin: 4px 0 16px;
+    transition: opacity 0.3s ease;
+    opacity: 0.6;
+  }
+  .gen-cand-wrap {
+    margin-bottom: 20px;
+    min-height: 240px;
+    transition: opacity 0.25s ease;
+  }
+  .gen-cand-wrap.fading {
+    opacity: 0.2;
+  }
+  .gen-candidates {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .gen-cand-row {
+    display: grid;
+    grid-template-columns: 110px 1fr 56px;
+    gap: 14px;
+    align-items: center;
+    padding: 8px 14px;
+    border-radius: 4px;
+    transition: background 0.2s ease, box-shadow 0.2s ease;
+  }
+  .gen-cand-token {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+    color: var(--ink);
+    font-weight: 600;
+    white-space: pre;
+  }
+  .gen-cand-bar-wrap {
+    height: 12px;
+    background: rgba(15,27,61,0.06);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .gen-cand-bar {
+    height: 100%;
+    width: 0;
+    background: linear-gradient(90deg, var(--gold-dk), var(--gold));
+    border-radius: 6px;
+    transition: width 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+  .gen-cand-prob {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--muted-dk);
+    text-align: right;
+  }
+  .gen-cand-row.spinning {
+    background: rgba(212,165,116,0.18);
+  }
+  .gen-cand-row.selected {
+    background: rgba(212,165,116,0.32);
+    box-shadow: 0 0 0 2px var(--gold);
+  }
+  .gen-narration {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 16px;
+    color: var(--muted-dk);
+    text-align: center;
+    margin-top: 22px;
+    padding-top: 22px;
+    border-top: 1px solid var(--divider-dk);
+    min-height: 24px;
+  }
+  .gen-narration strong {
+    color: var(--gold-dk);
+    font-style: normal;
+  }
+  .gen-controls {
+    display: flex;
+    gap: 14px;
+    justify-content: center;
+    margin-top: 24px;
+    flex-wrap: wrap;
+  }
+  .gen-btn {
+    background: var(--navy);
+    color: var(--cream);
+    border: 1px solid var(--gold-dk);
+    padding: 10px 22px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+  }
+  .gen-btn:hover:not(:disabled) {
+    background: var(--gold-dk);
+    color: var(--cream);
+  }
+  .gen-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+  .gen-btn.primary {
+    background: var(--gold);
+    color: var(--navy);
+    border-color: var(--gold);
+  }
+  .gen-btn.primary:hover:not(:disabled) {
+    background: var(--gold-dk);
+    color: var(--cream);
+  }
+  .gen-step-indicator {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    justify-content: center;
+    margin-top: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--muted-dk);
+  }
+  .gen-step-dot {
+    width: 8px; height: 8px;
+    background: var(--divider-dk);
+    border-radius: 50%;
+    transition: all 0.3s ease;
+  }
+  .gen-step-dot.done { background: var(--gold-dk); }
+  .gen-step-dot.current { background: var(--gold); transform: scale(1.4); }
+  /* Dernier dot = décision d'arrêt : forme carrée pour le distinguer */
+  .gen-step-dot.end {
+    border-radius: 1px;
+    width: 10px; height: 10px;
+    margin-left: 6px;
+  }
+  /* Token candidat spécial : <|endoftext|> */
+  .gen-cand-token.end {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--gold-dk);
+    font-style: italic;
+    letter-spacing: -0.3px;
+  }
+  .gen-cand-row.selected.end-row {
+    background: rgba(227,107,90,0.18);
+    box-shadow: 0 0 0 2px var(--red);
+  }
+  .gen-cand-row.spinning.end-row {
+    background: rgba(227,107,90,0.12);
+  }
+  .gen-end-marker {
+    display: inline-block;
+    margin-left: 8px;
+    padding: 3px 9px;
+    border-radius: 3px;
+    background: rgba(227,107,90,0.15);
+    border: 1px dashed var(--red);
+    color: var(--red);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 700;
+    vertical-align: middle;
+    animation: end-marker-arrive 0.5s ease-out;
+  }
+  @keyframes end-marker-arrive {
+    0% { opacity: 0; transform: scale(0.7); }
+    100% { opacity: 1; transform: scale(1); }
+  }
+
+  .gen-aside {
+    margin-top: 36px;
+    padding: 22px 28px;
+    background: rgba(212,165,116,0.08);
+    border-left: 3px solid var(--gold);
+    border-radius: 4px;
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .gen-aside strong { color: var(--gold-dk); }
+
+  /* ============================================================
+     SECTION 3 — COMMENT IL A APPRIS (3 phases)
+  ============================================================ */
+  .training-phases {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+    margin-top: 56px;
+    position: relative;
+  }
+  .training-phase {
+    background: rgba(212,165,116,0.06);
+    border: 1px solid rgba(212,165,116,0.25);
+    border-radius: 8px;
+    padding: 32px 28px;
+    position: relative;
+  }
+  .training-phase-num {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .training-phase-icon {
+    width: 36px; height: 36px;
+    color: var(--gold);
+    margin-bottom: 18px;
+  }
+  .training-phase h4 {
+    font-style: italic;
+    color: var(--cream);
+    margin-bottom: 12px;
+  }
+  .training-phase p {
+    color: var(--ice);
+    font-size: 14.5px;
+    line-height: 1.6;
+  }
+  .training-phase .stat {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(212,165,116,0.2);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--gold);
+    letter-spacing: 1.5px;
+  }
+
+  /* ============================================================
+     SECTION 4 — JARGON (tokens, contexte, cutoff)
+  ============================================================ */
+  .jargon-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+    margin-top: 56px;
+  }
+  .jargon-card {
+    background: #fff;
+    border: 1px solid var(--divider-dk);
+    border-top: 4px solid var(--gold);
+    border-radius: 0 0 8px 8px;
+    padding: 32px 28px;
+  }
+  .jargon-card .jargon-icon {
+    width: 32px; height: 32px;
+    color: var(--gold-dk);
+    margin-bottom: 16px;
+  }
+  .jargon-card h4 {
+    color: var(--navy);
+    font-style: italic;
+    margin-bottom: 8px;
+  }
+  .jargon-card .jargon-tag {
+    display: inline-block;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--gold-dk);
+    background: rgba(212,165,116,0.15);
+    padding: 3px 8px;
+    border-radius: 3px;
+    margin-bottom: 14px;
+    text-transform: uppercase;
+  }
+  .jargon-card p {
+    color: var(--muted-dk);
+    font-size: 14.5px;
+    line-height: 1.65;
+    margin-bottom: 12px;
+  }
+  .jargon-card .demo {
+    margin-top: 18px;
+    padding: 14px 16px;
+    background: rgba(15,27,61,0.05);
+    border-radius: 4px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: var(--ink);
+    line-height: 1.7;
+  }
+  .jargon-card .demo .tk {
+    display: inline-block;
+    padding: 1px 4px;
+    margin: 0 1px;
+    border-radius: 3px;
+    font-weight: 600;
+  }
+
+  /* ============================================================
+     SECTION 5 — LIMITES NATIVES
+  ============================================================ */
+  .limits-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 28px;
+    margin-top: 56px;
+  }
+  .limit-card {
+    background: rgba(227,107,90,0.05);
+    border: 1px solid rgba(227,107,90,0.22);
+    border-left: 3px solid var(--red);
+    border-radius: 6px;
+    padding: 28px 32px;
+  }
+  .limit-card .limit-icon {
+    width: 28px; height: 28px;
+    color: var(--red);
+    margin-bottom: 14px;
+    opacity: 0.85;
+  }
+  .limit-card h4 {
+    color: var(--cream);
+    font-style: italic;
+    margin-bottom: 12px;
+  }
+  .limit-card p {
+    color: var(--ice);
+    font-size: 14.5px;
+    line-height: 1.6;
+  }
+
+  /* ============================================================
+     SECTION 6 — RÉFLÉCHIR AVANT DE RÉPONDRE (problématique)
+  ============================================================ */
+  .thinking-compare {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 28px;
+    margin-top: 48px;
+    align-items: stretch;
+  }
+  .thinking-card {
+    border: 1px solid;
+    border-radius: 8px;
+    padding: 28px 32px;
+    display: flex;
+    flex-direction: column;
+    background: rgba(15,27,61,0.4);
+  }
+  .thinking-card.bad  { border-color: rgba(227,107,90,0.4); }
+  .thinking-card.good { border-color: rgba(127,191,127,0.5); }
+  .thinking-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    margin-bottom: 16px;
+    font-weight: 700;
+  }
+  .thinking-card.bad  .thinking-tag { color: var(--red); }
+  .thinking-card.good .thinking-tag { color: var(--green); }
+  .thinking-question {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 15px;
+    color: var(--ice);
+    line-height: 1.55;
+    padding: 14px 16px;
+    background: rgba(212,165,116,0.06);
+    border-left: 2px solid var(--gold-dk);
+    border-radius: 3px;
+    margin-bottom: 16px;
+  }
+  .thinking-reasoning {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--ice);
+    line-height: 1.75;
+    margin-bottom: 16px;
+    padding: 14px 16px;
+    background: rgba(127,191,127,0.06);
+    border-left: 2px solid var(--green);
+    border-radius: 3px;
+  }
+  .thinking-reasoning em {
+    color: var(--gold);
+    font-style: italic;
+  }
+  .thinking-divider {
+    border-top: 1px dashed var(--divider-lt);
+    margin: 6px 0 12px;
+  }
+  .thinking-answer {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 16px;
+    color: var(--ice);
+    margin-top: auto;
+  }
+  .thinking-answer strong {
+    font-size: 28px;
+    font-style: normal;
+    letter-spacing: 1px;
+  }
+  .thinking-answer.wrong strong { color: var(--red); }
+  .thinking-answer.right strong { color: var(--green); }
+  .thinking-mark {
+    font-size: 22px;
+    font-weight: 700;
+    margin-left: 4px;
+  }
+  .thinking-answer.wrong .thinking-mark { color: var(--red); }
+  .thinking-answer.right .thinking-mark { color: var(--green); }
+  .thinking-prefix {
+    color: var(--gold);
+    font-style: normal;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 14px;
+  }
+  .thinking-fact {
+    margin: 56px auto 0;
+    text-align: center;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 19px;
+    color: var(--gold);
+    max-width: 780px;
+    line-height: 1.5;
+  }
+  .thinking-fact strong {
+    color: var(--cream);
+    font-style: normal;
+    font-weight: 600;
+  }
+
+  /* ============================================================
+     SECTION 7 — LE MODE THINKING (fonctionnement)
+  ============================================================ */
+  .thinking-mech {
+    background: #fff;
+    border: 1px solid var(--divider-dk);
+    border-left: 4px solid var(--gold);
+    border-radius: 0 8px 8px 0;
+    padding: 36px 40px;
+    margin-top: 48px;
+  }
+  .thinking-mech h3 {
+    color: var(--navy);
+    font-style: italic;
+    margin-bottom: 18px;
+  }
+  .thinking-mech p {
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.65;
+    margin-bottom: 32px;
+  }
+  .token-bars {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .token-bar-row {
+    display: grid;
+    grid-template-columns: 130px 1fr 110px;
+    gap: 18px;
+    align-items: center;
+  }
+  .token-bar-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 1.5px;
+    color: var(--gold-dk);
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .token-bar {
+    height: 22px;
+    background: rgba(15,27,61,0.06);
+    border-radius: 4px;
+    overflow: hidden;
+    display: flex;
+  }
+  .token-bar-segment {
+    height: 100%;
+    display: block;
+  }
+  .token-bar-segment.thinking {
+    background: linear-gradient(90deg, rgba(212,165,116,0.55), var(--gold));
+  }
+  .token-bar-segment.answer {
+    background: linear-gradient(90deg, var(--gold-dk), var(--navy));
+  }
+  .token-bar-count {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    color: var(--muted-dk);
+    text-align: right;
+  }
+  .token-bar-legend {
+    display: flex;
+    gap: 22px;
+    margin-top: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--muted-dk);
+    text-transform: uppercase;
+  }
+  .token-bar-legend .swatch {
+    display: inline-block;
+    width: 14px; height: 10px;
+    border-radius: 2px;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+  .token-bar-legend .swatch.thinking {
+    background: var(--gold);
+  }
+  .token-bar-legend .swatch.answer {
+    background: var(--navy);
+  }
+  .thinking-tradeoffs {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 22px;
+  }
+  .tradeoff {
+    background: #fff;
+    border: 1px solid var(--divider-dk);
+    border-top: 3px solid var(--gold);
+    padding: 26px 24px;
+    border-radius: 0 0 6px 6px;
+  }
+  .tradeoff.good { border-top-color: var(--green); }
+  .tradeoff.cost { border-top-color: var(--red); }
+  .tradeoff svg.lc {
+    margin-bottom: 14px;
+    color: var(--gold-dk);
+  }
+  .tradeoff.good svg.lc { color: var(--green); }
+  .tradeoff.cost svg.lc { color: var(--red); }
+  .tradeoff h4 {
+    color: var(--navy);
+    font-style: italic;
+    margin-bottom: 10px;
+  }
+  .tradeoff p {
+    color: var(--muted-dk);
+    font-size: 14px;
+    line-height: 1.55;
+  }
+  .thinking-models {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    justify-content: center;
+    margin-top: 36px;
+  }
+  .thinking-model-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    background: rgba(212,165,116,0.12);
+    color: var(--gold-dk);
+    padding: 7px 14px;
+    border-radius: 4px;
+    font-weight: 700;
+  }
+  .thinking-model-tag .vendor {
+    color: var(--muted-dk);
+    margin-right: 8px;
+    font-weight: 400;
+  }
+
+  /* ============================================================
+     REVEAL au scroll
+  ============================================================ */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .reveal-d-1 { transition-delay: 0.08s; }
+  .reveal-d-2 { transition-delay: 0.18s; }
+  .reveal-d-3 { transition-delay: 0.28s; }
+  .reveal-d-4 { transition-delay: 0.38s; }
+
+  /* ============================================================
+     FOOTER
+  ============================================================ */
+  footer {
+    background: var(--navy-2);
+    padding: 56px 32px;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--muted-lt);
+    text-transform: uppercase;
+    border-top: 1px solid var(--divider-lt);
+  }
+
+  /* ============================================================
+     RESPONSIVE
+  ============================================================ */
+  @media (max-width: 900px) {
+    .section { padding: 70px 0; }
+    .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+    .hero-illus { justify-self: center; max-width: 480px; }
+    .training-phases { grid-template-columns: 1fr; }
+    .jargon-grid { grid-template-columns: 1fr; }
+    .limits-grid { grid-template-columns: 1fr; }
+    .thinking-compare { grid-template-columns: 1fr; }
+    .token-bar-row { grid-template-columns: 100px 1fr 90px; gap: 12px; }
+    .thinking-mech { padding: 28px 24px; }
+    .gen-cand-row { grid-template-columns: 90px 1fr 50px; gap: 10px; }
+    .big-idea-card { padding: 32px 28px; }
+  }
+  @media (max-width: 600px) {
+    .container, .container-narrow { padding: 0 20px; }
+    .gen-stage { padding: 24px 20px; }
+    .gen-cand-row { grid-template-columns: 80px 1fr 44px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     PROGRESS BAR + TOC
+============================================================ -->
+<div class="progress-top" id="progress-bar"></div>
+
+<nav class="toc" id="toc">
+  <a href="#hero"><span>Couverture</span></a>
+  <a href="#big-idea"><span>La grande idée</span></a>
+  <a href="#machine"><span>La machine en marche</span></a>
+  <a href="#training"><span>Comment il a appris</span></a>
+  <a href="#jargon"><span>Tokens, contexte, cutoff</span></a>
+  <a href="#limits"><span>Limites natives</span></a>
+  <a href="#thinking-need"><span>Le besoin de raisonner</span></a>
+  <a href="#thinking-mode"><span>Le mode thinking</span></a>
+</nav>
+
+<!-- ============================================================
+     HERO
+============================================================ -->
+<section class="hero" id="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div class="hero-text">
+        <div class="hero-meta">Une introduction pour curieux</div>
+        <h1 class="h-display" style="margin-top:32px;">
+          Un <em>modèle</em><br>
+          de langage,<br>
+          en <em>clair</em>
+        </h1>
+        <div class="hero-divider"></div>
+        <p class="hero-sub">
+          Que fait <em>vraiment</em> un modèle comme GPT, Claude ou Gemini sous
+          l'interface ? Démontage en règle, sans jargon. Spoiler : une seule
+          opération, répétée des milliards de fois.
+        </p>
+        <div class="hero-meta">Avril 2026 · Présentation</div>
+      </div>
+
+      <div class="hero-illus">
+        <svg viewBox="0 0 720 460" xmlns="http://www.w3.org/2000/svg">
+          <!-- Cercles décoratifs centrés sur le cerveau (340, 230) -->
+          <circle cx="340" cy="230" r="220" fill="none" stroke="var(--gold)" stroke-width="1" opacity="0.08" stroke-dasharray="2 8"/>
+          <circle cx="340" cy="230" r="160" fill="none" stroke="var(--gold)" stroke-width="1" opacity="0.13"/>
+
+          <!-- TRAIT SÉLECTEUR : suit dynamiquement le candidat ciblé -->
+          <line id="hero-selector-line" class="selector-line"
+                x1="408" y1="230" x2="450" y2="100"/>
+
+          <!-- ============ CENTRE : cerveau pulsant à (340, 230) ============
+               Rendu AVANT les tokens de gauche pour que ceux-ci passent
+               devant si la queue de la phrase chevauche le cerveau. -->
+          <g class="core-pulse">
+            <circle cx="340" cy="230" r="68" fill="var(--gold)"/>
+            <circle cx="340" cy="230" r="68" fill="none" stroke="var(--gold)" stroke-width="1" opacity="0.4">
+              <animate attributeName="r" from="68" to="100" dur="3.5s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" from="0.5" to="0" dur="3.5s" repeatCount="indefinite"/>
+            </circle>
+            <g class="lc" transform="translate(316, 206) scale(2)" style="color: var(--navy); stroke-width: 1.5;">
+              <path d="M12 18V5"/>
+              <path d="M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4"/>
+              <path d="M17.598 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5"/>
+              <path d="M17.997 5.125a4 4 0 0 1 2.526 5.77"/>
+              <path d="M18 18a4 4 0 0 0 2-7.464"/>
+              <path d="M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517"/>
+              <path d="M6 18a4 4 0 0 1-2-7.464"/>
+              <path d="M6.003 5.125a4 4 0 0 0-2.526 5.77"/>
+            </g>
+          </g>
+
+          <!-- ============ GAUCHE : tokens déjà générés, alignés horizontalement ============
+               Phrase « Un modèle de langage » = 4 tokens (vrai découpage GPT-5) :
+               [Un] [ modèle] [ de] [ langage].
+               Rendu APRÈS le cerveau pour passer devant en cas de chevauchement. -->
+          <g class="left-tokens">
+            <g transform="translate(40, 230)">
+              <g class="left-token l-1">
+                <rect x="-22" y="-14" width="44" height="28" rx="14" fill="#D4A574" stroke="var(--gold)" stroke-width="0.8"/>
+                <text text-anchor="middle" y="4" font-family="JetBrains Mono" font-size="12" fill="var(--ink)" font-weight="700">Un</text>
+              </g>
+            </g>
+            <g transform="translate(115, 230)">
+              <g class="left-token l-2">
+                <rect x="-44" y="-14" width="88" height="28" rx="14" fill="#7FBF7F" stroke="var(--gold)" stroke-width="0.8"/>
+                <text text-anchor="middle" y="4" font-family="JetBrains Mono" font-size="12" fill="var(--ink)" font-weight="700">modèle</text>
+              </g>
+            </g>
+            <g transform="translate(180, 230)">
+              <g class="left-token l-3">
+                <rect x="-22" y="-14" width="44" height="28" rx="14" fill="#C77DD4" stroke="var(--gold)" stroke-width="0.8"/>
+                <text text-anchor="middle" y="4" font-family="JetBrains Mono" font-size="12" fill="var(--ink)" font-weight="700">de</text>
+              </g>
+            </g>
+            <g transform="translate(245, 230)">
+              <g class="left-token l-4">
+                <rect x="-40" y="-14" width="80" height="28" rx="14" fill="#6FA5D4" stroke="var(--gold)" stroke-width="0.8"/>
+                <text text-anchor="middle" y="4" font-family="JetBrains Mono" font-size="12" fill="var(--ink)" font-weight="700">langage</text>
+              </g>
+            </g>
+          </g>
+
+          <!-- ============ DROITE : candidats flottants ============
+               Chaque candidat dérive selon son propre timer (état dans le JS).
+               Le SVG initial donne juste un transform de départ ; le tick JS
+               le réécrit chaque frame avec base + offset(t). -->
+          <g class="right-cands">
+            <g class="right-cand" id="hero-cand-0" transform="translate(505, 100)">
+              <rect x="-55" y="-14" width="110" height="28" rx="14" fill="var(--navy-2)" stroke="var(--gold-dk)" stroke-width="1"/>
+              <text x="-25" y="4" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="var(--ice)" font-weight="700">,</text>
+              <line x1="0" y1="-11" x2="0" y2="11" stroke="var(--gold)" stroke-width="0.8" opacity="0.5"/>
+              <text x="28" y="4" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="var(--gold)" font-weight="700">28 %</text>
+            </g>
+            <g class="right-cand" id="hero-cand-1" transform="translate(615, 145)">
+              <rect x="-55" y="-14" width="110" height="28" rx="14" fill="var(--navy-2)" stroke="var(--gold-dk)" stroke-width="1"/>
+              <text x="-25" y="4" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="var(--ice)" font-weight="700">est</text>
+              <line x1="0" y1="-11" x2="0" y2="11" stroke="var(--gold)" stroke-width="0.8" opacity="0.5"/>
+              <text x="28" y="4" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="var(--gold)" font-weight="700">22 %</text>
+            </g>
+            <g class="right-cand" id="hero-cand-2" transform="translate(485, 230)">
+              <rect x="-55" y="-14" width="110" height="28" rx="14" fill="var(--navy-2)" stroke="var(--gold-dk)" stroke-width="1"/>
+              <text x="-25" y="4" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="var(--ice)" font-weight="700">peut</text>
+              <line x1="0" y1="-11" x2="0" y2="11" stroke="var(--gold)" stroke-width="0.8" opacity="0.5"/>
+              <text x="28" y="4" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="var(--gold)" font-weight="700">20 %</text>
+            </g>
+            <g class="right-cand" id="hero-cand-3" transform="translate(620, 290)">
+              <rect x="-55" y="-14" width="110" height="28" rx="14" fill="var(--navy-2)" stroke="var(--gold-dk)" stroke-width="1"/>
+              <text x="-25" y="4" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="var(--ice)" font-weight="700">produit</text>
+              <line x1="0" y1="-11" x2="0" y2="11" stroke="var(--gold)" stroke-width="0.8" opacity="0.5"/>
+              <text x="28" y="4" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="var(--gold)" font-weight="700">17 %</text>
+            </g>
+            <g class="right-cand" id="hero-cand-4" transform="translate(525, 370)">
+              <rect x="-55" y="-14" width="110" height="28" rx="14" fill="var(--navy-2)" stroke="var(--gold-dk)" stroke-width="1"/>
+              <text x="-25" y="4" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="var(--ice)" font-weight="700">apprend</text>
+              <line x1="0" y1="-11" x2="0" y2="11" stroke="var(--gold)" stroke-width="0.8" opacity="0.5"/>
+              <text x="28" y="4" text-anchor="middle" font-family="JetBrains Mono" font-size="11" fill="var(--gold)" font-weight="700">13 %</text>
+            </g>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-cue">Faites défiler</div>
+</section>
+
+<!-- ============================================================
+     SECTION 1 — LA GRANDE IDÉE
+============================================================ -->
+<section class="section dark-2" id="big-idea">
+  <div class="container">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">01</span>
+        <span class="chapter-label">La grande idée</span>
+      </div>
+      <h2>Une seule mission : prédire le mot suivant</h2>
+      <p class="lede">
+        Quand vous discutez avec ChatGPT, vous avez l'impression qu'il « réfléchit »,
+        qu'il « comprend ». La réalité est plus terre-à-terre, et plus vertigineuse :
+        il fait <em>une seule chose</em>, et il la fait des milliards de fois par seconde.
+      </p>
+    </div>
+
+    <div class="big-idea-card reveal reveal-d-1">
+      <h3>Une fonction très simple, sur le papier</h3>
+      <p>
+        Un grand modèle de langage (LLM) prend en entrée un morceau de texte, et renvoie
+        en sortie le morceau de texte le plus probable juste après. C'est tout. Pas de
+        raisonnement caché, pas de mémoire secrète : juste une probabilité, calculée
+        sur l'ensemble du vocabulaire qu'il connaît.
+      </p>
+      <p>
+        Il choisit un candidat selon cette probabilité, l'ajoute à la fin du texte,
+        et recommence l'opération avec ce nouveau texte un peu plus long. Encore. Et encore.
+        À force de répéter ce minuscule geste, du texte cohérent émerge.
+      </p>
+
+      <div class="big-idea-flow">
+        <span class="flow-text">« Il fait un »</span>
+        <span class="flow-arrow">→</span>
+        <span class="flow-model">LLM</span>
+        <span class="flow-arrow">→</span>
+        <span class="flow-out">« temps »</span>
+      </div>
+    </div>
+
+    <div class="reveal reveal-d-2" style="margin-top: 40px; text-align: center;">
+      <p style="font-family: 'Fraunces', serif; font-style: italic; font-size: 19px; color: var(--gold); max-width: 720px; margin: 0 auto;">
+        La magie n'est pas dans le mécanisme — il est élémentaire. Elle est dans
+        <em>la qualité des probabilités</em> que le modèle a appris à calculer.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SECTION 2 — LA MACHINE EN MARCHE (animation tokens)
+============================================================ -->
+<section class="section light" id="machine">
+  <div class="container">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">02</span>
+        <span class="chapter-label">La machine en marche</span>
+      </div>
+      <h2 style="color: var(--navy);">Voyons-le travailler, token par token</h2>
+      <p class="lede">
+        Chaque réponse que vous lisez est construite mot par mot — ou plus précisément,
+        <strong>token par token</strong> — chacun choisi parmi quelques milliers de candidats
+        avec des probabilités différentes. Voici le mécanisme en direct, ralenti pour qu'on
+        puisse suivre.
+      </p>
+    </div>
+
+    <div class="gen-stage reveal reveal-d-1">
+      <div class="gen-prompt-wrap">
+        <div class="gen-prompt-label">Texte en construction</div>
+        <div class="gen-prompt" id="gen-prompt"></div>
+      </div>
+
+      <div class="gen-arrow" id="gen-arrow">↓</div>
+
+      <div class="gen-cand-wrap" id="gen-cand-wrap">
+        <div class="gen-cand-label">Candidats pour le prochain token, classés par probabilité</div>
+        <div class="gen-candidates" id="gen-candidates"></div>
+      </div>
+
+      <div class="gen-narration" id="gen-narration">
+        Cliquez sur <strong>▶ Lancer</strong> pour voir le modèle générer.
+      </div>
+
+      <div class="gen-step-indicator" id="gen-step-indicator">
+        <span>étape</span>
+        <span class="gen-step-dot" data-step="0"></span>
+        <span class="gen-step-dot" data-step="1"></span>
+        <span class="gen-step-dot" data-step="2"></span>
+        <span class="gen-step-dot" data-step="3"></span>
+        <span class="gen-step-dot" data-step="4"></span>
+        <span class="gen-step-dot end" data-step="5" title="Décision d'arrêt"></span>
+      </div>
+
+      <div class="gen-controls">
+        <button class="gen-btn primary" id="gen-play">▶ Lancer la génération</button>
+        <button class="gen-btn" id="gen-reset">↻ Recommencer</button>
+      </div>
+    </div>
+
+    <div class="gen-aside reveal reveal-d-2">
+      <p>
+        <strong>Tokens authentiques.</strong> Tous les découpages affichés au-dessus
+        sont les <em>vrais tokens</em> de GPT-4o/5 (tokenizer <code>o200k_base</code>).
+        Vous remarquerez que les mots ne se découpent pas toujours là où on l'imagine :
+        « développeur » devient <code>développe</code> + <code>ur</code>, et la conjugaison
+        « réfléchissait » se sépare en <code>réfléch</code> + <code>issait</code>.
+        Claude, Gemini ou Mistral utilisent leur propre tokenizer, mais le principe
+        est le même.
+      </p>
+      <p style="margin-top: 12px;">
+        <strong>Sélection partiellement aléatoire.</strong> À chaque étape, le modèle
+        calcule une probabilité pour <em>tous</em> les tokens qu'il connaît (plus de
+        100 000). On ne montre ici que les 5 plus probables. Un candidat est ensuite
+        tiré au sort selon ces probabilités — c'est pour ça que la même question peut
+        donner des réponses légèrement différentes, et que le modèle peut sembler
+        « inventer » : il échantillonne, il ne récite pas.
+      </p>
+      <p style="margin-top: 12px;">
+        <strong>Quand s'arrête-t-il ?</strong> Le vocabulaire du modèle inclut un token
+        spécial : <code>&lt;|endoftext|&gt;</code>. À chaque étape, ce token est
+        en compétition avec tous les autres. Quand sa probabilité est la plus haute
+        (typiquement parce que la phrase semble grammaticalement complète), il est tiré
+        au sort et la génération s'arrête. C'est <em>pour ça</em> que les modèles
+        s'arrêtent à un endroit cohérent — ou parfois un peu trop tôt.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SECTION 3 — COMMENT IL A APPRIS
+============================================================ -->
+<section class="section dark" id="training">
+  <div class="container">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">03</span>
+        <span class="chapter-label">Comment il a appris</span>
+      </div>
+      <h2>Trois phases pour devenir bavard</h2>
+      <p class="lede">
+        Une fois qu'on sait <em>quoi</em> faire (prédire le prochain token), reste à savoir
+        <em>comment bien le faire</em>. La recette tient en trois étapes. L'écrasante
+        majorité du travail se passe dans la première.
+      </p>
+    </div>
+
+    <div class="training-phases">
+      <div class="training-phase reveal reveal-d-1">
+        <div class="training-phase-num">Phase 1</div>
+        <svg class="training-phase-icon lc" viewBox="0 0 24 24">
+          <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+          <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+        </svg>
+        <h4>Préentraînement — lire l'internet</h4>
+        <p>
+          Le modèle est nourri de centaines de milliards de tokens — des livres, du code,
+          des forums, des articles. À chaque exemple, on lui cache un mot et on lui demande
+          de le deviner. Il se trompe, on lui ajuste les paramètres, il recommence.
+          Pendant des mois, sur des milliers de GPU.
+        </p>
+        <div class="stat">~ trillions de tokens · 2-6 mois</div>
+      </div>
+
+      <div class="training-phase reveal reveal-d-2">
+        <div class="training-phase-num">Phase 2</div>
+        <svg class="training-phase-icon lc" viewBox="0 0 24 24">
+          <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.106-3.105c.32-.322.863-.22.983.218a6 6 0 0 1-8.259 7.057l-7.91 7.91a1 1 0 0 1-2.999-3l7.91-7.91a6 6 0 0 1 7.057-8.259c.438.12.54.662.219.984z"/>
+        </svg>
+        <h4>Fine-tuning — apprendre à répondre</h4>
+        <p>
+          Après le préentraînement, le modèle sait compléter du texte mais pas <em>répondre
+          à des questions</em>. On lui montre alors des dizaines de milliers d'exemples
+          de bonnes paires question / réponse, écrits par des humains. Il apprend le format
+          du dialogue.
+        </p>
+        <div class="stat">~ 10 000 exemples soignés · jours</div>
+      </div>
+
+      <div class="training-phase reveal reveal-d-3">
+        <div class="training-phase-num">Phase 3</div>
+        <svg class="training-phase-icon lc" viewBox="0 0 24 24">
+          <path d="M7 10v12"/>
+          <path d="M15 5.88 14 10h5.83a2 2 0 0 1 1.92 2.56l-2.33 8A2 2 0 0 1 17.5 22H4a2 2 0 0 1-2-2v-8a2 2 0 0 1 2-2h2.76a2 2 0 0 0 1.79-1.11L12 2a3.13 3.13 0 0 1 3 3.88Z"/>
+        </svg>
+        <h4>RLHF — apprendre nos préférences</h4>
+        <p>
+          Dernière phase : on lui fait produire plusieurs réponses à une même question,
+          et des humains classent laquelle est la meilleure. Le modèle est récompensé
+          pour les réponses préférées, pénalisé pour les autres. C'est ce qui le rend
+          poli, prudent, utile.
+        </p>
+        <div class="stat">~ centaines de milliers de votes · semaines</div>
+      </div>
+    </div>
+
+    <div class="reveal reveal-d-4" style="margin-top: 56px; text-align: center;">
+      <p style="font-family: 'Fraunces', serif; font-style: italic; font-size: 19px; color: var(--gold); max-width: 780px; margin: 0 auto;">
+        Une fois ces trois phases terminées, les paramètres du modèle sont
+        <em>figés</em>. Il ne réapprend plus rien après ça — chaque conversation
+        commence sur une page blanche.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SECTION 4 — JARGON
+============================================================ -->
+<section class="section light" id="jargon" style="background: #FAF7F0;">
+  <div class="container">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">04</span>
+        <span class="chapter-label">Trois mots à connaître</span>
+      </div>
+      <h2 style="color: var(--navy);">Tokens, contexte, cutoff</h2>
+      <p class="lede">
+        Trois termes qu'on rencontre constamment quand on parle de LLM. Connaître leur
+        définition exacte, c'est éviter pas mal de malentendus.
+      </p>
+    </div>
+
+    <div class="jargon-grid">
+      <div class="jargon-card reveal reveal-d-1">
+        <svg class="jargon-icon lc" viewBox="0 0 24 24">
+          <path d="M12.586 2.586A2 2 0 0 0 11.172 2H4a2 2 0 0 0-2 2v7.172a2 2 0 0 0 .586 1.414l8.704 8.704a2.426 2.426 0 0 0 3.42 0l6.58-6.58a2.426 2.426 0 0 0 0-3.42z"/>
+          <circle cx="7.5" cy="7.5" r=".5" fill="currentColor"/>
+        </svg>
+        <span class="jargon-tag">Token</span>
+        <h4>L'unité de base</h4>
+        <p>
+          Un token n'est pas exactement un mot. C'est un fragment de texte, parfois un
+          mot entier, parfois un <strong>bout de mot</strong>, parfois juste un espace ou
+          une ponctuation. En moyenne, un token français vaut environ ¾ d'un mot.
+        </p>
+        <div class="demo">
+          « Le développeur réfléchissait » devient :<br>
+          <span class="tk" style="background: var(--token-1);">Le</span><span class="tk" style="background: var(--token-2);"> développe</span><span class="tk" style="background: var(--token-3);">ur</span><span class="tk" style="background: var(--token-4);"> réfléch</span><span class="tk" style="background: var(--token-5);">issait</span><br>
+          <small style="color: var(--muted-dk); font-family: 'JetBrains Mono', monospace; font-size: 11px;">3 mots → 5 tokens (tokenizer GPT-5)</small>
+        </div>
+      </div>
+
+      <div class="jargon-card reveal reveal-d-2">
+        <svg class="jargon-icon lc" viewBox="0 0 24 24">
+          <rect width="18" height="18" x="3" y="3" rx="2"/>
+          <path d="M9 3v18"/>
+          <path d="M14 9h3"/>
+          <path d="M14 13h3"/>
+          <path d="M14 17h3"/>
+        </svg>
+        <span class="jargon-tag">Context window</span>
+        <h4>La mémoire de travail</h4>
+        <p>
+          C'est la quantité de tokens que le modèle peut « voir » d'un coup — votre prompt,
+          les messages précédents, et sa réponse en cours de génération. Au-delà, il oublie.
+          Les modèles modernes vont de 128 K (~300 pages) à 1 M de tokens (~2500 pages).
+        </p>
+        <div class="demo">
+          GPT-5.5 : <strong style="color: var(--gold-dk);">~1 M tokens</strong><br>
+          Claude Opus 4.7 : <strong style="color: var(--gold-dk);">~1 M tokens</strong><br>
+          Gemini 3.1 Pro : <strong style="color: var(--gold-dk);">~1 M tokens</strong>
+        </div>
+      </div>
+
+      <div class="jargon-card reveal reveal-d-3">
+        <svg class="jargon-icon lc" viewBox="0 0 24 24">
+          <path d="M8 2v4"/>
+          <path d="M16 2v4"/>
+          <rect width="18" height="18" x="3" y="4" rx="2"/>
+          <path d="M3 10h18"/>
+          <path d="m9 16 2 2 4-4"/>
+        </svg>
+        <span class="jargon-tag">Knowledge cutoff</span>
+        <h4>La date d'arrêt</h4>
+        <p>
+          Le modèle a été entraîné sur des textes jusqu'à une certaine date, après quoi il
+          ne sait plus rien. Si vous lui demandez le résultat du dernier match d'hier,
+          il vous répondra qu'il n'a pas l'info — ou pire, il en inventera un.
+        </p>
+        <div class="demo">
+          Claude Opus 4.7 : <strong style="color: var(--gold-dk);">janv. 2026</strong><br>
+          GPT-5.5 : <strong style="color: var(--gold-dk);">déc. 2025</strong><br>
+          Gemini 3.1 Pro : <strong style="color: var(--gold-dk);">janv. 2025</strong>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SECTION 5 — LIMITES NATIVES
+============================================================ -->
+<section class="section dark-2" id="limits">
+  <div class="container">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">05</span>
+        <span class="chapter-label">Limites natives</span>
+      </div>
+      <h2>Ce qu'un LLM ne sait pas faire, seul</h2>
+      <p class="lede">
+        Le modèle, livré nu, est étonnamment limité. Il ne fait que produire du texte à
+        partir de texte. Tout ce qui ressemble à une « action » dans le monde réel est en
+        fait apporté par autre chose — qu'on appellera dans la prochaine présentation
+        un <em>harnais</em>.
+      </p>
+    </div>
+
+    <div class="limits-grid">
+      <div class="limit-card reveal reveal-d-1">
+        <svg class="limit-icon lc" viewBox="0 0 24 24">
+          <path d="m2 2 20 20"/>
+          <path d="M8.5 16.429a5 5 0 0 1 7 0"/>
+          <path d="M5 12.859a10 10 0 0 1 5.17-2.69"/>
+          <path d="M19 12.859a10 10 0 0 0-2.007-1.523"/>
+          <path d="M2 8.82a15 15 0 0 1 4.177-2.643"/>
+          <path d="M22 8.82a15 15 0 0 0-11.288-3.764"/>
+          <path d="M12 20h.01"/>
+        </svg>
+        <h4>Pas d'accès au web</h4>
+        <p>
+          Sans outil branché par-dessus, le modèle ne peut pas chercher d'information
+          actuelle, consulter une page, ou appeler une API. Tout ce qu'il sait vient
+          de son entraînement, figé à la date du cutoff.
+        </p>
+      </div>
+
+      <div class="limit-card reveal reveal-d-2">
+        <svg class="limit-icon lc" viewBox="0 0 24 24">
+          <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/>
+          <path d="m9.5 10.5 5 5"/>
+          <path d="m14.5 10.5-5 5"/>
+        </svg>
+        <h4>Pas d'accès aux fichiers</h4>
+        <p>
+          Le modèle ne peut pas lire votre PDF, ouvrir votre code, ni écrire un document
+          sur votre disque. Tout ce qui ressemble à « lire un fichier », dans une
+          interface IA, est en réalité l'application qui lit et passe le contenu en
+          texte au modèle.
+        </p>
+      </div>
+
+      <div class="limit-card reveal reveal-d-3">
+        <svg class="limit-icon lc" viewBox="0 0 24 24">
+          <ellipse cx="12" cy="5" rx="9" ry="3"/>
+          <path d="M3 5V19A9 3 0 0 0 15 21.84"/>
+          <path d="M21 5V8"/>
+          <path d="M21 12L18 17H22L19 22"/>
+          <path d="M3 12A9 3 0 0 0 14.59 14.87"/>
+        </svg>
+        <h4>Pas de mémoire entre sessions</h4>
+        <p>
+          Chaque conversation démarre à zéro. Si vous lui avez expliqué hier votre projet,
+          il l'aura oublié aujourd'hui. La « mémoire » qu'on voit dans certains chatbots
+          est ajoutée par-dessus : l'application ré-injecte des résumés au début de chaque
+          session.
+        </p>
+      </div>
+
+      <div class="limit-card reveal reveal-d-4">
+        <svg class="limit-icon lc" viewBox="0 0 24 24">
+          <path d="M12 9v4"/>
+          <path d="M12 17h.01"/>
+          <path d="M21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3z"/>
+        </svg>
+        <h4>Hallucinations</h4>
+        <p>
+          Le modèle prédit le texte le plus <em>plausible</em>, pas le plus <em>vrai</em>.
+          Quand il ne sait pas, il génère quand même quelque chose qui ressemble à une
+          bonne réponse. Citations inventées, dates fausses, faits altérés : c'est
+          structurel, pas accidentel.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SECTION 6 — RÉFLÉCHIR AVANT DE RÉPONDRE (la problématique)
+============================================================ -->
+<section class="section dark" id="thinking-need">
+  <div class="container">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">06</span>
+        <span class="chapter-label">Le besoin de raisonner</span>
+      </div>
+      <h2>Réfléchir avant de répondre</h2>
+      <p class="lede">
+        Jusqu'ici, on a vu un LLM produire son texte en un seul jet, token après token,
+        sans pause. Pour des questions simples, ça marche très bien. Pour des problèmes
+        à plusieurs étapes — un calcul, un raisonnement logique, du code complexe — c'est
+        une autre histoire.
+      </p>
+    </div>
+
+    <!-- Comparaison directe vs. raisonnement étape par étape -->
+    <div class="thinking-compare reveal reveal-d-1">
+      <div class="thinking-card bad">
+        <div class="thinking-tag">Réponse directe</div>
+        <div class="thinking-question">
+          « Marie a 3 fois plus de billes que son frère. Ensemble ils en ont 28.
+          Combien Marie en a-t-elle ? »
+        </div>
+        <div class="thinking-divider"></div>
+        <div class="thinking-answer wrong">
+          <span class="thinking-prefix">→ réponse :</span>
+          <strong>14</strong>
+          <span class="thinking-mark">✗</span>
+        </div>
+      </div>
+
+      <div class="thinking-card good">
+        <div class="thinking-tag">Avec raisonnement étape par étape</div>
+        <div class="thinking-question">
+          (même question)
+        </div>
+        <div class="thinking-reasoning">
+          Soit <em>x</em> les billes du frère.<br>
+          Marie en a <em>3x</em>.<br>
+          Total : <em>x + 3x = 4x = 28</em>.<br>
+          Donc <em>x = 7</em>, et Marie en a <em>3 × 7 = 21</em>.
+        </div>
+        <div class="thinking-divider"></div>
+        <div class="thinking-answer right">
+          <span class="thinking-prefix">→ réponse :</span>
+          <strong>21</strong>
+          <span class="thinking-mark">✓</span>
+        </div>
+      </div>
+    </div>
+
+    <p class="thinking-fact reveal reveal-d-2">
+      Cette astuce, baptisée <em>Chain of Thought</em> en 2022, fait passer la précision
+      sur les problèmes mathématiques de <strong>17 % à 57 %</strong> — sur le même modèle,
+      juste en lui demandant de « réfléchir à voix haute ».
+    </p>
+  </div>
+</section>
+
+<!-- ============================================================
+     SECTION 7 — LE MODE THINKING (fonctionnement)
+============================================================ -->
+<section class="section light" id="thinking-mode" style="background: #FAF7F0;">
+  <div class="container">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">07</span>
+        <span class="chapter-label">Le fonctionnement</span>
+      </div>
+      <h2 style="color: var(--navy);">Le mode <em>thinking</em>, sous le capot</h2>
+      <p class="lede">
+        Ce qui était d'abord une astuce de prompt est devenu une fonctionnalité à part
+        entière. Les modèles modernes — la série <code>o</code> d'OpenAI, Claude avec
+        son <em>extended thinking</em>, Gemini Deep Think, DeepSeek R1 — sont entraînés
+        à raisonner avant de répondre, sans qu'on le leur demande.
+      </p>
+    </div>
+
+    <!-- L'astuce : plus de tokens, mais utilement -->
+    <div class="thinking-mech reveal reveal-d-1">
+      <h3>L'astuce ? Le modèle génère plus de tokens — mais utilement.</h3>
+      <p>
+        Mécaniquement, rien de neuf : c'est toujours la même boucle de prédiction de
+        token vue à la section 02. Mais au lieu de produire directement la réponse,
+        le modèle écrit d'abord <strong>des centaines, voire des milliers de tokens
+        de raisonnement interne</strong> — un monologue où il décompose, explore,
+        vérifie, corrige. Puis seulement il produit la réponse finale.
+      </p>
+
+      <div class="token-bars">
+        <div class="token-bar-row">
+          <div class="token-bar-label">Mode rapide</div>
+          <div class="token-bar">
+            <span class="token-bar-segment answer" style="width: 12%;"></span>
+          </div>
+          <div class="token-bar-count">~ 50 tokens</div>
+        </div>
+        <div class="token-bar-row">
+          <div class="token-bar-label">Mode thinking</div>
+          <div class="token-bar">
+            <span class="token-bar-segment thinking" style="width: 76%;"></span><span class="token-bar-segment answer" style="width: 12%;"></span>
+          </div>
+          <div class="token-bar-count">~ 3 500 tokens</div>
+        </div>
+      </div>
+      <div class="token-bar-legend">
+        <span><span class="swatch thinking"></span>raisonnement interne</span>
+        <span><span class="swatch answer"></span>réponse finale</span>
+      </div>
+    </div>
+
+    <!-- Modèles supportant le mode thinking -->
+    <div class="thinking-models reveal reveal-d-2">
+      <span class="thinking-model-tag"><span class="vendor">OpenAI</span>série o (o3, o4)</span>
+      <span class="thinking-model-tag"><span class="vendor">Anthropic</span>Claude extended thinking</span>
+      <span class="thinking-model-tag"><span class="vendor">Google</span>Gemini Deep Think</span>
+      <span class="thinking-model-tag"><span class="vendor">DeepSeek</span>R1</span>
+    </div>
+
+    <!-- Compromis -->
+    <div class="reveal reveal-d-3" style="margin-top: 64px;">
+      <h3 style="color: var(--navy); font-style: italic; text-align: center; margin-bottom: 32px;">
+        Le compromis, en quatre cartes
+      </h3>
+      <div class="thinking-tradeoffs">
+        <div class="tradeoff good">
+          <svg class="lc" viewBox="0 0 24 24" width="28" height="28">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="m9 12 2 2 4-4"/>
+          </svg>
+          <h4>Précision dopée</h4>
+          <p>Sur les problèmes complexes (math, code, sciences), le saut de qualité est massif. Sans thinking, certains problèmes sont quasi-inaccessibles.</p>
+        </div>
+        <div class="tradeoff cost">
+          <svg class="lc" viewBox="0 0 24 24" width="28" height="28">
+            <circle cx="12" cy="12" r="10"/>
+            <polyline points="12 6 12 12 16 14"/>
+          </svg>
+          <h4>Plus lent</h4>
+          <p>5 à 30 secondes pour digérer un problème difficile, contre 1 ou 2 sans thinking. La latence devient parfois insupportable en interactif.</p>
+        </div>
+        <div class="tradeoff cost">
+          <svg class="lc" viewBox="0 0 24 24" width="28" height="28">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="M16 8h-6a2 2 0 1 0 0 4h4a2 2 0 1 1 0 4H8"/>
+            <path d="M12 18V6"/>
+          </svg>
+          <h4>Plus cher</h4>
+          <p>Les tokens de raisonnement sont facturés comme les autres. Une question peut coûter 5 à 30 fois plus selon la profondeur de réflexion.</p>
+        </div>
+        <div class="tradeoff cost">
+          <svg class="lc" viewBox="0 0 24 24" width="28" height="28">
+            <circle cx="12" cy="12" r="10"/>
+            <path d="m9 9 6 6"/>
+            <path d="m9 15 6-6"/>
+          </svg>
+          <h4>Inutile sur le simple</h4>
+          <p>« Quelle est la capitale de la France ? » n'a pas besoin d'un raisonnement. Activer le thinking sur tout, c'est gaspiller temps et argent.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Phrase de clôture -->
+    <div class="reveal reveal-d-4" style="margin-top: 56px;">
+      <p style="font-family: 'Fraunces', serif; font-style: italic; font-size: 19px; color: var(--gold-dk); text-align: center; max-width: 760px; margin: 0 auto;">
+        Le mode thinking ne change pas <em>ce qu'est</em> un LLM. Il change <em>comment
+        on l'utilise</em> : on accepte qu'il prenne le temps d'écrire son brouillon
+        avant de produire la version propre.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     FOOTER
+============================================================ -->
+<footer>
+  Le LLM dans l'IA agentique · Niveau 0 · Avril 2026
+</footer>
+
+<script>
+// ============================================================
+// PROGRESS BAR
+// ============================================================
+const progressBar = document.getElementById('progress-bar');
+window.addEventListener('scroll', () => {
+  const max = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = (window.scrollY / max) * 100;
+  progressBar.style.width = pct + '%';
+});
+
+// ============================================================
+// TOC : visibilité + lien actif + bascule clair/sombre
+// ============================================================
+const toc = document.getElementById('toc');
+const tocLinks = toc.querySelectorAll('a');
+const tocSections = Array.from(tocLinks).map(a => document.querySelector(a.getAttribute('href')));
+
+function updateToc() {
+  const scrollY = window.pageYOffset;
+  const hero = document.getElementById('hero');
+  if (scrollY > hero.offsetHeight - 200) {
+    toc.classList.add('visible');
+  } else {
+    toc.classList.remove('visible');
+  }
+  let active = 0;
+  for (let i = 0; i < tocSections.length; i++) {
+    if (tocSections[i] && tocSections[i].offsetTop <= scrollY + window.innerHeight / 3) {
+      active = i;
+    }
+  }
+  tocLinks.forEach((a, i) => a.classList.toggle('active', i === active));
+
+  const sec = tocSections[active];
+  const isLight = !!sec && (sec.classList.contains('light') || sec.classList.contains('gold-bg'));
+  toc.classList.toggle('on-light', isLight);
+}
+window.addEventListener('scroll', updateToc, { passive: true });
+updateToc();
+
+// ============================================================
+// REVEAL au scroll
+// ============================================================
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+// ============================================================
+// HERO : drift continu (Lissajous) sur chaque candidat + trait du
+// cerveau qui suit dynamiquement le candidat ciblé.
+// Le drift est calculé comme la somme de deux sinusoïdes par axe,
+// avec phases et fréquences aléatoires par candidat → mouvement
+// souple, organique, jamais en saccades.
+// ============================================================
+const heroBrainCenter      = { x: 340, y: 230, r: 68 };
+const HERO_TARGET_INTERVAL = 2600;   // ms entre deux changements de cible
+const HERO_LINE_EASE       = 0.07;   // douceur de la pursuit du trait
+
+// Helper : génère un jeu de paramètres Lissajous aléatoires pour un candidat
+function makeDrift() {
+  return {
+    ampX1: 7 + Math.random() * 4,                       // 7-11 px
+    ampY1: 7 + Math.random() * 4,
+    ampX2: 3 + Math.random() * 3,                       // 3-6 px (oscillation rapide)
+    ampY2: 3 + Math.random() * 3,
+    freqX1: 0.00080 + Math.random() * 0.00060,          // période ~5-8 s
+    freqY1: 0.00080 + Math.random() * 0.00060,
+    freqX2: 0.00200 + Math.random() * 0.00120,          // période ~2-3 s
+    freqY2: 0.00200 + Math.random() * 0.00120,
+    phaseX1: Math.random() * Math.PI * 2,
+    phaseY1: Math.random() * Math.PI * 2,
+    phaseX2: Math.random() * Math.PI * 2,
+    phaseY2: Math.random() * Math.PI * 2,
+  };
+}
+
+// Positions de base de chaque candidat (= transform initial dans le SVG)
+const heroCands = [
+  { id: 'hero-cand-0', baseX: 505, baseY: 100 },
+  { id: 'hero-cand-1', baseX: 615, baseY: 145 },
+  { id: 'hero-cand-2', baseX: 485, baseY: 230 },
+  { id: 'hero-cand-3', baseX: 620, baseY: 290 },
+  { id: 'hero-cand-4', baseX: 525, baseY: 370 },
+].map(c => ({
+  ...c,
+  el: document.getElementById(c.id),
+  offsetX: 0, offsetY: 0,
+  ...makeDrift(),
+}));
+
+const heroLine = document.getElementById('hero-selector-line');
+
+let heroSelIdx        = 0;
+let heroLastSelChange = 0;
+let heroLineX         = heroCands[0].baseX - 55;
+let heroLineY         = heroCands[0].baseY;
+
+function heroPickNewTarget() {
+  let newIdx;
+  do {
+    newIdx = Math.floor(Math.random() * heroCands.length);
+  } while (newIdx === heroSelIdx && heroCands.length > 1);
+  heroSelIdx = newIdx;
+}
+
+function tickHero(ts) {
+  // 1. Mise à jour de chaque candidat — somme de deux sinusoïdes par axe,
+  //    paramètres aléatoires → mouvement continu et souple.
+  heroCands.forEach(c => {
+    c.offsetX = c.ampX1 * Math.sin(ts * c.freqX1 + c.phaseX1)
+              + c.ampX2 * Math.sin(ts * c.freqX2 + c.phaseX2);
+    c.offsetY = c.ampY1 * Math.sin(ts * c.freqY1 + c.phaseY1)
+              + c.ampY2 * Math.sin(ts * c.freqY2 + c.phaseY2);
+    if (c.el) {
+      c.el.setAttribute('transform',
+        `translate(${(c.baseX + c.offsetX).toFixed(1)}, ${(c.baseY + c.offsetY).toFixed(1)})`);
+    }
+  });
+
+  // 2. Décide d'un nouveau candidat à cibler toutes les HERO_TARGET_INTERVAL ms
+  if (ts - heroLastSelChange > HERO_TARGET_INTERVAL) {
+    heroPickNewTarget();
+    heroLastSelChange = ts;
+  }
+
+  // 3. Cible courante du trait = position drift-incluse du candidat sélectionné,
+  //    décalée de 55 px vers la gauche pour atterrir au bord gauche de la pile.
+  const sel = heroCands[heroSelIdx];
+  const targetX = sel.baseX + sel.offsetX - 55;
+  const targetY = sel.baseY + sel.offsetY;
+
+  // 4. Le trait poursuit la cible en mouvement (interpolation douce)
+  heroLineX += (targetX - heroLineX) * HERO_LINE_EASE;
+  heroLineY += (targetY - heroLineY) * HERO_LINE_EASE;
+
+  // 5. Origine du trait sur le bord du cerveau, dans la direction de la pointe
+  const dx = heroLineX - heroBrainCenter.x;
+  const dy = heroLineY - heroBrainCenter.y;
+  const L  = Math.sqrt(dx * dx + dy * dy) || 1;
+  const ox = heroBrainCenter.x + heroBrainCenter.r * dx / L;
+  const oy = heroBrainCenter.y + heroBrainCenter.r * dy / L;
+
+  if (heroLine) {
+    heroLine.setAttribute('x1', ox.toFixed(1));
+    heroLine.setAttribute('y1', oy.toFixed(1));
+    heroLine.setAttribute('x2', heroLineX.toFixed(1));
+    heroLine.setAttribute('y2', heroLineY.toFixed(1));
+  }
+
+  // 6. Met en valeur le candidat « épinglé » quand le trait l'a rejoint
+  const distToTarget = Math.hypot(targetX - heroLineX, targetY - heroLineY);
+  heroCands.forEach((c, i) => {
+    if (c.el) c.el.classList.toggle('targeted', i === heroSelIdx && distToTarget < 8);
+  });
+
+  requestAnimationFrame(tickHero);
+}
+if (heroLine && heroCands.every(c => c.el)) {
+  requestAnimationFrame(tickHero);
+}
+
+// ============================================================
+// SECTION 2 — ANIMATION DE GÉNÉRATION TOKEN PAR TOKEN
+// ============================================================
+// Tous les tokens ci-dessous sont les vrais tokens de GPT-4o/5
+// (tokenizer o200k_base). Les probabilités sont des estimations
+// plausibles à des fins de démonstration.
+//
+// Phrase générée : « Le développeur réfléchissait à son code »
+// Découpage tokenizer : [Le] [ développe] [ur] [ réfléch] [issait] [ à] [ son] [ code]
+//
+// Le prompt initial est « Le développeur » (3 tokens). Le modèle complète
+// avec 5 tokens supplémentaires. La séquence exhibe deux sub-word splits
+// très parlants : « développeur » = développe + ur, et la conjugaison
+// « réfléchissait » = réfléch + issait.
+const genSteps = [
+  {
+    // Prompt initial : « Le développeur » (3 tokens vrais)
+    promptTokens: ['Le', ' développe', 'ur'],
+    candidates: [
+      { token: ' écrit',     prob: 0.24 },
+      { token: ' réfléch',   prob: 0.21 },   // ← sélectionné (révèle le sub-word)
+      { token: ' observe',   prob: 0.16 },
+      { token: ' construit', prob: 0.14 },
+      { token: ' analyse',   prob: 0.11 },
+    ],
+    selectedIndex: 1
+  },
+  {
+    // « Le développeur réfléch » — quelle suite ?
+    // « issait » est ici le 3e candidat (et non le plus probable) : le modèle aurait
+    // pu choisir le participe présent « issant » ou le présent pluriel « issent ».
+    promptTokens: ['Le', ' développe', 'ur', ' réfléch'],
+    candidates: [
+      { token: 'issant', prob: 0.30 },
+      { token: 'issent', prob: 0.25 },
+      { token: 'issait', prob: 0.20 },        // ← sélectionné (rang 3)
+      { token: 'ir',     prob: 0.13 },
+      { token: 'isse',   prob: 0.07 },
+    ],
+    selectedIndex: 2
+  },
+  {
+    // « Le développeur réfléchissait »
+    promptTokens: ['Le', ' développe', 'ur', ' réfléch', 'issait'],
+    candidates: [
+      { token: ' à',    prob: 0.30 },   // ← sélectionné (rang 1)
+      { token: ' sur',  prob: 0.24 },
+      { token: ',',     prob: 0.18 },
+      { token: ' long', prob: 0.10 },   // ' longuement' = 3 tokens, on garde juste le 1er
+      { token: ' un',   prob: 0.08 },
+    ],
+    selectedIndex: 0
+  },
+  {
+    // « ... à »
+    // « son » est ici le 3e candidat — l'article défini « la » et indéfini « un »
+    // sont plus probables, mais l'échantillonnage en a décidé autrement.
+    promptTokens: ['Le', ' développe', 'ur', ' réfléch', 'issait', ' à'],
+    candidates: [
+      { token: ' la',    prob: 0.27 },
+      { token: ' un',    prob: 0.21 },
+      { token: ' son',   prob: 0.18 },        // ← sélectionné (rang 3)
+      { token: ' ce',    prob: 0.14 },
+      { token: ' l',     prob: 0.10 },
+    ],
+    selectedIndex: 2
+  },
+  {
+    // « ... à son »
+    // « code » est ici le 2e candidat — « problème » serait plus probable.
+    promptTokens: ['Le', ' développe', 'ur', ' réfléch', 'issait', ' à', ' son'],
+    candidates: [
+      { token: ' problème', prob: 0.30 },
+      { token: ' code',     prob: 0.22 },     // ← sélectionné (rang 2)
+      { token: ' projet',   prob: 0.18 },
+      { token: ' écran',    prob: 0.13 },
+      { token: ' travail',  prob: 0.09 },
+    ],
+    selectedIndex: 1
+  },
+  {
+    // « ... à son code » — le modèle décide-t-il d'arrêter ?
+    // Le token spécial <|endoftext|> (id 199999 dans o200k_base) signale la fin
+    // de la génération. Les autres candidats prolongeraient la phrase.
+    promptTokens: ['Le', ' développe', 'ur', ' réfléch', 'issait', ' à', ' son', ' code'],
+    candidates: [
+      { token: '<|endoftext|>', prob: 0.42, isEnd: true },  // ← sélectionné : la boucle s'arrête
+      { token: ' pour',         prob: 0.20 },
+      { token: '.',             prob: 0.13 },
+      { token: ' depuis',       prob: 0.10 },
+      { token: ' avec',         prob: 0.06 },
+    ],
+    selectedIndex: 0,
+    isEnd: true
+  },
+];
+
+const TIMING = {
+  CANDIDATES_RISE: 700,
+  SPIN_TOTAL: 1700,
+  SETTLED: 800,
+  APPEND: 600,
+  PAUSE: 500,
+  FINAL_PAUSE: 1500,
+  // Étape EOS : durées étendues pour laisser le temps de lire la narration
+  // longue (« le token spécial qui signale au harnais… ») et d'observer
+  // l'arrivée du marqueur « ⊘ fin ».
+  END_SETTLED: 2400,
+  END_APPEND: 900,
+  END_PAUSE: 1200,
+};
+
+const TOKEN_PALETTE = [
+  'var(--token-1)', 'var(--token-2)', 'var(--token-3)',
+  'var(--token-4)', 'var(--token-5)', 'var(--token-6)', 'var(--token-7)',
+];
+
+let isPlaying = false;
+let timeoutHandles = [];
+let currentRunId = 0;
+
+function clearAllTimeouts() {
+  timeoutHandles.forEach(h => clearTimeout(h));
+  timeoutHandles = [];
+}
+
+function delay(ms, runId) {
+  return new Promise((resolve, reject) => {
+    const h = setTimeout(() => {
+      if (runId !== currentRunId) {
+        reject(new Error('aborted'));
+        return;
+      }
+      resolve();
+    }, ms);
+    timeoutHandles.push(h);
+  });
+}
+
+function escapeText(s) {
+  return s.replace(/&/g, '&amp;')
+          .replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;')
+          .replace(/"/g, '&quot;');
+}
+
+function renderPrompt(stepIdx, animateLast) {
+  const tokens = genSteps[stepIdx].promptTokens;
+  const elt = document.getElementById('gen-prompt');
+  elt.innerHTML = tokens.map((t, i) => {
+    const color = TOKEN_PALETTE[i % TOKEN_PALETTE.length];
+    const newClass = (animateLast && i === tokens.length - 1) ? ' gen-token-new' : '';
+    return `<span class="gen-token${newClass}" style="background: ${color};">${escapeText(t)}</span>`;
+  }).join('');
+}
+
+function renderCandidates(stepIdx) {
+  const cands = genSteps[stepIdx].candidates;
+  const elt = document.getElementById('gen-candidates');
+  elt.innerHTML = cands.map((c, i) => {
+    // Le token EOS &lt;|endoftext|&gt; reçoit un style italique distinct
+    const tokenClass = c.isEnd ? 'gen-cand-token end' : 'gen-cand-token';
+    const rowClass = c.isEnd ? 'gen-cand-row end-row' : 'gen-cand-row';
+    return `
+      <div class="${rowClass}" data-index="${i}">
+        <div class="${tokenClass}">${escapeText(c.token)}</div>
+        <div class="gen-cand-bar-wrap"><div class="gen-cand-bar" data-target-width="${(c.prob * 100).toFixed(1)}"></div></div>
+        <div class="gen-cand-prob">${(c.prob * 100).toFixed(0)} %</div>
+      </div>
+    `;
+  }).join('');
+}
+
+function startBars() {
+  // Force reflow puis applique width pour déclencher la transition
+  const bars = document.querySelectorAll('.gen-cand-bar');
+  bars.forEach(b => { b.style.width = '0%'; });
+  // Reflow
+  void document.getElementById('gen-candidates').offsetWidth;
+  bars.forEach(b => {
+    b.style.width = b.dataset.targetWidth + '%';
+  });
+}
+
+function setNarration(html) {
+  document.getElementById('gen-narration').innerHTML = html;
+}
+
+function setStepIndicator(stepIdx, state) {
+  // state: 'current' | 'done' | 'idle'
+  const dots = document.querySelectorAll('.gen-step-dot');
+  dots.forEach((d, i) => {
+    d.classList.remove('current', 'done');
+    if (state === 'idle') return;
+    if (i < stepIdx) d.classList.add('done');
+    else if (i === stepIdx) d.classList.add('current');
+  });
+}
+
+async function spin(stepIdx, runId) {
+  const cands = genSteps[stepIdx].candidates;
+  const startTime = performance.now();
+  const rows = document.querySelectorAll('.gen-cand-row');
+  let lastIdx = -1;
+
+  while (performance.now() - startTime < TIMING.SPIN_TOTAL) {
+    const elapsed = performance.now() - startTime;
+    const t = elapsed / TIMING.SPIN_TOTAL;
+    // Intervalle qui s'allonge avec t (effet ralentissement comme une roulette)
+    const tickInterval = 60 + 220 * Math.pow(t, 2);
+
+    let newIdx;
+    do {
+      newIdx = Math.floor(Math.random() * cands.length);
+    } while (newIdx === lastIdx && cands.length > 1);
+
+    rows.forEach(r => r.classList.remove('spinning'));
+    if (rows[newIdx]) rows[newIdx].classList.add('spinning');
+    lastIdx = newIdx;
+
+    await delay(tickInterval, runId);
+  }
+  rows.forEach(r => r.classList.remove('spinning'));
+}
+
+function highlightSelected(stepIdx) {
+  const rows = document.querySelectorAll('.gen-cand-row');
+  const selected = genSteps[stepIdx].selectedIndex;
+  rows.forEach((r, i) => {
+    r.classList.remove('spinning');
+    r.classList.toggle('selected', i === selected);
+  });
+}
+
+async function runStep(stepIdx, runId) {
+  const step = genSteps[stepIdx];
+  const candWrap = document.getElementById('gen-cand-wrap');
+
+  // Phase 1a — masquer la zone candidats AVANT le rerender (évite un flicker
+  // visuel : sans ce fondu, les barres précédentes seraient remplacées
+  // instantanément par des barres à 0 % avant de remonter)
+  candWrap.classList.add('fading');
+  await delay(220, runId);
+
+  // Phase 1b — mettre à jour le DOM pendant que la zone est invisible
+  setStepIndicator(stepIdx, 'progress');
+  renderCandidates(stepIdx);
+
+  // Phase 1c — réveler les nouveaux candidats avec leurs barres qui montent
+  candWrap.classList.remove('fading');
+  startBars();
+  setNarration(`<strong>Étape ${stepIdx + 1} / ${genSteps.length}.</strong> Le modèle évalue les candidats.`);
+  await delay(TIMING.CANDIDATES_RISE, runId);
+
+  // Phase 2 — spin (échantillonnage)
+  setNarration(`Échantillonnage : un candidat est tiré au sort selon les probabilités…`);
+  await spin(stepIdx, runId);
+
+  // Phase 3 — settled : le sélectionné reste mis en valeur
+  highlightSelected(stepIdx);
+  const chosenToken = step.candidates[step.selectedIndex].token;
+  const chosenProb = step.candidates[step.selectedIndex].prob;
+  if (step.isEnd) {
+    // Narration spéciale pour le token de fin
+    setNarration(`Sélectionné : <strong>&lt;|endoftext|&gt;</strong> — un token spécial qui signale la fin de la génération. La boucle s'arrête ici.`);
+  } else {
+    setNarration(`Sélectionné : <strong>« ${escapeText(chosenToken.trim() || chosenToken)} »</strong> (probabilité ${(chosenProb * 100).toFixed(0)} %).`);
+  }
+  await delay(step.isEnd ? TIMING.END_SETTLED : TIMING.SETTLED, runId);
+
+  // Phase 4 — append OU marqueur de fin
+  const elt = document.getElementById('gen-prompt');
+  if (step.isEnd) {
+    // Pas d'ajout au prompt : on appose un marqueur visuel « FIN » à droite
+    // de la dernière phrase pour signaler que la génération s'arrête.
+    const promptHTML = step.promptTokens.map((t, i) => {
+      const color = TOKEN_PALETTE[i % TOKEN_PALETTE.length];
+      return `<span class="gen-token" style="background: ${color};">${escapeText(t)}</span>`;
+    }).join('');
+    elt.innerHTML = promptHTML + '<span class="gen-end-marker">⊘ fin</span>';
+  } else {
+    // Phase normale : ajouter le token au prompt avec animation d'arrivée.
+    // Les candidats restent à l'écran (avec le sélectionné en surbrillance)
+    // jusqu'au début du step suivant, qui fait le fondu de transition.
+    const nextTokens = [...step.promptTokens, chosenToken];
+    elt.innerHTML = nextTokens.map((t, i) => {
+      const color = TOKEN_PALETTE[i % TOKEN_PALETTE.length];
+      const newClass = (i === nextTokens.length - 1) ? ' gen-token-new' : '';
+      return `<span class="gen-token${newClass}" style="background: ${color};">${escapeText(t)}</span>`;
+    }).join('');
+  }
+
+  await delay(step.isEnd ? TIMING.END_APPEND : TIMING.APPEND, runId);
+  await delay(step.isEnd ? TIMING.END_PAUSE : TIMING.PAUSE, runId);
+}
+
+async function runAnimation() {
+  if (isPlaying) return;
+  isPlaying = true;
+  currentRunId++;
+  const runId = currentRunId;
+
+  document.getElementById('gen-play').disabled = true;
+  document.getElementById('gen-play').textContent = '⏵ Génération en cours…';
+
+  try {
+    // Reset à l'état initial
+    renderPrompt(0, false);
+    setStepIndicator(0, 'idle');
+
+    for (let i = 0; i < genSteps.length; i++) {
+      if (runId !== currentRunId) break;
+      await runStep(i, runId);
+    }
+
+    if (runId === currentRunId) {
+      // Marquer toutes les étapes comme done
+      const dots = document.querySelectorAll('.gen-step-dot');
+      dots.forEach(d => { d.classList.remove('current'); d.classList.add('done'); });
+
+      // Avec l'étape EOS, la dernière étape n'ajoute rien : le prompt final
+      // est directement promptTokens.join('') (le texte généré sans le token EOS).
+      const lastStep = genSteps[genSteps.length - 1];
+      const finalText = lastStep.isEnd
+        ? lastStep.promptTokens.join('')
+        : [...lastStep.promptTokens, lastStep.candidates[lastStep.selectedIndex].token].join('');
+      setNarration(`<strong>Génération terminée.</strong> Le modèle a produit : « ${escapeText(finalText)} ». Cliquez sur ↻ pour rejouer.`);
+
+      // Cacher les candidats après la fin
+      await delay(TIMING.FINAL_PAUSE, runId);
+      if (runId === currentRunId) {
+        document.getElementById('gen-cand-wrap').classList.add('fading');
+      }
+    }
+  } catch (err) {
+    // Aborted, c'est OK
+  } finally {
+    isPlaying = false;
+    document.getElementById('gen-play').disabled = false;
+    document.getElementById('gen-play').textContent = '▶ Lancer la génération';
+  }
+}
+
+function resetAnimation() {
+  currentRunId++;
+  clearAllTimeouts();
+  isPlaying = false;
+  document.getElementById('gen-play').disabled = false;
+  document.getElementById('gen-play').textContent = '▶ Lancer la génération';
+  renderPrompt(0, false);
+  renderCandidates(0);
+  startBars();
+  document.getElementById('gen-cand-wrap').classList.remove('fading');
+  document.querySelectorAll('.gen-cand-row').forEach(r => {
+    r.classList.remove('spinning', 'selected');
+  });
+  setStepIndicator(0, 'idle');
+  setNarration('Cliquez sur <strong>▶ Lancer</strong> pour voir le modèle générer.');
+}
+
+// Initialisation : afficher l'état du premier step quand la section entre en vue
+const machineSection = document.getElementById('machine');
+const machineObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      renderPrompt(0, false);
+      renderCandidates(0);
+      // Petit délai puis on lance les barres pour qu'elles montent visuellement
+      setTimeout(() => startBars(), 200);
+      machineObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.3 });
+if (machineSection) machineObserver.observe(machineSection);
+
+document.getElementById('gen-play').addEventListener('click', runAnimation);
+document.getElementById('gen-reset').addEventListener('click', resetAnimation);
+</script>
+
+</body>
+</html>

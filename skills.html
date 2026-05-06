@@ -1499,7 +1499,7 @@
       <h2 style="color: var(--navy);">Les <em>Skills</em> d'Anthropic, en détail</h2>
       <p class="lede">
         Commençons par le concept tel qu'Anthropic l'a formalisé en octobre 2025 :
-        un standard propre, simple à comprendre, et — fait remarquable — passé
+        un standard propre, simple à comprendre, et (fait remarquable) passé
         en deux mois au statut de standard ouvert du secteur.
       </p>
     </div>
@@ -1526,8 +1526,8 @@
           du Markdown ordinaire qui contient les instructions.
         </p>
         <p>
-          Optionnellement, le dossier peut contenir des scripts exécutables,
-          des fichiers de référence supplémentaires, et des assets (templates,
+          En option, le dossier peut contenir des scripts exécutables, des
+          fichiers de référence supplémentaires, et des assets (templates,
           polices, etc.). Tout ça reste sur disque tant que ce n'est pas
           explicitement utilisé.
         </p>
@@ -1687,7 +1687,7 @@ Format : <span class="key">type(scope): description</span>
           </svg>
         </div>
         <h3>Le harnais — la mécanique</h3>
-        <p>Il met le système en place et exécute les opérations sur le système de fichiers. Il ne « comprend » pas le contenu — il le manipule.</p>
+        <p>Il met le système en place et exécute les opérations sur le système de fichiers. Il ne « comprend » pas le contenu, il le manipule.</p>
         <ul>
           <li>Scanne les dossiers de skills au démarrage</li>
           <li>Injecte les métadonnées (nom + description) dans le contexte initial du LLM</li>
@@ -1752,8 +1752,8 @@ Format : <span class="key">type(scope): description</span>
       <p class="lede">
         Les Skills d'Anthropic ne sont qu'un point dans un espace plus large.
         Avant d'entrer dans le panorama des outils, voici trois axes qui
-        permettent de comparer n'importe quels deux mécanismes — chez Anthropic,
-        Antigravity, Cursor, ou ailleurs.
+        permettent de comparer n'importe quels deux mécanismes, que ce soit
+        chez Anthropic, Antigravity, Cursor, ou ailleurs.
       </p>
     </div>
 
@@ -1770,8 +1770,8 @@ Format : <span class="key">type(scope): description</span>
         </div>
         <p class="lede-axis">
           Est-ce que le contenu est <em>tout le temps dans le contexte</em> du LLM,
-          ou est-ce qu'il n'est chargé que <em>quand pertinent</em> ? C'est la
-          différence fondamentale entre une « Rule » et un « Skill ».
+          ou est-ce qu'il n'est chargé que <em>quand pertinent</em> ? C'est ce qui
+          sépare une « Rule » d'un « Skill ».
         </p>
 
         <div class="axis-spectrum">
@@ -1846,7 +1846,7 @@ Format : <span class="key">type(scope): description</span>
           <p>
             Imaginons une règle pour <strong>nommer mes fichiers en camelCase</strong>.
             Si elle est <em>toujours active</em>, elle entre dans le contexte à chaque
-            tour — y compris quand je demande à l'agent d'éditer une classe (où la
+            tour, y compris quand je demande à l'agent d'éditer une classe (où la
             règle ne sert à rien).
           </p>
           <p>
@@ -1895,8 +1895,8 @@ Format : <span class="key">type(scope): description</span>
             <h4>En 3 niveaux</h4>
             <p>
               D'abord les métadonnées, puis le SKILL.md, puis les fichiers
-              référencés à la demande. Permet de packager des skills très riches
-              sans payer le coût en tokens si on ne s'en sert pas.
+              référencés à la demande. On peut donc packager des skills très riches
+              sans payer le coût en tokens quand on ne s'en sert pas.
             </p>
             <p class="examples">Skills (toutes implémentations)</p>
           </div>
@@ -1907,8 +1907,7 @@ Format : <span class="key">type(scope): description</span>
     <div class="reveal" style="margin-top: 56px; text-align: center;">
       <p style="font-family: 'Fraunces', serif; font-style: italic; font-size: 19px; color: var(--gold); max-width: 780px; margin: 0 auto;">
         Avec ces trois axes, vous pouvez maintenant <em>cataloguer</em> n'importe quel
-        mécanisme proposé par n'importe quel harnais. C'est ce qu'on va faire dans
-        la section suivante.
+        mécanisme proposé par n'importe quel harnais. Place au panorama.
       </p>
     </div>
   </div>
@@ -1927,7 +1926,7 @@ Format : <span class="key">type(scope): description</span>
       <h2 style="color: var(--navy);">Le panorama complet</h2>
       <p class="lede">
         Chaque harnais a sa propre palette de mécanismes. Pour les comparer,
-        on les classe selon les couleurs des trois familles principales :
+        on les classe selon les couleurs des quatre familles :
         <span style="color: var(--mech-rule); font-weight: 600;">Rules</span> (toujours actifs),
         <span style="color: var(--gold-dk); font-weight: 600;">Skills</span> (à la demande, agent décide),
         <span style="color: var(--mech-workflow); font-weight: 600;">Workflows</span> (à la demande, user décide),
@@ -1943,7 +1942,7 @@ Format : <span class="key">type(scope): description</span>
           <span class="tool-name">GitHub Copilot</span>
           <span class="tool-vendor">Microsoft</span>
         </div>
-        <div class="tool-tagline">L'architecture la plus stratifiée — six familles distinctes pour des rôles précis.</div>
+        <div class="tool-tagline">L'architecture la plus stratifiée : six familles distinctes pour des rôles précis.</div>
         <div class="tool-mechanisms">
           <div class="mech-row">
             <span class="mech-tag rule">Instruction</span>
@@ -2069,7 +2068,7 @@ Format : <span class="key">type(scope): description</span>
           <span class="tool-name">Cursor</span>
           <span class="tool-vendor">Anysphere</span>
         </div>
-        <div class="tool-tagline">Une seule famille — les Rules — mais avec quatre modes d'application très fins.</div>
+        <div class="tool-tagline">Une seule famille (les Rules), mais avec quatre modes d'application très fins.</div>
         <div class="tool-mechanisms">
           <div class="mech-row">
             <span class="mech-tag rule">Rule</span>
@@ -2152,7 +2151,7 @@ Format : <span class="key">type(scope): description</span>
             <span class="mech-tag rule">Convention propre</span>
             <div class="mech-content">
               <code>.clinerules/</code>, <code>.roo/rules/</code>, <code>.junie/guidelines.md</code>, <code>conventions.md</code>, <code>GEMINI.md</code>…
-              <small>Chacun a son fichier ou dossier de référence — typiquement markdown, toujours actif. Un README pour l'agent.</small>
+              <small>Chacun a son fichier ou dossier de référence, typiquement markdown, toujours actif. Un README pour l'agent.</small>
             </div>
           </div>
           <div class="mech-row">
@@ -2243,7 +2242,7 @@ Format : <span class="key">type(scope): description</span>
         <ul>
           <li>Un fichier <code>AGENTS.md</code> au root du repo</li>
           <li>Lu automatiquement par les agents au démarrage</li>
-          <li>Markdown libre — décrit la stack, les conventions, les contraintes</li>
+          <li>Markdown libre, décrit la stack, les conventions, les contraintes</li>
           <li>Hiérarchique : un par sous-dossier si besoin (le plus proche prime)</li>
           <li>Versionné dans Git, partagé avec toute l'équipe</li>
         </ul>
@@ -2286,14 +2285,14 @@ Format : <span class="key">type(scope): description</span>
 
     <div class="agents-fact reveal reveal-d-3">
       <span class="big-num">88</span>
-      Anecdote parlante : le repo OpenAI Codex contient <strong>88 fichiers AGENTS.md</strong> à différents niveaux. Quand on dit que le format est hiérarchique, ce n'est pas anecdotique — chaque sous-projet peut avoir son propre <code style="background: rgba(212,165,116,0.15); color: var(--gold);">AGENTS.md</code>, et celui le plus proche du fichier édité prime.
+      Anecdote parlante : le repo OpenAI Codex contient <strong>88 fichiers AGENTS.md</strong> à différents niveaux. Quand on dit que le format est hiérarchique, ce n'est pas anecdotique : chaque sous-projet peut avoir son propre <code style="background: rgba(212,165,116,0.15); color: var(--gold);">AGENTS.md</code>, et celui le plus proche du fichier édité prime.
     </div>
 
     <div class="reveal" style="margin-top: 48px; text-align: center;">
       <p style="font-family: 'Fraunces', serif; font-style: italic; font-size: 16px; color: var(--ice); max-width: 720px; margin: 0 auto;">
-        Quelques outils gardent leur format propre — <strong style="color: var(--gold);">Claude Code</strong> avec
+        Quelques outils gardent leur format propre : <strong style="color: var(--gold);">Claude Code</strong> avec
         <code style="background: rgba(212,165,116,0.15); color: var(--gold);">CLAUDE.md</code>,
-        Gemini CLI avec <code style="background: rgba(212,165,116,0.15); color: var(--gold);">GEMINI.md</code> —
+        Gemini CLI avec <code style="background: rgba(212,165,116,0.15); color: var(--gold);">GEMINI.md</code>,
         sans adopter <code style="background: rgba(212,165,116,0.15); color: var(--gold);">AGENTS.md</code>.
         En pratique, beaucoup d'équipes mettent les règles communes dans
         <code style="background: rgba(212,165,116,0.15); color: var(--gold);">AGENTS.md</code>
@@ -2323,8 +2322,8 @@ Format : <span class="key">type(scope): description</span>
       <p>
         Tous ces mécanismes sont des manières de <strong>pré-charger du contexte
         dans le harnais</strong>, sans avoir à le retaper à chaque conversation.
-        La compétition entre vendors se joue sur l'ergonomie — la lourdeur du fichier,
-        la granularité du déclenchement, l'économie de tokens, la composabilité — pas sur le concept.
+        La compétition entre éditeurs se joue sur l'ergonomie (la lourdeur du fichier,
+        la granularité du déclenchement, l'économie de tokens, la composabilité), pas sur le concept.
       </p>
       <p>
         L'innovation pédagogiquement intéressante de ces derniers mois, c'est la
@@ -2347,8 +2346,8 @@ Format : <span class="key">type(scope): description</span>
         <strong>monolithique vs progressive</strong>.
       </p>
       <p style="margin-top: 22px;">
-        Et un standard ouvert émerge — <code style="background: rgba(212,165,116,0.2); color: var(--gold); padding: 2px 8px;">AGENTS.md</code>
-        et <code style="background: rgba(212,165,116,0.2); color: var(--gold); padding: 2px 8px;">SKILL.md</code> —
+        Et un standard ouvert émerge (<code style="background: rgba(212,165,116,0.2); color: var(--gold); padding: 2px 8px;">AGENTS.md</code>
+        et <code style="background: rgba(212,165,116,0.2); color: var(--gold); padding: 2px 8px;">SKILL.md</code>),
         qui devrait, à terme, faire converger l'écosystème.
       </p>
     </div>

@@ -183,6 +183,67 @@
   }
 
   /* ============================================================
+     TOC SIDEBAR (desktop)
+  ============================================================ */
+  .toc {
+    position: fixed;
+    right: 32px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+  .toc.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+  .toc a {
+    width: 32px; height: 4px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+    transition: all 0.3s ease;
+    display: block;
+    position: relative;
+  }
+  .toc a:hover, .toc a.active {
+    background: var(--gold);
+    width: 44px;
+  }
+  /* Variante claire pour les sections cream / gold-bg */
+  .toc.on-light a {
+    background: rgba(15,27,61,0.22);
+  }
+  .toc.on-light a:hover, .toc.on-light a.active {
+    background: var(--gold-dk);
+  }
+  .toc a span {
+    position: absolute;
+    right: 50px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--cream);
+    background: var(--navy-2);
+    padding: 4px 10px;
+    border-radius: 3px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+  }
+  .toc a:hover span { opacity: 1; }
+  @media (max-width: 1100px) {
+    .toc { display: none; }
+  }
+
+  /* ============================================================
      HERO
   ============================================================ */
   .hero {
@@ -318,13 +379,10 @@
     color: var(--gold);
   }
 
-  /* L'agent qui se "casse" */
-  .breaking-agent .layer { transition: all 0.6s ease; }
-  .breaking-agent.broken .original { opacity: 0; transform: scale(0.8); }
-  .breaking-agent.broken .split-1 { opacity: 1; transform: translate(-60px, -50px); }
-  .breaking-agent.broken .split-2 { opacity: 1; transform: translate(60px, -50px); }
-  .breaking-agent.broken .split-3 { opacity: 1; transform: translate(-60px, 50px); }
-  .breaking-agent.broken .split-4 { opacity: 1; transform: translate(60px, 50px); }
+  /* L'agent qui se « casse » — animation pilotée intégralement par JS */
+  .breaking-agent .layer {
+    transform-origin: 200px 200px;
+  }
   .breaking-agent .split-1, .breaking-agent .split-2,
   .breaking-agent .split-3, .breaking-agent .split-4 {
     opacity: 0;
@@ -833,6 +891,17 @@
 ============================================================ -->
 <div class="progress-top" id="progress-bar"></div>
 
+<nav class="toc" id="toc">
+  <a href="#hero"><span>Couverture</span></a>
+  <a href="#mono-limit"><span>D'où vient le besoin ?</span></a>
+  <a href="#structure"><span>L'anatomie du système</span></a>
+  <a href="#config"><span>Sous le capot</span></a>
+  <a href="#case-action"><span>Cas concret</span></a>
+  <a href="#patterns"><span>Les patterns</span></a>
+  <a href="#challenges"><span>L'envers du décor</span></a>
+  <a href="#conclusion"><span>Pour conclure</span></a>
+</nav>
+
 <!-- ============================================================
      HERO
 ============================================================ -->
@@ -888,26 +957,44 @@
             <path d="M 0 -16 L 4 -4 L 16 0 L 4 4 L 0 16 L -4 4 L -16 0 L -4 -4 Z" fill="var(--navy-2)"/>
           </g>
 
-          <!-- 4 agents satellites (positions cardinales mais décalés pour ne pas être sur les axes) -->
-          <!-- Agent 1 : haut-droit (vert) -->
+          <!-- 4 agents satellites avec icônes Lucide thématiques (cohérence avec la structure de la section 02) -->
+          <!-- Agent 1 : haut-droit (vert, finances → chart-line) -->
           <g transform="translate(305, 120)">
             <circle r="28" fill="var(--navy-2)" stroke="var(--agent-1)" stroke-width="2.5"/>
-            <circle r="6" fill="var(--agent-1)"/>
+            <g class="lc" transform="translate(-10.5, -10.5) scale(0.875)" style="color: var(--agent-1); stroke-width: 2.2;">
+              <path d="M3 3v16a2 2 0 0 0 2 2h16"/>
+              <path d="M7 16l4-4 4 4 5-5"/>
+            </g>
           </g>
-          <!-- Agent 2 : bas-droit (bleu) -->
+          <!-- Agent 2 : bas-droit (bleu, presse → newspaper) -->
           <g transform="translate(305, 280)">
             <circle r="28" fill="var(--navy-2)" stroke="var(--agent-2)" stroke-width="2.5"/>
-            <circle r="6" fill="var(--agent-2)"/>
+            <g class="lc" transform="translate(-10.5, -10.5) scale(0.875)" style="color: var(--agent-2); stroke-width: 2.2;">
+              <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2"/>
+              <path d="M18 14h-8"/>
+              <path d="M15 18h-5"/>
+              <path d="M10 6h8v4h-8z"/>
+            </g>
           </g>
-          <!-- Agent 3 : bas-gauche (doré) -->
+          <!-- Agent 3 : bas-gauche (doré, concurrence → crosshair) -->
           <g transform="translate(95, 280)">
             <circle r="28" fill="var(--navy-2)" stroke="var(--agent-3)" stroke-width="2.5"/>
-            <circle r="6" fill="var(--agent-3)"/>
+            <g class="lc" transform="scale(0.875)" style="color: var(--agent-3); stroke-width: 2.2;">
+              <circle cx="0" cy="0" r="10"/>
+              <path d="M-10 0h20"/>
+              <path d="M0 -10v20"/>
+            </g>
           </g>
-          <!-- Agent 4 : haut-gauche (violet) -->
+          <!-- Agent 4 : haut-gauche (violet, juridique → balance) -->
           <g transform="translate(95, 120)">
             <circle r="28" fill="var(--navy-2)" stroke="var(--agent-4)" stroke-width="2.5"/>
-            <circle r="6" fill="var(--agent-4)"/>
+            <g class="lc" transform="translate(-10.5, -10.5) scale(0.875)" style="color: var(--agent-4); stroke-width: 2.2;">
+              <path d="M12 3v18"/>
+              <path d="m19 8 3 8a5 5 0 0 1-6 0zV7"/>
+              <path d="M3 7h1a17 17 0 0 0 8-2 17 17 0 0 0 8 2h1"/>
+              <path d="m5 8 3 8a5 5 0 0 1-6 0zV7"/>
+              <path d="M7 21h10"/>
+            </g>
           </g>
 
           <!-- Liens orchestrateur ↔ agents -->
@@ -915,6 +1002,12 @@
           <line x1="232" y1="220" x2="277" y2="260" stroke="var(--gold)" stroke-width="1.2" opacity="0.5" stroke-dasharray="3 4"/>
           <line x1="168" y1="220" x2="123" y2="260" stroke="var(--gold)" stroke-width="1.2" opacity="0.5" stroke-dasharray="3 4"/>
           <line x1="168" y1="180" x2="123" y2="140" stroke="var(--gold)" stroke-width="1.2" opacity="0.5" stroke-dasharray="3 4"/>
+
+          <!-- Particules de données : voyagent depuis chaque agent vers l'orchestrateur, animées par JS -->
+          <circle id="hero-flow-1" class="hero-flow-dot" cx="277" cy="140" r="3.5" fill="var(--agent-1)" opacity="0"/>
+          <circle id="hero-flow-2" class="hero-flow-dot" cx="277" cy="260" r="3.5" fill="var(--agent-2)" opacity="0"/>
+          <circle id="hero-flow-3" class="hero-flow-dot" cx="123" cy="260" r="3.5" fill="var(--agent-3)" opacity="0"/>
+          <circle id="hero-flow-4" class="hero-flow-dot" cx="123" cy="140" r="3.5" fill="var(--agent-4)" opacity="0"/>
         </svg>
       </div>
     </div>
@@ -970,22 +1063,40 @@
             <text x="200" y="206" text-anchor="middle" font-family="JetBrains Mono" font-size="11" letter-spacing="2" fill="var(--cream)" font-weight="700">AGENT</text>
             <text x="200" y="222" text-anchor="middle" font-family="JetBrains Mono" font-size="9" letter-spacing="1.5" fill="var(--ice)" opacity="0.7">surchargé</text>
           </g>
-          <!-- État "broken" : 4 agents séparés -->
+          <!-- État « broken » : 4 agents séparés avec leurs icônes Lucide -->
           <g class="layer split-1">
             <circle cx="200" cy="200" r="50" fill="var(--navy-2)" stroke="var(--agent-1)" stroke-width="2.5"/>
-            <circle cx="200" cy="200" r="10" fill="var(--agent-1)"/>
+            <g class="lc" transform="translate(182, 182) scale(1.5)" style="color: var(--agent-1); stroke-width: 1.4;">
+              <path d="M3 3v16a2 2 0 0 0 2 2h16"/>
+              <path d="M7 16l4-4 4 4 5-5"/>
+            </g>
           </g>
           <g class="layer split-2">
             <circle cx="200" cy="200" r="50" fill="var(--navy-2)" stroke="var(--agent-2)" stroke-width="2.5"/>
-            <circle cx="200" cy="200" r="10" fill="var(--agent-2)"/>
+            <g class="lc" transform="translate(182, 182) scale(1.5)" style="color: var(--agent-2); stroke-width: 1.4;">
+              <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2"/>
+              <path d="M18 14h-8"/>
+              <path d="M15 18h-5"/>
+              <path d="M10 6h8v4h-8z"/>
+            </g>
           </g>
           <g class="layer split-3">
             <circle cx="200" cy="200" r="50" fill="var(--navy-2)" stroke="var(--agent-3)" stroke-width="2.5"/>
-            <circle cx="200" cy="200" r="10" fill="var(--agent-3)"/>
+            <g class="lc" transform="translate(200, 200) scale(1.5)" style="color: var(--agent-3); stroke-width: 1.4;">
+              <circle cx="0" cy="0" r="10"/>
+              <path d="M-10 0h20"/>
+              <path d="M0 -10v20"/>
+            </g>
           </g>
           <g class="layer split-4">
             <circle cx="200" cy="200" r="50" fill="var(--navy-2)" stroke="var(--agent-4)" stroke-width="2.5"/>
-            <circle cx="200" cy="200" r="10" fill="var(--agent-4)"/>
+            <g class="lc" transform="translate(182, 182) scale(1.5)" style="color: var(--agent-4); stroke-width: 1.4;">
+              <path d="M12 3v18"/>
+              <path d="m19 8 3 8a5 5 0 0 1-6 0zV7"/>
+              <path d="M3 7h1a17 17 0 0 0 8-2 17 17 0 0 0 8 2h1"/>
+              <path d="m5 8 3 8a5 5 0 0 1-6 0zV7"/>
+              <path d="M7 21h10"/>
+            </g>
           </g>
         </svg>
       </div>
@@ -1032,11 +1143,13 @@
 
     <div class="structure-stage reveal reveal-delay-1">
       <svg viewBox="0 0 720 600" xmlns="http://www.w3.org/2000/svg">
-        <!-- Liens orchestrateur ↔ agents (en arrière-plan) -->
-        <line x1="360" y1="180" x2="180" y2="430" class="struct-line"/>
-        <line x1="360" y1="180" x2="300" y2="430" class="struct-line"/>
-        <line x1="360" y1="180" x2="420" y2="430" class="struct-line"/>
-        <line x1="360" y1="180" x2="540" y2="430" class="struct-line"/>
+        <!-- Liens orchestrateur ↔ agents : géométrie calculée pour partir
+             de l'arête de l'orchestrateur (r=60) et finir à l'arête de
+             chaque agent (r=52), parfaitement alignés sur les centres -->
+        <line x1="320" y1="225" x2="155" y2="411" class="struct-line"/>
+        <line x1="343" y1="238" x2="295" y2="400" class="struct-line"/>
+        <line x1="377" y1="238" x2="425" y2="400" class="struct-line"/>
+        <line x1="400" y1="225" x2="565" y2="411" class="struct-line"/>
 
         <!-- L'utilisateur (en haut) -->
         <g>
@@ -1067,11 +1180,9 @@
         <!-- Agent 1 : Données financières (vert) -->
         <g>
           <circle cx="120" cy="450" r="52" class="struct-agent" style="stroke: var(--agent-1);"/>
-          <g transform="translate(120, 450) scale(0.9)" style="color: var(--agent-1);">
-            <g class="lc" style="stroke: var(--agent-1); stroke-width: 2.2;">
-              <path d="M3 3v16a2 2 0 0 0 2 2h16"/>
-              <path d="M7 16l4-4 4 4 5-5"/>
-            </g>
+          <g class="lc" transform="translate(102, 432) scale(1.5)" style="color: var(--agent-1); stroke-width: 1.4;">
+            <path d="M3 3v16a2 2 0 0 0 2 2h16"/>
+            <path d="M7 16l4-4 4 4 5-5"/>
           </g>
         </g>
         <text x="120" y="528" class="struct-label" style="fill: var(--navy);">FINANCES</text>
@@ -1080,13 +1191,11 @@
         <!-- Agent 2 : Presse / réputation (bleu) -->
         <g>
           <circle cx="280" cy="450" r="52" class="struct-agent" style="stroke: var(--agent-2);"/>
-          <g transform="translate(280, 450) scale(0.9)" style="color: var(--agent-2);">
-            <g class="lc" style="stroke: var(--agent-2); stroke-width: 2.2;">
-              <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2"/>
-              <path d="M18 14h-8"/>
-              <path d="M15 18h-5"/>
-              <path d="M10 6h8v4h-8z"/>
-            </g>
+          <g class="lc" transform="translate(262, 432) scale(1.5)" style="color: var(--agent-2); stroke-width: 1.4;">
+            <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2"/>
+            <path d="M18 14h-8"/>
+            <path d="M15 18h-5"/>
+            <path d="M10 6h8v4h-8z"/>
           </g>
         </g>
         <text x="280" y="528" class="struct-label" style="fill: var(--navy);">PRESSE</text>
@@ -1095,12 +1204,10 @@
         <!-- Agent 3 : Concurrence (doré) -->
         <g>
           <circle cx="440" cy="450" r="52" class="struct-agent" style="stroke: var(--agent-3);"/>
-          <g transform="translate(440, 450) scale(0.9)" style="color: var(--agent-3);">
-            <g class="lc" style="stroke: var(--agent-3); stroke-width: 2.2;">
-              <circle cx="0" cy="0" r="10"/>
-              <path d="M-10 0h20"/>
-              <path d="M0 -10v20"/>
-            </g>
+          <g class="lc" transform="translate(440, 450) scale(1.5)" style="color: var(--agent-3); stroke-width: 1.4;">
+            <circle cx="0" cy="0" r="10"/>
+            <path d="M-10 0h20"/>
+            <path d="M0 -10v20"/>
           </g>
         </g>
         <text x="440" y="528" class="struct-label" style="fill: var(--navy);">CONCURRENCE</text>
@@ -1109,13 +1216,12 @@
         <!-- Agent 4 : Juridique (violet) -->
         <g>
           <circle cx="600" cy="450" r="52" class="struct-agent" style="stroke: var(--agent-4);"/>
-          <g transform="translate(600, 450) scale(0.9)" style="color: var(--agent-4);">
-            <g class="lc" style="stroke: var(--agent-4); stroke-width: 2.2;">
-              <path d="M12 22V8"/>
-              <path d="M5 8h14"/>
-              <path d="M19 8c0 4-3 7-7 7s-7-3-7-7"/>
-              <path d="M2 21h20"/>
-            </g>
+          <g class="lc" transform="translate(582, 432) scale(1.5)" style="color: var(--agent-4); stroke-width: 1.4;">
+            <path d="M12 3v18"/>
+            <path d="m19 8 3 8a5 5 0 0 1-6 0zV7"/>
+            <path d="M3 7h1a17 17 0 0 0 8-2 17 17 0 0 0 8 2h1"/>
+            <path d="m5 8 3 8a5 5 0 0 1-6 0zV7"/>
+            <path d="M7 21h10"/>
           </g>
         </g>
         <text x="600" y="528" class="struct-label" style="fill: var(--navy);">JURIDIQUE</text>
@@ -1129,13 +1235,120 @@
 </section>
 
 <!-- ============================================================
-     SECTION 3 — LE CAS EN ACTION (diagramme animé)
+     SECTION 3 — COMMENT CHAQUE AGENT EST CONFIGURÉ
+============================================================ -->
+<section class="section dark-2" id="config">
+  <div class="container">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">03</span>
+        <span class="chapter-label">Sous le capot — un fichier par agent</span>
+      </div>
+      <h2>Mais d'où vient leur expertise, à ces agents ?</h2>
+      <p class="lede">
+        Question légitime : quand on parle de « l'agent finances » ou de « l'agent juridique »,
+        d'où vient cette spécialisation ? Pas d'improvisation : c'est le développeur qui définit
+        chaque sous-agent <strong>en amont</strong>, dans un fichier markdown dédié — exactement
+        dans la lignée du format <code>SKILL.md</code> qu'on a vu dans la présentation Skills.
+      </p>
+    </div>
+
+    <!-- Format GitHub Copilot -->
+    <div class="reveal reveal-delay-1" style="margin-top: 48px;">
+      <h3 style="color: var(--cream); font-style: italic; margin-bottom: 14px;">
+        Concrètement : le format de GitHub Copilot
+      </h3>
+      <p style="color: var(--ice); max-width: 760px; margin-bottom: 28px;">
+        Chaque outil propose son emplacement et sa convention de nommage, mais la structure est
+        partout la même : un <em>frontmatter YAML</em> (nom, description, modèle, outils
+        autorisés) suivi du corps markdown — la « fiche de poste » de l'agent. Voici comment
+        GitHub Copilot l'organise dans le repo d'un projet :
+      </p>
+
+      <div style="display: flex; flex-wrap: wrap; gap: 28px; align-items: stretch;">
+        <!-- Arborescence -->
+        <div style="flex: 1 1 320px; background: rgba(212,165,116,0.05); border: 1px solid rgba(212,165,116,0.2); border-radius: 8px; padding: 26px; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.95; color: var(--ice);">
+          <div style="font-size: 10px; letter-spacing: 2px; color: var(--gold); text-transform: uppercase; margin-bottom: 14px;">Arborescence du repo</div>
+          <div><span style="color: var(--gold);">.github/</span></div>
+          <div>├── <span style="color: var(--gold);">agents/</span></div>
+          <div>│ &nbsp;&nbsp;├── <strong style="color: var(--agent-1);">finances.agent.md</strong></div>
+          <div>│ &nbsp;&nbsp;├── <strong style="color: var(--agent-2);">presse.agent.md</strong></div>
+          <div>│ &nbsp;&nbsp;├── <strong style="color: var(--agent-3);">concurrence.agent.md</strong></div>
+          <div>│ &nbsp;&nbsp;└── <strong style="color: var(--agent-4);">juridique.agent.md</strong></div>
+          <div>├── <span style="color: var(--muted-lt);">copilot-instructions.md</span></div>
+          <div>│ &nbsp;&nbsp;<span style="color: var(--muted-lt); opacity: 0.7;"># règles communes à tous</span></div>
+          <div>└── <span style="color: var(--muted-lt);">prompts/</span></div>
+          <div>&nbsp;&nbsp;&nbsp;&nbsp;<span style="color: var(--muted-lt); opacity: 0.7;"># slash-commands user-triggered</span></div>
+        </div>
+
+        <!-- Exemple finances.agent.md -->
+        <div style="flex: 1 1 380px; background: var(--navy); border-left: 3px solid var(--agent-1); border-radius: 4px; padding: 22px 26px; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; line-height: 1.7; color: var(--ice); white-space: pre-wrap;">
+<span style="font-size: 10px; letter-spacing: 2px; color: var(--gold); text-transform: uppercase;">finances.agent.md</span>
+
+<span style="color: var(--gold-dk);">---</span>
+<span style="color: var(--gold);">name</span>: <span style="color: var(--ice);">Finances</span>
+<span style="color: var(--gold);">description</span>: <span style="color: var(--ice);">Analyse les bilans, ratios financiers
+    et la valorisation d'une société.</span>
+<span style="color: var(--gold);">model</span>: <span style="color: var(--ice);">claude-opus-4-7</span>
+<span style="color: var(--gold);">tools</span>:
+  - <span style="color: var(--ice);">api_bourse</span>
+  - <span style="color: var(--ice);">greffe_societes</span>
+<span style="color: var(--gold-dk);">---</span>
+
+<span style="color: var(--gold); font-weight: 700;"># Tu es expert en analyse financière</span>
+
+Quand on te confie une société :
+- Récupère les comptes des 3 dernières années
+- Calcule les ratios clés (ROCE, marge, dette/EBITDA)
+- Signale les anomalies sans interpréter
+- Réponds en français, format synthétique avec sources
+        </div>
+      </div>
+    </div>
+
+    <!-- Trois ingrédients -->
+    <div class="reveal reveal-delay-2" style="margin-top: 64px;">
+      <h3 style="color: var(--cream); font-style: italic; margin-bottom: 28px; text-align: center;">
+        Les trois ingrédients d'un agent spécialisé
+      </h3>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px;">
+        <div style="background: rgba(212,165,116,0.08); border: 1px solid rgba(212,165,116,0.28); border-radius: 8px; padding: 24px 26px;">
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 2.5px; color: var(--gold); margin-bottom: 12px; text-transform: uppercase;">1 · System prompt</div>
+          <div style="font-family: 'Fraunces', serif; font-style: italic; font-size: 19px; color: var(--cream); margin-bottom: 10px;">la fiche de poste</div>
+          <div style="color: var(--ice); font-size: 14px; line-height: 1.55;">Définit l'expertise, le ton, les contraintes de format. C'est le markdown du <code>.agent.md</code>, après le frontmatter.</div>
+        </div>
+        <div style="background: rgba(212,165,116,0.08); border: 1px solid rgba(212,165,116,0.28); border-radius: 8px; padding: 24px 26px;">
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 2.5px; color: var(--gold); margin-bottom: 12px; text-transform: uppercase;">2 · Outils autorisés</div>
+          <div style="font-family: 'Fraunces', serif; font-style: italic; font-size: 19px; color: var(--cream); margin-bottom: 10px;">la boîte à outils</div>
+          <div style="color: var(--ice); font-size: 14px; line-height: 1.55;">Un sous-ensemble strict, déclaré dans le frontmatter <code>tools</code>. L'agent finances ne voit pas <code>legifrance</code>, et inversement.</div>
+        </div>
+        <div style="background: rgba(212,165,116,0.08); border: 1px solid rgba(212,165,116,0.28); border-radius: 8px; padding: 24px 26px;">
+          <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 2.5px; color: var(--gold); margin-bottom: 12px; text-transform: uppercase;">3 · Skills &amp; références</div>
+          <div style="font-family: 'Fraunces', serif; font-style: italic; font-size: 19px; color: var(--cream); margin-bottom: 10px;">la doc métier</div>
+          <div style="color: var(--ice); font-size: 14px; line-height: 1.55;">L'agent peut piocher dans des Skills propres à son domaine (<code>SKILL.md</code>), chargés à la demande, avec la même mécanique de progressive disclosure.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Conclusion -->
+    <div class="reveal reveal-delay-3" style="margin-top: 56px;">
+      <p style="font-family: 'Fraunces', serif; font-style: italic; font-size: 19px; color: var(--gold); text-align: center; max-width: 780px; margin: 0 auto;">
+        L'orchestrateur ne réécrit pas la fiche de poste à chaque mission : il choisit quel
+        agent invoquer et formule la sous-tâche précise. L'agent, lui, répond avec sa
+        configuration figée et ses outils dédiés.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     SECTION 4 — LE CAS EN ACTION (diagramme animé)
 ============================================================ -->
 <section class="section dark" id="case-action">
   <div class="container">
     <div class="reveal">
       <div class="chapter-mark">
-        <span class="chapter-num">03</span>
+        <span class="chapter-num">04</span>
         <span class="chapter-label">Cas concret</span>
       </div>
       <h2>« Avant que j'investisse dans cette entreprise… »</h2>
@@ -1193,7 +1406,10 @@
         <!-- Agent 1 : Finances -->
         <g id="case-agent-1" class="case-node">
           <rect x="40" y="290" width="180" height="120" rx="8" fill="var(--navy-2)" stroke="var(--agent-1)" stroke-width="2"/>
-          <circle cx="70" cy="320" r="10" fill="var(--agent-1)"/>
+          <g class="lc" transform="translate(59, 309) scale(0.9)" style="color: var(--agent-1); stroke-width: 2.2;">
+            <path d="M3 3v16a2 2 0 0 0 2 2h16"/>
+            <path d="M7 16l4-4 4 4 5-5"/>
+          </g>
           <text x="92" y="324" font-family="JetBrains Mono" font-size="10" letter-spacing="2" fill="var(--agent-1)" font-weight="700">FINANCES</text>
           <text x="130" y="350" text-anchor="middle" font-family="Fraunces" font-style="italic" font-size="11" fill="var(--ice)">Bilans, comptes,</text>
           <text x="130" y="364" text-anchor="middle" font-family="Fraunces" font-style="italic" font-size="11" fill="var(--ice)">ratios financiers</text>
@@ -1205,7 +1421,12 @@
         <!-- Agent 2 : Presse -->
         <g id="case-agent-2" class="case-node">
           <rect x="240" y="290" width="180" height="120" rx="8" fill="var(--navy-2)" stroke="var(--agent-2)" stroke-width="2"/>
-          <circle cx="270" cy="320" r="10" fill="var(--agent-2)"/>
+          <g class="lc" transform="translate(259, 309) scale(0.9)" style="color: var(--agent-2); stroke-width: 2.2;">
+            <path d="M4 22h16a2 2 0 0 0 2-2V4a2 2 0 0 0-2-2H8a2 2 0 0 0-2 2v16a2 2 0 0 1-2 2"/>
+            <path d="M18 14h-8"/>
+            <path d="M15 18h-5"/>
+            <path d="M10 6h8v4h-8z"/>
+          </g>
           <text x="292" y="324" font-family="JetBrains Mono" font-size="10" letter-spacing="2" fill="var(--agent-2)" font-weight="700">PRESSE</text>
           <text x="330" y="350" text-anchor="middle" font-family="Fraunces" font-style="italic" font-size="11" fill="var(--ice)">Articles, signaux</text>
           <text x="330" y="364" text-anchor="middle" font-family="Fraunces" font-style="italic" font-size="11" fill="var(--ice)">faibles, réputation</text>
@@ -1216,7 +1437,11 @@
         <!-- Agent 3 : Concurrence -->
         <g id="case-agent-3" class="case-node">
           <rect x="460" y="290" width="180" height="120" rx="8" fill="var(--navy-2)" stroke="var(--agent-3)" stroke-width="2"/>
-          <circle cx="490" cy="320" r="10" fill="var(--agent-3)"/>
+          <g class="lc" transform="translate(490, 320) scale(0.9)" style="color: var(--agent-3); stroke-width: 2.2;">
+            <circle cx="0" cy="0" r="10"/>
+            <path d="M-10 0h20"/>
+            <path d="M0 -10v20"/>
+          </g>
           <text x="512" y="324" font-family="JetBrains Mono" font-size="10" letter-spacing="2" fill="var(--agent-3)" font-weight="700">CONCURRENCE</text>
           <text x="550" y="350" text-anchor="middle" font-family="Fraunces" font-style="italic" font-size="11" fill="var(--ice)">Marché, positionnement,</text>
           <text x="550" y="364" text-anchor="middle" font-family="Fraunces" font-style="italic" font-size="11" fill="var(--ice)">menaces, opportunités</text>
@@ -1227,7 +1452,13 @@
         <!-- Agent 4 : Juridique -->
         <g id="case-agent-4" class="case-node">
           <rect x="660" y="290" width="180" height="120" rx="8" fill="var(--navy-2)" stroke="var(--agent-4)" stroke-width="2"/>
-          <circle cx="690" cy="320" r="10" fill="var(--agent-4)"/>
+          <g class="lc" transform="translate(679, 309) scale(0.9)" style="color: var(--agent-4); stroke-width: 2.2;">
+            <path d="M12 3v18"/>
+            <path d="m19 8 3 8a5 5 0 0 1-6 0zV7"/>
+            <path d="M3 7h1a17 17 0 0 0 8-2 17 17 0 0 0 8 2h1"/>
+            <path d="m5 8 3 8a5 5 0 0 1-6 0zV7"/>
+            <path d="M7 21h10"/>
+          </g>
           <text x="712" y="324" font-family="JetBrains Mono" font-size="10" letter-spacing="2" fill="var(--agent-4)" font-weight="700">JURIDIQUE</text>
           <text x="750" y="350" text-anchor="middle" font-family="Fraunces" font-style="italic" font-size="11" fill="var(--ice)">Litiges, conformité,</text>
           <text x="750" y="364" text-anchor="middle" font-family="Fraunces" font-style="italic" font-size="11" fill="var(--ice)">risques réglementaires</text>
@@ -1292,13 +1523,13 @@
 </section>
 
 <!-- ============================================================
-     SECTION 4 — LES PATTERNS MULTI-AGENTS
+     SECTION 5 — LES PATTERNS MULTI-AGENTS
 ============================================================ -->
 <section class="section light" id="patterns">
   <div class="container">
     <div class="reveal">
       <div class="chapter-mark">
-        <span class="chapter-num">04</span>
+        <span class="chapter-num">05</span>
         <span class="chapter-label">Les formes que ça peut prendre</span>
       </div>
       <h2 style="color: var(--navy);">Quatre patterns à connaître</h2>
@@ -1407,13 +1638,13 @@
 </section>
 
 <!-- ============================================================
-     SECTION 5 — LES DÉFIS
+     SECTION 6 — LES DÉFIS
 ============================================================ -->
 <section class="section dark-2" id="challenges">
   <div class="container">
     <div class="reveal">
       <div class="chapter-mark">
-        <span class="chapter-num">05</span>
+        <span class="chapter-num">06</span>
         <span class="chapter-label">L'envers du décor</span>
       </div>
       <h2>Le multi-agent n'est pas toujours la bonne réponse</h2>
@@ -1482,13 +1713,13 @@
 </section>
 
 <!-- ============================================================
-     SECTION 6 — CONCLUSION + FRISE FINALE
+     SECTION 7 — CONCLUSION + FRISE FINALE
 ============================================================ -->
 <section class="section dark" id="conclusion">
   <div class="container-narrow">
     <div class="reveal">
       <div class="chapter-mark">
-        <span class="chapter-num">06</span>
+        <span class="chapter-num">07</span>
         <span class="chapter-label">Pour conclure</span>
       </div>
       <h2>Le même principe, à un étage de plus</h2>
@@ -1560,6 +1791,36 @@ window.addEventListener('scroll', () => {
 });
 
 // ============================================================
+// TOC : visibilité + lien actif + bascule clair/sombre
+// ============================================================
+const toc = document.getElementById('toc');
+const tocLinks = toc.querySelectorAll('a');
+const tocSections = Array.from(tocLinks).map(a => document.querySelector(a.getAttribute('href')));
+
+function updateToc() {
+  const scrollY = window.pageYOffset;
+  const hero = document.getElementById('hero');
+  if (scrollY > hero.offsetHeight - 200) {
+    toc.classList.add('visible');
+  } else {
+    toc.classList.remove('visible');
+  }
+  let active = 0;
+  for (let i = 0; i < tocSections.length; i++) {
+    if (tocSections[i] && tocSections[i].offsetTop <= scrollY + window.innerHeight / 3) {
+      active = i;
+    }
+  }
+  tocLinks.forEach((a, i) => a.classList.toggle('active', i === active));
+
+  const sec = tocSections[active];
+  const isLight = !!sec && (sec.classList.contains('light') || sec.classList.contains('gold-bg'));
+  toc.classList.toggle('on-light', isLight);
+}
+window.addEventListener('scroll', updateToc, { passive: true });
+updateToc();
+
+// ============================================================
 // REVEAL au scroll
 // ============================================================
 const revealObserver = new IntersectionObserver((entries) => {
@@ -1574,15 +1835,124 @@ const revealObserver = new IntersectionObserver((entries) => {
 document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 
 // ============================================================
-// SECTION 1 : animation du "breaking agent"
-// Quand la section entre en vue, l'agent saturé se "casse" en 4
+// HERO : particules de données qui voyagent de chaque agent
+// vers l'orchestrateur central — chacune dans la couleur de son agent.
+// ============================================================
+const heroFlows = [
+  { id: 'hero-flow-1', x1: 277, y1: 140, x2: 232, y2: 180, offset: 0.00 },
+  { id: 'hero-flow-2', x1: 277, y1: 260, x2: 232, y2: 220, offset: 0.25 },
+  { id: 'hero-flow-3', x1: 123, y1: 260, x2: 168, y2: 220, offset: 0.50 },
+  { id: 'hero-flow-4', x1: 123, y1: 140, x2: 168, y2: 180, offset: 0.75 },
+].map(s => ({ ...s, el: document.getElementById(s.id) }));
+
+const heroFlowDuration = 2400;
+function tickHeroFlow(ts) {
+  const base = (ts % heroFlowDuration) / heroFlowDuration;
+  heroFlows.forEach(f => {
+    if (!f.el) return;
+    const t = (base + f.offset) % 1;
+    f.el.setAttribute('cx', f.x1 + (f.x2 - f.x1) * t);
+    f.el.setAttribute('cy', f.y1 + (f.y2 - f.y1) * t);
+    f.el.setAttribute('opacity', Math.sin(t * Math.PI).toFixed(3));
+  });
+  requestAnimationFrame(tickHeroFlow);
+}
+if (heroFlows[0].el) requestAnimationFrame(tickHeroFlow);
+
+// ============================================================
+// SECTION 1 : animation du « breaking agent » pilotée en JS
+// Trois phases : (1) hold initial assez long pour qu'on voie d'où on
+// part ; (2) stress montant qui suggère la surcharge ; (3) break
+// élastique avec léger overshoot.
 // ============================================================
 const breakingSvg = document.getElementById('breaking-svg');
+
+function animateBreaking() {
+  if (!breakingSvg) return;
+
+  const original = breakingSvg.querySelector('.original');
+  const splits = [
+    breakingSvg.querySelector('.split-1'),
+    breakingSvg.querySelector('.split-2'),
+    breakingSvg.querySelector('.split-3'),
+    breakingSvg.querySelector('.split-4'),
+  ];
+  const targets = [
+    { x: -60, y: -60 },
+    { x:  60, y: -60 },
+    { x: -60, y:  60 },
+    { x:  60, y:  60 },
+  ];
+
+  const HOLD   = 3000;   // état initial bien visible
+  const STRESS = 800;    // wobble grandissant
+  const BREAK  = 1100;   // séparation
+  const T_END  = HOLD + STRESS + BREAK;
+
+  // easeOutBack : léger overshoot à l'arrivée des splits
+  const c1 = 1.70158;
+  const easeOutBack = (x) => 1 + (c1 + 1) * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2);
+
+  const t0 = performance.now();
+
+  function step(now) {
+    const e = now - t0;
+
+    if (e < HOLD) {
+      // Phase 1 — HOLD : on tient l'état initial
+      original.style.opacity = '1';
+      original.style.transform = 'scale(1) rotate(0deg)';
+      // Splits invisibles (déjà via CSS, mais on rend explicite)
+      splits.forEach(s => { s.style.opacity = '0'; s.style.transform = 'scale(0)'; });
+    } else if (e < HOLD + STRESS) {
+      // Phase 2 — STRESS : vibration dont l'amplitude grandit avec t
+      const t = (e - HOLD) / STRESS;
+      const wobble = Math.sin(t * Math.PI * 9) * 0.025 * t;
+      const tilt   = Math.sin(t * Math.PI * 6) * 1.4 * t;
+      original.style.opacity = '1';
+      original.style.transform = `scale(${1 + wobble}) rotate(${tilt}deg)`;
+    } else if (e < T_END) {
+      // Phase 3 — BREAK : original disparaît, splits émergent avec easing élastique
+      const t = (e - HOLD - STRESS) / BREAK;
+      const tEase = 1 - Math.pow(1 - t, 3); // ease-out cubic pour l'original
+
+      // Original : fade et léger shrink
+      original.style.opacity = String(1 - tEase);
+      original.style.transform = `scale(${1 - 0.25 * tEase}) rotate(0deg)`;
+
+      // Splits : démarrent décalés (15 % du break), montent en scale puis arrivent en place
+      const splitT = Math.max(0, (t - 0.15) / 0.85);
+      const splitClamped = Math.min(1, splitT);
+      const splitPos = easeOutBack(splitClamped); // overshoot de la position finale
+
+      splits.forEach((s, i) => {
+        const opacity = Math.min(1, splitT * 1.6);
+        const scale = 0.4 + 0.6 * splitClamped; // émerge de 0.4 à 1.0
+        s.style.opacity = String(opacity);
+        s.style.transform =
+          `translate(${targets[i].x * splitPos}px, ${targets[i].y * splitPos}px) scale(${scale})`;
+      });
+    } else {
+      // Phase 4 — état final stable
+      original.style.opacity = '0';
+      original.style.transform = 'scale(0.75)';
+      splits.forEach((s, i) => {
+        s.style.opacity = '1';
+        s.style.transform = `translate(${targets[i].x}px, ${targets[i].y}px) scale(1)`;
+      });
+      return; // arrêt de l'animation
+    }
+
+    requestAnimationFrame(step);
+  }
+
+  requestAnimationFrame(step);
+}
+
 const breakObserver = new IntersectionObserver((entries) => {
   entries.forEach(entry => {
     if (entry.isIntersecting) {
-      // Attendre un peu avant de déclencher la séparation
-      setTimeout(() => breakingSvg.classList.add('broken'), 1200);
+      animateBreaking();
       breakObserver.unobserve(entry.target);
     }
   });

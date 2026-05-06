@@ -8,7 +8,15 @@
       "WebFetch(domain:particula.tech)",
       "WebFetch(domain:hal.cs.princeton.edu)",
       "WebFetch(domain:lucide.dev)",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(py --version)",
+      "Bash(python -m venv .venv-tokenizer)",
+      "Bash(.venv-tokenizer\\\\Scripts\\\\python.exe -m pip install --quiet --upgrade pip tiktoken)",
+      "Bash(\".venv-tokenizer/Scripts/python.exe\" -m pip install --quiet --upgrade pip tiktoken)",
+      "Bash(\".venv-tokenizer/Scripts/python.exe\" -c \"import tiktoken; print\\(tiktoken.__version__\\)\")",
+      "Bash(\".venv-tokenizer/Scripts/python.exe\" \".venv-tokenizer/tokenize_test.py\")",
+      "Bash(.venv-tokenizer/Scripts/python.exe -c ' *)",
+      "Bash(PYTHONIOENCODING=utf-8 \".venv-tokenizer/Scripts/python.exe\" \".venv-tokenizer/verify_candidates.py\")"
     ]
   }
 }
