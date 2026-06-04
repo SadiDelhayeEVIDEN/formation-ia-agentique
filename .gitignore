@@ -1,0 +1,11 @@
+# Environnements Python
+.venv-tokenizer/
+.venv/
+__pycache__/
+
+# Réglages locaux Claude Code (spécifiques à la machine)
+.claude/settings.local.json
+
+# Notes de travail internes — non publiées sur le site
+sujets.txt
+revue-le-harnais.md
