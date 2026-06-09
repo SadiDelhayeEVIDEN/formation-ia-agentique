@@ -218,6 +218,19 @@
     .hero { min-height: 70vh; padding: 80px 0 56px; }
     .section { padding: 64px 0; }
   }
+
+  /* ============================================================
+     CARTES « HORS LIGNE » — page absente du dossier (auto-détecté)
+  ============================================================ */
+  .card.unpublished {
+    opacity: 0.4;
+    filter: grayscale(0.75);
+    pointer-events: none;
+    cursor: not-allowed;
+  }
+  .card.unpublished h3,
+  .card.unpublished .card-num,
+  .card.unpublished .card-cue { color: var(--muted-lt); }
 </style>
 </head>
 <body>
@@ -354,6 +367,32 @@
       <p>Formation IA agentique · Eviden</p>
     </div>
   </footer>
+
+  <script>
+  // ============================================================
+  //  Index adaptatif — grise les cartes dont la page n'est pas
+  //  présente à côté de l'index. Sortir un .html du dossier docs/
+  //  le « dépublie » : sa carte passe automatiquement hors ligne.
+  //  En local (file://), on ne teste rien : tout reste actif.
+  // ============================================================
+  (function () {
+    if (location.protocol === 'file:') return;
+    document.querySelectorAll('a.card[href$=".html"]').forEach(function (card) {
+      var href = card.getAttribute('href');
+      if (!href || href === 'index.html') return;
+      fetch(href + '?v=' + Date.now(), { method: 'HEAD', cache: 'no-store' })
+        .then(function (res) { if (!res.ok) disable(card); })
+        .catch(function () { disable(card); });
+    });
+    function disable(card) {
+      card.classList.add('unpublished');
+      card.setAttribute('aria-disabled', 'true');
+      card.removeAttribute('href');
+      var cue = card.querySelector('.card-cue');
+      if (cue) cue.textContent = 'Hors ligne';
+    }
+  })();
+  </script>
 
 </body>
 </html>
