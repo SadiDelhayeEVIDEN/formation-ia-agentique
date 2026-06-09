@@ -478,11 +478,30 @@
     .container, .container-narrow { padding: 0 20px; }
     .big-idea-card { padding: 30px 24px; }
   }
+  /* ============================================================
+     LIENS INTER-MODULES (xref) + RETOUR AU SOMMAIRE
+  ============================================================ */
+  .xref { display: flex; align-items: baseline; gap: 12px; margin: 36px 0 0; padding: 15px 20px; border-left: 2px solid var(--gold); background: rgba(212,165,116,0.08); border-radius: 0 6px 6px 0; }
+  .xref .xref-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); white-space: nowrap; flex: 0 0 auto; }
+  .xref .xref-why { font-size: 14.5px; line-height: 1.55; color: var(--ice); }
+  .xref a { color: var(--gold); text-decoration: none; font-weight: 600; border-bottom: 1px solid rgba(212,165,116,0.45); transition: border-color .2s ease; }
+  .xref a:hover { border-bottom-color: var(--gold); }
+  .xref.on-light { background: rgba(212,165,116,0.12); }
+  .xref.on-light .xref-tag { color: var(--gold-dk); }
+  .xref.on-light .xref-why { color: var(--muted-dk); }
+  .xref.on-light a { color: var(--gold-dk); border-bottom-color: rgba(156,122,80,0.45); }
+  .home-link { position: fixed; top: 16px; left: 20px; z-index: 1001; display: inline-flex; align-items: center; gap: 7px; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; text-decoration: none; color: var(--cream); background: rgba(10,18,48,0.62); border: 1px solid var(--divider-lt); border-radius: 20px; padding: 7px 14px; backdrop-filter: blur(6px); opacity: 0.55; transition: opacity .2s ease, border-color .2s ease, color .2s ease; }
+  .home-link:hover { opacity: 1; border-color: var(--gold); color: var(--gold); }
+  @media (max-width: 700px) { .home-link { top: 11px; left: 12px; padding: 6px 11px; font-size: 10px; letter-spacing: 1px; } }
+  .footer-home { display: block; margin-top: 14px; color: var(--gold); text-decoration: none; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px; }
+  .footer-home:hover { color: var(--cream); }
 </style>
 </head>
 <body>
 
 <div class="progress-top" id="progress-bar"></div>
+
+<a class="home-link" href="index.html">← Sommaire</a>
 
 <nav class="toc" id="toc">
   <a href="#hero"><span>Couverture</span></a>
@@ -693,6 +712,11 @@
         <div class="verdict">→ Ancré dans vos documents, et vérifiable.</div>
       </div>
     </div>
+
+    <aside class="xref reveal">
+      <span class="xref-tag">↗ Module</span>
+      <span class="xref-why">Pourquoi le modèle « invente » quand il ne sait pas ? Tout vient de son fonctionnement : <a href="le-llm.html">Le LLM</a>.</span>
+    </aside>
   </div>
 </section>
 
@@ -1102,6 +1126,11 @@
         les morceaux, puis raisonne. Sans lui, c'est à la question de s'adapter.
       </p>
     </div>
+
+    <aside class="xref reveal">
+      <span class="xref-tag">↗ Module</span>
+      <span class="xref-why">Cette boucle qui récupère, recoupe et raisonne, c'est le <a href="le-harnais.html">Harnais</a> agentique.</span>
+    </aside>
   </div>
 </section>
 
@@ -1156,6 +1185,11 @@
         récupère ce qui manque, recoupe. En attendant, c'est la question qui s'adapte.
       </p>
     </div>
+
+    <aside class="xref on-light reveal">
+      <span class="xref-tag">↗ Module</span>
+      <span class="xref-why">Bien formuler ses demandes, au-delà du RAG : <a href="prompter-un-agent.html">Prompter un agent</a>.</span>
+    </aside>
   </div>
 </section>
 
@@ -1212,6 +1246,7 @@
 
 <footer>
   Le RAG · Une introduction pour curieux · Juin 2026
+  <a class="footer-home" href="index.html">↑ Retour au sommaire</a>
 </footer>
 
 <script>

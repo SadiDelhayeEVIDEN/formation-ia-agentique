@@ -882,6 +882,23 @@
     .levels-frieze { grid-template-columns: 1fr; }
     .case-controls { flex-direction: column; gap: 16px; }
   }
+  /* ============================================================
+     LIENS INTER-MODULES (xref) + RETOUR AU SOMMAIRE
+  ============================================================ */
+  .xref { display: flex; align-items: baseline; gap: 12px; margin: 36px 0 0; padding: 15px 20px; border-left: 2px solid var(--gold); background: rgba(212,165,116,0.08); border-radius: 0 6px 6px 0; }
+  .xref .xref-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); white-space: nowrap; flex: 0 0 auto; }
+  .xref .xref-why { font-size: 14.5px; line-height: 1.55; color: var(--ice); }
+  .xref a { color: var(--gold); text-decoration: none; font-weight: 600; border-bottom: 1px solid rgba(212,165,116,0.45); transition: border-color .2s ease; }
+  .xref a:hover { border-bottom-color: var(--gold); }
+  .xref.on-light { background: rgba(212,165,116,0.12); }
+  .xref.on-light .xref-tag { color: var(--gold-dk); }
+  .xref.on-light .xref-why { color: var(--muted-dk); }
+  .xref.on-light a { color: var(--gold-dk); border-bottom-color: rgba(156,122,80,0.45); }
+  .home-link { position: fixed; top: 16px; left: 20px; z-index: 1001; display: inline-flex; align-items: center; gap: 7px; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; text-decoration: none; color: var(--cream); background: rgba(10,18,48,0.62); border: 1px solid var(--divider-lt); border-radius: 20px; padding: 7px 14px; backdrop-filter: blur(6px); opacity: 0.55; transition: opacity .2s ease, border-color .2s ease, color .2s ease; }
+  .home-link:hover { opacity: 1; border-color: var(--gold); color: var(--gold); }
+  @media (max-width: 700px) { .home-link { top: 11px; left: 12px; padding: 6px 11px; font-size: 10px; letter-spacing: 1px; } }
+  .footer-home { display: block; margin-top: 14px; color: var(--gold); text-decoration: none; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px; }
+  .footer-home:hover { color: var(--cream); }
 </style>
 </head>
 <body>
@@ -890,6 +907,8 @@
      PROGRESS BAR
 ============================================================ -->
 <div class="progress-top" id="progress-bar"></div>
+
+<a class="home-link" href="index.html">← Sommaire</a>
 
 <nav class="toc" id="toc">
   <a href="#hero"><span>Couverture</span></a>
@@ -1118,6 +1137,11 @@
         </div>
       </div>
     </div>
+
+    <aside class="xref reveal">
+      <span class="xref-tag">↗ Module</span>
+      <span class="xref-why">Avant l'équipe, l'agent seul et le programme qui le fait tourner : <a href="le-harnais.html">Le harnais</a>.</span>
+    </aside>
   </div>
 </section>
 
@@ -1519,6 +1543,11 @@ Quand on te confie une société :
         <div class="timing-time">~ 3 min</div>
       </div>
     </div>
+
+    <aside class="xref reveal">
+      <span class="xref-tag">↗ Voir en action</span>
+      <span class="xref-why">Un agent unique qui planifie et agit, étape par étape : <a href="agent-anniversaire.html">L'agent anniversaire</a>.</span>
+    </aside>
   </div>
 </section>
 
@@ -1777,6 +1806,7 @@ Quand on te confie une société :
 ============================================================ -->
 <footer>
   Le harnais dans l'agentique AI · Niveau 4 · Avril 2026
+  <a class="footer-home" href="index.html">↑ Retour au sommaire</a>
 </footer>
 
 <script>

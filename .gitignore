@@ -3,9 +3,14 @@
 .venv/
 __pycache__/
 
-# Réglages locaux Claude Code (spécifiques à la machine)
-.claude/settings.local.json
+# Réglages et skills locaux Claude Code (spécifiques à la machine)
+.claude/
 
 # Notes de travail internes — non publiées sur le site
 sujets.txt
 revue-le-harnais.md
+
+# Sources / assets non publiés sur le site (HTML uniquement)
+*.pptx
+*.jpeg
+*.jpg

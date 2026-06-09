@@ -1299,62 +1299,6 @@
     line-height: 1.5;
   }
 
-  /* ============================================================
-     CTA / NEXT STEPS (chapitre 13) — gold-bg
-  ============================================================ */
-  .cta-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
-    margin-top: 56px;
-  }
-  .cta-card {
-    background: rgba(15,27,61,0.06);
-    border: 1.5px solid var(--navy);
-    padding: 32px 28px;
-    border-radius: 8px;
-    transition: background 0.3s ease;
-  }
-  .cta-card:hover {
-    background: rgba(15,27,61,0.1);
-  }
-  .cta-num {
-    font-family: 'Fraunces', serif;
-    font-style: italic;
-    font-weight: 600;
-    font-size: 36px;
-    color: var(--navy);
-    margin-bottom: 16px;
-    line-height: 1;
-  }
-  .cta-card h4 {
-    font-family: 'Fraunces', serif;
-    font-weight: 600;
-    font-size: 21px;
-    color: var(--navy);
-    margin-bottom: 12px;
-  }
-  .cta-card p {
-    color: var(--navy);
-    font-size: 14.5px;
-    line-height: 1.6;
-  }
-  .cta-subtitle {
-    grid-column: 1 / -1;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--navy);
-    opacity: 0.7;
-    margin: 0;
-    padding-bottom: 10px;
-    border-bottom: 1px solid rgba(15,27,61,0.18);
-  }
-  .cta-subtitle--gap {
-    margin-top: 24px;
-  }
-
   .closing {
     margin-top: 80px;
     text-align: center;
@@ -1433,7 +1377,6 @@
     .tensions-grid { grid-template-columns: 1fr; }
     .formula { flex-direction: column; }
     .formula-op { justify-content: center; transform: rotate(90deg); }
-    .cta-grid { grid-template-columns: 1fr; }
   }
   @media (max-width: 540px) {
     .container, .container-narrow { padding: 0 20px; }
@@ -1442,6 +1385,52 @@
     .chapter-num { font-size: 48px; }
     .takeaway { gap: 16px; padding: 18px 20px; }
   }
+
+  /* ============================================================
+     LIENS INTER-MODULES (xref) + RETOUR AU SOMMAIRE
+  ============================================================ */
+  .xref {
+    display: flex; align-items: baseline; gap: 12px;
+    margin: 36px 0 0; padding: 15px 20px;
+    border-left: 2px solid var(--gold);
+    background: rgba(212,165,116,0.08);
+    border-radius: 0 6px 6px 0;
+  }
+  .xref .xref-tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--gold); white-space: nowrap; flex: 0 0 auto;
+  }
+  .xref .xref-why { font-size: 14.5px; line-height: 1.55; color: var(--ice); }
+  .xref a {
+    color: var(--gold); text-decoration: none; font-weight: 600;
+    border-bottom: 1px solid rgba(212,165,116,0.45); transition: border-color .2s ease;
+  }
+  .xref a:hover { border-bottom-color: var(--gold); }
+  .xref.on-light { background: rgba(212,165,116,0.12); }
+  .xref.on-light .xref-tag { color: var(--gold-dk); }
+  .xref.on-light .xref-why { color: var(--muted-dk); }
+  .xref.on-light a { color: var(--gold-dk); border-bottom-color: rgba(156,122,80,0.45); }
+
+  .home-link {
+    position: fixed; top: 16px; left: 20px; z-index: 1001;
+    display: inline-flex; align-items: center; gap: 7px;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px;
+    text-transform: uppercase; text-decoration: none; color: var(--cream);
+    background: rgba(10,18,48,0.62); border: 1px solid var(--divider-lt);
+    border-radius: 20px; padding: 7px 14px; backdrop-filter: blur(6px);
+    opacity: 0.55; transition: opacity .2s ease, border-color .2s ease, color .2s ease;
+  }
+  .home-link:hover { opacity: 1; border-color: var(--gold); color: var(--gold); }
+  @media (max-width: 700px) {
+    .home-link { top: 11px; left: 12px; padding: 6px 11px; font-size: 10px; letter-spacing: 1px; }
+  }
+
+  .footer-home {
+    display: block; margin-top: 14px;
+    color: var(--gold); text-decoration: none;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px;
+  }
+  .footer-home:hover { color: var(--cream); }
 </style>
 </head>
 <body>
@@ -1450,6 +1439,8 @@
      PROGRESS BAR + TOC
 ============================================================ -->
 <div class="progress-top" id="progress-bar"></div>
+
+<a class="home-link" href="index.html">← Sommaire</a>
 
 <nav class="toc" id="toc">
   <a href="#hero"><span>Couverture</span></a>
@@ -1466,7 +1457,6 @@
   <a href="#tensions"><span>Les défis</span></a>
   <a href="#formula"><span>La formule</span></a>
   <a href="#takeaways"><span>À retenir</span></a>
-  <a href="#next"><span>Pour aller plus loin</span></a>
 </nav>
 
 <!-- ============================================================
@@ -1944,6 +1934,11 @@
         sur son cœur : <strong>la boucle qui le fait tourner</strong>.
       </p>
     </div>
+
+    <aside class="xref reveal">
+      <span class="xref-tag">↗ Module</span>
+      <span class="xref-why"><a href="exemples-harnais.html">Exemples de harnais</a> — les quatre grandes familles (IDE, asynchrone, intégré, personnel), avec des cas réels.</span>
+    </aside>
   </div>
 </section>
 
@@ -2327,6 +2322,11 @@
         <span class="right">Plus autonome →</span>
       </div>
     </div>
+
+    <aside class="xref on-light reveal">
+      <span class="xref-tag">↗ Voir en action</span>
+      <span class="xref-why"><a href="quelle-heure-est-il.html">« Quelle heure est-il ? »</a> — une même question posée à trois agents de niveaux différents : le spectre, rendu concret.</span>
+    </aside>
   </div>
 </section>
 
@@ -2493,64 +2493,12 @@
   </div>
 </section>
 
-<!-- ============================================================
-     CHAPITRE 13 — POUR ALLER PLUS LOIN
-============================================================ -->
-<section class="section gold-bg" id="next">
-  <div class="container">
-    <div class="reveal">
-      <div class="chapter-mark">
-        <span class="chapter-num" style="color: var(--navy);">14</span>
-        <span class="chapter-label" style="color: var(--navy); opacity: 0.8;">Pour aller plus loin</span>
-      </div>
-      <h2 style="color: var(--navy);">Et maintenant ?</h2>
-      <p class="lede" style="color: var(--navy); opacity: 0.85;">
-        Deux directions : continuer la série pour approfondir, ou plonger dans la pratique.
-      </p>
-    </div>
-
-    <div class="cta-grid">
-      <h3 class="cta-subtitle reveal">Continuer la série</h3>
-      <a class="cta-card reveal reveal-delay-1" href="prompter-un-agent.html" style="text-decoration: none; color: inherit; display: block;">
-        <div class="cta-num">→</div>
-        <h4>Prompter un agent</h4>
-        <p>Techniques concrètes de prompting en 2026 : structure des instructions, patterns réutilisables, sécurité au niveau du prompt.</p>
-      </a>
-      <a class="cta-card reveal reveal-delay-2" href="skills.html" style="text-decoration: none; color: inherit; display: block;">
-        <div class="cta-num">→</div>
-        <h4>Skills, hooks, rules</h4>
-        <p>La taxonomie des extensions du harnais : capacités modulaires, points d'extension, règles &mdash; les briques que ce module ne fait qu'effleurer.</p>
-      </a>
-      <a class="cta-card reveal reveal-delay-3" href="exemples-harnais.html" style="text-decoration: none; color: inherit; display: block;">
-        <div class="cta-num">→</div>
-        <h4>Exemples de harnais</h4>
-        <p>Quatre catégories de harnais réels (IDE, asynchrones, intégrés, personnels) pour voir la diversité concrète des architectures.</p>
-      </a>
-
-      <h3 class="cta-subtitle cta-subtitle--gap reveal">Passer à la pratique</h3>
-      <div class="cta-card reveal reveal-delay-1">
-        <div class="cta-num">01</div>
-        <h4>Observer un harnais en action</h4>
-        <p>Lancer un agent comme Claude Code ou un agent open-source, regarder ses logs, suivre ce qu'il appelle à chaque tour.</p>
-      </div>
-      <div class="cta-card reveal reveal-delay-2">
-        <div class="cta-num">02</div>
-        <h4>Lire un harnais existant</h4>
-        <p>Plusieurs frameworks open-source publient leur code : c'est la meilleure école pour comprendre les choix concrets.</p>
-      </div>
-      <div class="cta-card reveal reveal-delay-3">
-        <div class="cta-num">03</div>
-        <h4>Construire un mini-harnais</h4>
-        <p>Une boucle de quelques dizaines de lignes avec deux ou trois outils suffit pour vraiment comprendre.</p>
-      </div>
-    </div>
-
-    <div class="closing reveal reveal-delay-4">— Merci · Questions bienvenues —</div>
-  </div>
-</section>
+<!-- (Ancien chapitre 14 « Pour aller plus loin » retiré : les liens entre modules
+     sont désormais disséminés dans le corps du document, via les encarts « ↗ Module ». -->
 
 <footer>
   Le harnais dans l'IA agentique · Une introduction pour débutants · Avril 2026
+  <a class="footer-home" href="index.html">↑ Retour au sommaire</a>
 </footer>
 
 <script>
@@ -2584,7 +2532,7 @@
     // Find active section
     let active = 0;
     for (let i = 0; i < sections.length; i++) {
-      if (sections[i].offsetTop <= scrollY + window.innerHeight / 3) {
+      if (sections[i] && sections[i].offsetTop <= scrollY + window.innerHeight / 3) {
         active = i;
       }
     }

@@ -674,9 +674,24 @@
     .msg-inner { max-width: 100% !important; }
     .annot { max-width: 100%; }
   }
+  /* ============================================================
+     LIENS INTER-MODULES (xref) + RETOUR AU SOMMAIRE
+  ============================================================ */
+  .xref { display: flex; align-items: baseline; gap: 12px; margin: 36px 0 0; padding: 15px 20px; border-left: 2px solid var(--gold); background: rgba(212,165,116,0.08); border-radius: 0 6px 6px 0; }
+  .xref .xref-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); white-space: nowrap; flex: 0 0 auto; }
+  .xref .xref-why { font-size: 14.5px; line-height: 1.55; color: var(--ice); }
+  .xref a { color: var(--gold); text-decoration: none; font-weight: 600; border-bottom: 1px solid rgba(212,165,116,0.45); transition: border-color .2s ease; }
+  .xref a:hover { border-bottom-color: var(--gold); }
+  .home-link { position: fixed; top: 16px; left: 20px; z-index: 1001; display: inline-flex; align-items: center; gap: 7px; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; text-decoration: none; color: var(--cream); background: rgba(10,18,48,0.62); border: 1px solid var(--divider); border-radius: 20px; padding: 7px 14px; backdrop-filter: blur(6px); opacity: 0.55; transition: opacity .2s ease, border-color .2s ease, color .2s ease; }
+  .home-link:hover { opacity: 1; border-color: var(--gold); color: var(--gold); }
+  @media (max-width: 700px) { .home-link { top: 11px; left: 12px; padding: 6px 11px; font-size: 10px; letter-spacing: 1px; } }
+  .footer-home { display: block; margin-top: 14px; color: var(--gold); text-decoration: none; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px; }
+  .footer-home:hover { color: var(--cream); }
 </style>
 </head>
 <body>
+<a class="home-link" href="index.html">← Sommaire</a>
+
 <div class="wrap">
 
   <!-- ============================================================
@@ -784,8 +799,18 @@
     Astuce : <kbd>espace</kbd> ou <kbd>→</kbd> pour avancer
   </p>
 
+  <aside class="xref">
+    <span class="xref-tag">↗ Module</span>
+    <span class="xref-why">Le concept derrière cette démo, en détail : <a href="le-harnais.html">Le harnais</a>.</span>
+  </aside>
+  <aside class="xref" style="margin-top: 14px;">
+    <span class="xref-tag">↗ Niveau 4</span>
+    <span class="xref-why">Quand plusieurs agents coopèrent sur une même mission : <a href="multi-agent.html">Multi-agent</a>.</span>
+  </aside>
+
   <footer>
     Le harnais dans l'agentique AI · Niveau 3 · Avril 2026
+    <a class="footer-home" href="index.html">↑ Retour au sommaire</a>
   </footer>
 
 </div>

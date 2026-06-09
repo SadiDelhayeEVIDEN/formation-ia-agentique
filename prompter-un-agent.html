@@ -582,34 +582,6 @@
     font-weight: 600;
   }
 
-  .bridge-links {
-    margin-top: 48px;
-    display: flex;
-    gap: 18px;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  .bridge-link {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 18px;
-    border: 1px solid var(--gold);
-    border-radius: 999px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 2px;
-    text-transform: uppercase;
-    color: var(--gold);
-    text-decoration: none;
-    transition: background 0.2s ease, color 0.2s ease;
-  }
-  .bridge-link:hover {
-    background: var(--gold);
-    color: var(--navy);
-  }
-  .bridge-link::after { content: '→'; font-size: 13px; }
-
   /* ============================================================
      CHAPITRE 2 — FONDAMENTAUX
      Chaque fondamental = une carte avec : header (num + icône + titre),
@@ -1717,60 +1689,7 @@
     font-size: 15.5px;
     line-height: 1.55;
   }
-  .recap-body strong { color: var(--gold-dk); font-weight: 600; }
-
-  /* CTA pour aller plus loin */
-  .cta-bridge-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 22px;
-    margin-top: 56px;
-  }
-  .cta-bridge {
-    background: rgba(15,27,61,0.06);
-    border: 1.5px solid var(--navy);
-    padding: 28px 26px;
-    border-radius: 8px;
-    transition: background 0.3s ease, transform 0.3s ease;
-    text-decoration: none;
-    color: inherit;
-    display: block;
-  }
-  .cta-bridge:hover {
-    background: rgba(15,27,61,0.12);
-    transform: translateY(-3px);
-  }
-  .cta-bridge .cb-tag {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 3px;
-    text-transform: uppercase;
-    color: var(--navy);
-    opacity: 0.6;
-    margin-bottom: 12px;
-  }
-  .cta-bridge h4 {
-    font-family: 'Fraunces', serif;
-    font-style: italic;
-    font-weight: 600;
-    font-size: 22px;
-    color: var(--navy);
-    margin-bottom: 10px;
-  }
-  .cta-bridge p {
-    color: var(--navy);
-    font-size: 14px;
-    line-height: 1.55;
-  }
-  .cta-bridge .cb-arrow {
-    margin-top: 14px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 2px;
-    color: var(--navy);
-    font-weight: 700;
-  }
-  .cta-bridge .cb-arrow::after { content: ' →'; }
+  .recap-body strong { color: var(--navy); font-weight: 700; }
 
   .closing-line {
     margin-top: 80px;
@@ -1856,7 +1775,6 @@
     .pipeline-flow { grid-template-columns: 1fr; gap: 36px; }
     .pipeline-flow::before { display: none; }
     .tools-grid { grid-template-columns: 1fr 1fr; }
-    .cta-bridge-grid { grid-template-columns: 1fr; }
   }
   @media (max-width: 540px) {
     .tools-grid { grid-template-columns: 1fr; }
@@ -1867,9 +1785,24 @@
   @media (max-width: 540px) {
     .container, .container-narrow { padding: 0 20px; }
     .chapter-num { font-size: 48px; }
-    .bridge-links { flex-direction: column; align-items: stretch; }
-    .bridge-link { justify-content: space-between; }
   }
+  /* ============================================================
+     LIENS INTER-MODULES (xref) + RETOUR AU SOMMAIRE
+  ============================================================ */
+  .xref { display: flex; align-items: baseline; gap: 12px; margin: 36px 0 0; padding: 15px 20px; border-left: 2px solid var(--gold); background: rgba(212,165,116,0.08); border-radius: 0 6px 6px 0; }
+  .xref .xref-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); white-space: nowrap; flex: 0 0 auto; }
+  .xref .xref-why { font-size: 14.5px; line-height: 1.55; color: var(--ice); }
+  .xref a { color: var(--gold); text-decoration: none; font-weight: 600; border-bottom: 1px solid rgba(212,165,116,0.45); transition: border-color .2s ease; }
+  .xref a:hover { border-bottom-color: var(--gold); }
+  .xref.on-light { background: rgba(212,165,116,0.12); }
+  .xref.on-light .xref-tag { color: var(--gold-dk); }
+  .xref.on-light .xref-why { color: var(--muted-dk); }
+  .xref.on-light a { color: var(--gold-dk); border-bottom-color: rgba(156,122,80,0.45); }
+  .home-link { position: fixed; top: 16px; left: 20px; z-index: 1001; display: inline-flex; align-items: center; gap: 7px; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; text-decoration: none; color: var(--cream); background: rgba(10,18,48,0.62); border: 1px solid var(--divider-lt); border-radius: 20px; padding: 7px 14px; backdrop-filter: blur(6px); opacity: 0.55; transition: opacity .2s ease, border-color .2s ease, color .2s ease; }
+  .home-link:hover { opacity: 1; border-color: var(--gold); color: var(--gold); }
+  @media (max-width: 700px) { .home-link { top: 11px; left: 12px; padding: 6px 11px; font-size: 10px; letter-spacing: 1px; } }
+  .footer-home { display: block; margin-top: 14px; color: var(--gold); text-decoration: none; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px; }
+  .footer-home:hover { color: var(--cream); }
 </style>
 </head>
 <body>
@@ -1878,6 +1811,8 @@
      PROGRESS BAR + TOC
 ============================================================ -->
 <div class="progress-top" id="progress-bar"></div>
+
+<a class="home-link" href="index.html">← Sommaire</a>
 
 <nav class="toc" id="toc">
   <a href="#hero"><span>Couverture</span></a>
@@ -2111,11 +2046,6 @@
       Le contexte décide <strong>quoi</strong> lui mettre sous les yeux.<br>
       Le prompt décide <strong>comment</strong> lui parler.
     </p>
-
-    <div class="bridge-links reveal reveal-delay-5">
-      <a class="bridge-link" href="le-harnais.html">Voir le harnais</a>
-      <a class="bridge-link" href="skills.html">Voir les skills</a>
-    </div>
 
     <p style="margin-top:64px; text-align:center; max-width:720px; margin-left:auto; margin-right:auto; font-family:'Fraunces',serif; font-style:italic; font-size:18px; color:var(--ice); opacity:0.85;">
       Le reste de cette présentation est consacré à <em>la couche prompt</em> :
@@ -2695,6 +2625,11 @@ Termine par <span class="high">&lt;answer&gt;</span>.
       pensées et ses actions.
     </p>
 
+    <aside class="xref reveal">
+      <span class="xref-tag">↗ Module</span>
+      <span class="xref-why">Ce raisonnement « à voix haute » avant d'agir, c'est le mode <em>thinking</em> du modèle : <a href="le-llm.html">Le LLM</a>.</span>
+    </aside>
+
   </div>
 </section>
 
@@ -3100,6 +3035,11 @@ Termine par UN seul <span class="str">&lt;summary&gt;</span> contenant un JSON :
       <em>catégories</em>, elles, sont stables.
     </p>
 
+    <aside class="xref on-light reveal">
+      <span class="xref-tag">↗ Module</span>
+      <span class="xref-why">Le programme qui exécute tout ça autour du modèle : <a href="le-harnais.html">Le harnais</a>.</span>
+    </aside>
+
   </div>
 </section>
 
@@ -3309,6 +3249,15 @@ Termine par UN seul <span class="str">&lt;summary&gt;</span> contenant un JSON :
         qui décide si l'output passe.
       </p>
     </div>
+
+    <aside class="xref reveal">
+      <span class="xref-tag">↗ Module</span>
+      <span class="xref-why">Generator + Evaluator, c'est déjà deux agents qui se répartissent le travail : <a href="multi-agent.html">Multi-agent</a>.</span>
+    </aside>
+    <aside class="xref reveal" style="margin-top: 14px;">
+      <span class="xref-tag">↗ Module</span>
+      <span class="xref-why">Ces patterns, on les capitalise en briques réutilisables : <a href="skills.html">Skills, hooks, rules</a>.</span>
+    </aside>
 
   </div>
 </section>
@@ -3916,13 +3865,13 @@ Reviewer cette PR selon le scope défini.
         <rect x="20" y="20" width="680" height="420" rx="16" fill="none" stroke="var(--navy)" stroke-width="2" stroke-dasharray="6 6"/>
         <rect x="42" y="6" width="180" height="28" rx="14" fill="var(--gold)" stroke="var(--navy)" stroke-width="1.5"/>
         <text x="132" y="24" text-anchor="middle" font-family="JetBrains Mono" font-size="11" letter-spacing="3" fill="var(--navy)" font-weight="700">HARNAIS</text>
-        <text x="240" y="24" text-anchor="middle" font-family="Fraunces" font-style="italic" font-size="14" fill="var(--navy)">décide QUAND appeler le modèle</text>
+        <text x="46" y="54" text-anchor="start" font-family="Fraunces" font-style="italic" font-size="14" fill="var(--navy)">décide QUAND appeler le modèle</text>
 
         <!-- CONTEXTE : cadre intermédiaire, pointillés navy -->
         <rect x="80" y="80" width="560" height="320" rx="12" fill="rgba(15,27,61,0.05)" stroke="var(--navy)" stroke-width="1.5" stroke-dasharray="4 5"/>
         <rect x="102" y="66" width="180" height="28" rx="14" fill="var(--gold)" stroke="var(--navy)" stroke-width="1.5"/>
         <text x="192" y="84" text-anchor="middle" font-family="JetBrains Mono" font-size="11" letter-spacing="3" fill="var(--navy)" font-weight="700">CONTEXTE</text>
-        <text x="298" y="84" text-anchor="middle" font-family="Fraunces" font-style="italic" font-size="14" fill="var(--navy)">décide QUOI mettre sous ses yeux</text>
+        <text x="106" y="112" text-anchor="start" font-family="Fraunces" font-style="italic" font-size="14" fill="var(--navy)">décide QUOI mettre sous ses yeux</text>
 
         <!-- PROMPT : cadre central, plein, fond crème -->
         <rect x="160" y="150" width="400" height="220" rx="10" fill="var(--cream)" stroke="var(--navy)" stroke-width="2.5"/>
@@ -3968,37 +3917,6 @@ Reviewer cette PR selon le scope défini.
       <div class="recap-item reveal"><div class="recap-num">10</div><div class="recap-body"><strong>Pas de prompt de prod sans évals</strong>. Mesurez, sinon vous bricolez.</div></div>
     </div>
 
-    <!-- CTA vers les autres fichiers -->
-    <h3 style="font-style: italic; color: var(--navy); margin-top: 96px; margin-bottom: 8px; font-size: 26px;">
-      Pour aller plus loin
-    </h3>
-    <p style="color: var(--navy); opacity: 0.8; max-width: 720px;">
-      Cette présentation ne couvre qu'une couche. Les deux autres — contexte
-      et harnais — et la dimension multi-agent sont traitées dans les trois
-      fichiers de la série :
-    </p>
-
-    <div class="cta-bridge-grid reveal reveal-delay-1">
-      <a class="cta-bridge" href="le-harnais.html">
-        <div class="cb-tag">la couche au-dessus</div>
-        <h4>Le harnais</h4>
-        <p>L'écosystème qui orchestre l'agent : boucle, hooks, skills, escalation, sécurité. Le « OS de l'agent ».</p>
-        <div class="cb-arrow">le-harnais.html</div>
-      </a>
-      <a class="cta-bridge" href="skills.html">
-        <div class="cb-tag">la couche capacité</div>
-        <h4>Skills, Rules, Workflows</h4>
-        <p>Le panorama des moyens dont disposent les agents pour acquérir des compétences durables. Vocabulaire vendor par vendor.</p>
-        <div class="cb-arrow">skills.html</div>
-      </a>
-      <a class="cta-bridge" href="multi-agent.html">
-        <div class="cb-tag">l'échelle supérieure</div>
-        <h4>Multi-agent</h4>
-        <p>Quand plusieurs agents spécialisés se partagent une mission. System prompts qui se parlent, coordination, handoffs.</p>
-        <div class="cb-arrow">multi-agent.html</div>
-      </a>
-    </div>
-
     <div class="closing-line reveal reveal-delay-2">— Merci · Questions bienvenues —</div>
 
   </div>
@@ -4006,6 +3924,7 @@ Reviewer cette PR selon le scope défini.
 
 <footer>
   Prompter un agent · État de l'art 2026 · Mai 2026
+  <a class="footer-home" href="index.html">↑ Retour au sommaire</a>
 </footer>
 
 <script>
