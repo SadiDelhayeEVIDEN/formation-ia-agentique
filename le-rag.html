@@ -1,0 +1,1438 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Le RAG — Une introduction pour curieux</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:    #0F1B3D;
+    --navy-2:  #0A1230;
+    --navy-3:  #1A2750;
+    --cream:   #F5F1E8;
+    --ice:     #CADCFC;
+    --gold:    #D4A574;
+    --gold-dk: #9C7A50;
+    --ink:     #1A1A1A;
+    --muted-dk: #5C6478;
+    --muted-lt: #A8AFC0;
+    --divider-dk: #DCD4C2;
+    --divider-lt: #2A3556;
+    --red:     #E36B5A;
+    --green:   #7FBF7F;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--navy);
+    color: var(--cream);
+    font-family: 'Inter', -apple-system, sans-serif;
+    line-height: 1.6;
+    font-size: 16px;
+    overflow-x: hidden;
+  }
+
+  /* ============================================================
+     SECTIONS
+  ============================================================ */
+  .section { position: relative; padding: 100px 0; overflow: hidden; }
+  .section.dark   { background: var(--navy);   color: var(--cream); }
+  .section.dark-2 { background: var(--navy-2); color: var(--cream); }
+  .section.light  { background: var(--cream);  color: var(--ink); }
+
+  .container        { max-width: 1180px; margin: 0 auto; padding: 0 32px; }
+  .container-narrow { max-width: 880px;  margin: 0 auto; padding: 0 32px; }
+
+  /* ============================================================
+     TYPOGRAPHIE
+  ============================================================ */
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px; letter-spacing: 4px;
+    text-transform: uppercase; margin-bottom: 24px;
+  }
+  h1, h2, h3, h4 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600; letter-spacing: -0.015em; line-height: 1.1;
+  }
+  .h-display {
+    font-family: 'Fraunces', serif; font-weight: 600; font-style: italic;
+    line-height: 1.0; letter-spacing: -0.025em; font-size: clamp(44px, 7.5vw, 96px);
+  }
+  h2 { font-size: clamp(32px, 4.5vw, 52px); font-style: italic; margin-bottom: 28px; }
+  h3 { font-size: clamp(22px, 2.5vw, 28px); margin-bottom: 14px; }
+
+  .lede {
+    font-family: 'Fraunces', serif; font-weight: 400; font-style: italic;
+    font-size: clamp(18px, 2.2vw, 22px); line-height: 1.5;
+    max-width: 720px; margin-bottom: 48px;
+  }
+  .dark .lede, .dark-2 .lede { color: var(--ice); }
+  .light .lede { color: var(--muted-dk); }
+
+  p { font-size: 16px; line-height: 1.7; }
+  .light p { color: var(--ink); }
+  .dark p, .dark-2 p { color: var(--ice); }
+
+  em { font-style: italic; color: var(--gold); }
+  .light em { color: var(--gold-dk); }
+  strong { font-weight: 600; }
+
+  code, .mono { font-family: 'JetBrains Mono', monospace; font-size: 0.92em; }
+  .light code { background: rgba(15,27,61,0.06); color: var(--gold-dk); padding: 1px 6px; border-radius: 3px; }
+  .dark code, .dark-2 code { background: rgba(212,165,116,0.15); color: var(--gold); padding: 1px 6px; border-radius: 3px; }
+
+  /* ============================================================
+     PROGRESS BAR + TOC
+  ============================================================ */
+  .progress-top {
+    position: fixed; top: 0; left: 0; height: 3px; width: 0%;
+    background: var(--gold); z-index: 1000; transition: width 0.1s linear;
+  }
+  .toc {
+    position: fixed; right: 32px; top: 50%; transform: translateY(-50%);
+    z-index: 100; display: flex; flex-direction: column; gap: 8px;
+    opacity: 0; transition: opacity 0.3s ease; pointer-events: none;
+  }
+  .toc.visible { opacity: 1; pointer-events: auto; }
+  .toc a {
+    width: 32px; height: 4px; background: rgba(255,255,255,0.15);
+    border-radius: 2px; transition: all 0.3s ease; display: block; position: relative;
+  }
+  .toc a:hover, .toc a.active { background: var(--gold); width: 44px; }
+  .toc.on-light a { background: rgba(15,27,61,0.22); }
+  .toc.on-light a:hover, .toc.on-light a.active { background: var(--gold-dk); }
+  .toc a span {
+    position: absolute; right: 50px; top: 50%; transform: translateY(-50%);
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 2px;
+    color: var(--cream); background: var(--navy-2); padding: 4px 10px; border-radius: 3px;
+    white-space: nowrap; opacity: 0; transition: opacity 0.2s ease; pointer-events: none;
+  }
+  .toc a:hover span { opacity: 1; }
+  @media (max-width: 1100px) { .toc { display: none; } }
+
+  /* ============================================================
+     CHAPTER MARK
+  ============================================================ */
+  .chapter-mark { display: flex; align-items: baseline; gap: 18px; margin-bottom: 16px; }
+  .chapter-num {
+    font-family: 'Fraunces', serif; font-style: italic; font-weight: 500;
+    font-size: 64px; color: var(--gold); line-height: 1;
+  }
+  .light .chapter-num { color: var(--gold-dk); }
+  .chapter-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 4px;
+    text-transform: uppercase; color: var(--muted-lt);
+  }
+  .light .chapter-label { color: var(--muted-dk); }
+
+  .lc { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+
+  /* ============================================================
+     HERO
+  ============================================================ */
+  .hero {
+    min-height: 90vh; display: flex; flex-direction: column; justify-content: center;
+    position: relative; padding: 80px 0;
+    background:
+      radial-gradient(circle at 80% 30%, rgba(212,165,116,0.12), transparent 50%),
+      radial-gradient(circle at 20% 80%, rgba(202,220,252,0.05), transparent 40%),
+      var(--navy);
+  }
+  .hero-grid { display: grid; grid-template-columns: 1fr 1.1fr; gap: 64px; align-items: center; }
+  .hero-text h1 { color: #fff; margin-bottom: 32px; }
+  .hero-text h1 em { color: var(--gold); font-style: italic; font-weight: 500; }
+  .hero-divider { width: 60px; height: 3px; background: var(--gold); margin-bottom: 28px; }
+  .hero-sub {
+    font-family: 'Fraunces', serif; font-style: italic; font-size: 21px;
+    color: var(--ice); line-height: 1.5; max-width: 580px; margin-bottom: 28px;
+  }
+  .hero-badge {
+    display: inline-block; font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    letter-spacing: 2px; color: var(--gold); border: 1px solid rgba(212,165,116,0.4);
+    border-radius: 20px; padding: 7px 16px; margin-bottom: 28px;
+  }
+  .hero-meta {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 4px;
+    color: var(--gold); text-transform: uppercase;
+  }
+  .hero-illus { position: relative; aspect-ratio: 720 / 470; max-width: 580px; justify-self: end; width: 100%; }
+  .hero-illus svg { width: 100%; height: 100%; overflow: visible; }
+  .hero-illus .core-pulse { transform-origin: 600px 150px; animation: core-pulse 4.5s ease-in-out infinite; }
+  @keyframes core-pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+  .hero-illus .doc-hit { animation: doc-hit 3.2s ease-in-out infinite; }
+  .hero-illus .doc-hit.h-2 { animation-delay: -1.6s; }
+  @keyframes doc-hit { 0%,100% { opacity: 0.85; } 50% { opacity: 1; } }
+  /* La barre de scan : le décalage vertical est porté par les keyframes
+     (et non par un attribut transform sur le <g>, que le CSS écraserait). */
+  .hero-illus .scan {
+    animation: scan-move 4s ease-in-out infinite; opacity: 0.6;
+  }
+  @keyframes scan-move {
+    0%, 100% { transform: translateY(8px); }
+    50%      { transform: translateY(202px); }
+  }
+
+  .scroll-cue {
+    position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 4px;
+    color: var(--gold); text-transform: uppercase; opacity: 0.7;
+  }
+  .scroll-cue::after { content: '↓'; display: block; margin-top: 8px; font-size: 16px; animation: bounce 2s ease-in-out infinite; }
+  @keyframes bounce { 0%,100% { transform: translateY(0); } 50% { transform: translateY(6px); } }
+
+  /* ============================================================
+     BIG IDEA
+  ============================================================ */
+  .big-idea-card {
+    margin-top: 56px; padding: 40px 48px;
+    background: rgba(212,165,116,0.06); border: 1px solid rgba(212,165,116,0.25);
+    border-left: 4px solid var(--gold); border-radius: 8px;
+  }
+  .big-idea-card h3 { color: var(--gold); font-style: italic; margin-bottom: 16px; }
+  .big-idea-card p { color: var(--ice); }
+  .big-idea-card p + p { margin-top: 14px; }
+  .big-idea-flow {
+    display: flex; flex-wrap: wrap; align-items: center; justify-content: center;
+    gap: 14px; margin-top: 36px; padding: 28px 24px; background: rgba(15,27,61,0.5);
+    border-radius: 8px; font-family: 'JetBrains Mono', monospace; font-size: 13px;
+  }
+  .big-idea-flow .fx { padding: 8px 14px; border-radius: 4px; font-weight: 600; color: var(--ink); }
+  .big-idea-flow .fx.q   { background: var(--ice); }
+  .big-idea-flow .fx.doc { background: var(--gold); box-shadow: 0 0 0 2px rgba(212,165,116,0.4); }
+  .big-idea-flow .fx.out { background: var(--green); box-shadow: 0 0 0 2px rgba(127,191,127,0.5); }
+  .big-idea-flow .fx.model { background: var(--navy); color: var(--cream); letter-spacing: 1.5px; font-size: 11px; padding: 8px 16px; }
+  .big-idea-flow .arr { color: var(--gold); font-size: 20px; }
+
+  /* ============================================================
+     COMPARE (exam fermé vs ouvert)
+  ============================================================ */
+  .compare { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; margin-top: 48px; align-items: stretch; }
+  .compare-card { border: 1px solid; border-radius: 8px; padding: 30px 32px; display: flex; flex-direction: column; background: rgba(15,27,61,0.4); }
+  .compare-card.bad  { border-color: rgba(227,107,90,0.4); }
+  .compare-card.good { border-color: rgba(127,191,127,0.5); }
+  .compare-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 16px; font-weight: 700; }
+  .compare-card.bad  .compare-tag { color: var(--red); }
+  .compare-card.good .compare-tag { color: var(--green); }
+  .compare-card h4 { color: var(--cream); font-style: italic; font-size: 21px; margin-bottom: 12px; }
+  .compare-card p { color: var(--ice); font-size: 15px; line-height: 1.6; }
+  .compare-card .verdict {
+    margin-top: 18px; padding-top: 16px; border-top: 1px solid var(--divider-lt);
+    font-family: 'Fraunces', serif; font-style: italic; font-size: 15px;
+  }
+  .compare-card.bad  .verdict { color: var(--red); }
+  .compare-card.good .verdict { color: var(--green); }
+
+  /* ============================================================
+     PIPELINE
+  ============================================================ */
+  .pipeline { margin-top: 52px; display: flex; flex-direction: column; gap: 26px; }
+  .pipeline-phase { background: #fff; border: 1px solid var(--divider-dk); border-radius: 12px; padding: 28px 32px; box-shadow: 0 4px 24px rgba(15,27,61,0.04); }
+  .pipeline-phase-head { display: flex; align-items: baseline; gap: 14px; margin-bottom: 22px; flex-wrap: wrap; }
+  .pipeline-phase-tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 2.5px;
+    text-transform: uppercase; color: var(--gold-dk); background: rgba(212,165,116,0.15);
+    padding: 4px 10px; border-radius: 3px;
+  }
+  .pipeline-phase-head h3 { color: var(--navy); font-style: italic; font-size: 21px; margin: 0; }
+  .pipeline-phase-head .when { margin-left: auto; font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted-dk); }
+  .pipeline-steps { display: flex; flex-wrap: wrap; align-items: stretch; gap: 8px; }
+  .pstep {
+    flex: 1 1 0; min-width: 124px; background: rgba(15,27,61,0.04);
+    border: 1px solid var(--divider-dk); border-radius: 8px; padding: 16px 14px;
+    text-align: center; display: flex; flex-direction: column; align-items: center; gap: 9px;
+  }
+  .pstep svg { width: 26px; height: 26px; color: var(--gold-dk); }
+  .pstep .pstep-t { font-weight: 600; color: var(--navy); font-size: 14px; }
+  .pstep .pstep-d { font-size: 12px; color: var(--muted-dk); line-height: 1.45; }
+  .pstep.accent { background: rgba(212,165,116,0.12); border-color: var(--gold); }
+  .pstep.model  { background: var(--navy); border-color: var(--navy); }
+  .pstep.model .pstep-t { color: var(--cream); }
+  .pstep.model .pstep-d { color: var(--muted-lt); }
+  .pstep.model svg { color: var(--gold); }
+  .parrow { align-self: center; color: var(--gold); font-size: 20px; flex: 0 0 auto; }
+  @media (max-width: 780px) { .pipeline-steps { flex-direction: column; } .parrow { transform: rotate(90deg); } }
+
+  /* ============================================================
+     SEMANTIC MAP
+  ============================================================ */
+  .semantic-wrap { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: center; margin-top: 48px; }
+  .semantic-map { width: 100%; }
+  .semantic-map svg { width: 100%; height: auto; overflow: visible; }
+  .sm-query { animation: sm-pulse 3s ease-in-out infinite; transform-origin: center; }
+  @keyframes sm-pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.7; } }
+  .semantic-points { font-family: 'JetBrains Mono', monospace; }
+  .semantic-note p { color: var(--ice); margin-bottom: 16px; }
+  .semantic-note .kw {
+    display: inline-block; margin-top: 8px; padding: 14px 18px;
+    background: rgba(212,165,116,0.08); border-left: 3px solid var(--gold);
+    border-radius: 4px; font-size: 15px; color: var(--ice);
+  }
+  .semantic-note .kw .doc-word { color: var(--ice); font-style: normal; font-weight: 600; }
+
+  /* Question mise en avant en tête du chapitre */
+  .sens-question {
+    margin: 8px auto 0; max-width: 760px; text-align: center;
+    padding: 26px 34px; background: rgba(212,165,116,0.08);
+    border: 1px solid rgba(212,165,116,0.3); border-radius: 10px;
+  }
+  .sens-question .sq-tag {
+    display: block; font-family: 'JetBrains Mono', monospace; font-size: 10px;
+    letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 14px;
+  }
+  .sens-question p {
+    font-family: 'Fraunces', serif; font-style: italic;
+    font-size: clamp(20px, 3vw, 28px); color: var(--cream); line-height: 1.35;
+  }
+  .sens-question em { color: var(--gold); font-style: italic; }
+
+  @media (max-width: 820px) { .semantic-wrap { grid-template-columns: 1fr; } }
+
+  /* ============================================================
+     RAG DEMO (interactif)
+  ============================================================ */
+  .rag-stage { margin-top: 48px; background: #fff; border: 1px solid var(--divider-dk); border-radius: 12px; padding: 32px 36px; box-shadow: 0 4px 24px rgba(15,27,61,0.04); }
+  .rag-qtabs { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 4px; }
+  .rag-qtab {
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 0.5px;
+    border: 1px solid var(--divider-dk); background: #fff; color: var(--muted-dk);
+    padding: 8px 15px; border-radius: 20px; cursor: pointer; transition: all 0.2s ease;
+  }
+  .rag-qtab:hover { border-color: var(--gold); }
+  .rag-qtab.active { background: var(--navy); color: var(--cream); border-color: var(--navy); }
+  .rag-label {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 2.5px;
+    text-transform: uppercase; color: var(--muted-dk); margin: 24px 0 10px;
+  }
+  .rag-question {
+    font-family: 'Fraunces', serif; font-style: italic; font-size: 19px; color: var(--navy);
+    padding: 16px 18px; background: rgba(212,165,116,0.08); border-left: 3px solid var(--gold);
+    border-radius: 4px; transition: box-shadow 0.3s ease;
+  }
+  .rag-question.vectorizing { box-shadow: 0 0 0 2px var(--gold); }
+  .kb { display: flex; flex-direction: column; gap: 8px; }
+  .kb-row {
+    display: grid; grid-template-columns: 32px 1fr 120px; gap: 14px; align-items: center;
+    padding: 12px 14px; border: 1px solid var(--divider-dk); border-radius: 8px;
+    background: #fff; transition: opacity 0.35s ease, border-color 0.35s ease, background 0.35s ease, box-shadow 0.35s ease;
+  }
+  .kb-badge {
+    width: 26px; height: 26px; border-radius: 50%; background: rgba(15,27,61,0.06);
+    color: var(--muted-dk); font-family: 'JetBrains Mono', monospace; font-size: 12px;
+    font-weight: 700; display: flex; align-items: center; justify-content: center;
+  }
+  .kb-text { font-size: 13.5px; color: var(--ink); line-height: 1.5; }
+  .kb-text .kb-tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 9px; letter-spacing: 1px;
+    text-transform: uppercase; color: var(--gold-dk); margin-left: 8px; font-weight: 700;
+    opacity: 0; transition: opacity 0.3s ease;
+  }
+  .kb-right { display: flex; flex-direction: column; gap: 5px; }
+  .kb-bar-wrap { height: 8px; background: rgba(15,27,61,0.06); border-radius: 5px; overflow: hidden; }
+  .kb-bar { height: 100%; width: 0; background: linear-gradient(90deg, var(--gold-dk), var(--gold)); border-radius: 5px; transition: width 0.8s cubic-bezier(0.16,1,0.3,1); }
+  .kb-score { font-family: 'JetBrains Mono', monospace; font-size: 11px; color: var(--muted-dk); text-align: right; }
+  .kb-row.dim { opacity: 0.4; }
+  .kb-row.retained { border-color: var(--gold); background: rgba(212,165,116,0.10); box-shadow: 0 0 0 1px var(--gold); }
+  .kb-row.retained .kb-badge { background: var(--gold); color: var(--navy); }
+  .kb-row.retained .kb-tag { opacity: 1; }
+
+  .rag-narration {
+    font-family: 'Fraunces', serif; font-style: italic; font-size: 16px; color: var(--muted-dk);
+    text-align: center; margin-top: 24px; padding-top: 22px; border-top: 1px solid var(--divider-dk); min-height: 24px;
+  }
+  .rag-narration strong { color: var(--gold-dk); font-style: normal; }
+  .rag-controls { display: flex; gap: 14px; justify-content: center; margin-top: 22px; flex-wrap: wrap; }
+  .rag-btn {
+    background: var(--navy); color: var(--cream); border: 1px solid var(--gold-dk);
+    padding: 10px 22px; font-family: 'JetBrains Mono', monospace; font-size: 11px;
+    letter-spacing: 2.5px; text-transform: uppercase; border-radius: 4px; cursor: pointer; transition: all 0.2s ease;
+  }
+  .rag-btn:hover:not(:disabled) { background: var(--gold-dk); color: var(--cream); }
+  .rag-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+  .rag-btn.primary { background: var(--gold); color: var(--navy); border-color: var(--gold); }
+  .rag-btn.primary:hover:not(:disabled) { background: var(--gold-dk); color: var(--cream); }
+
+  .rag-answer { margin-top: 22px; max-height: 0; overflow: hidden; opacity: 0; transition: max-height 0.5s ease, opacity 0.5s ease, margin-top 0.5s ease; }
+  .rag-answer.show { max-height: 460px; opacity: 1; }
+  .rag-answer-card { background: rgba(127,191,127,0.08); border: 1px solid rgba(127,191,127,0.4); border-left: 3px solid var(--green); border-radius: 6px; padding: 20px 22px; }
+  .rag-answer-card .ra-label { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--green); margin-bottom: 12px; }
+  .rag-answer-card p { color: var(--ink); font-size: 15.5px; line-height: 1.7; }
+  .rag-answer-card .ra-note { margin-top: 14px; padding-top: 14px; border-top: 1px dashed var(--divider-dk); font-size: 13px; color: var(--muted-dk); font-style: italic; }
+  .src-chip {
+    display: inline-flex; align-items: center; justify-content: center; min-width: 18px; height: 18px;
+    background: var(--gold); color: var(--navy); font-family: 'JetBrains Mono', monospace;
+    font-size: 10px; font-weight: 700; border-radius: 9px; padding: 0 6px; margin: 0 1px; vertical-align: middle;
+  }
+
+  /* ============================================================
+     CARTES (bénéfices / pièges / bonnes pratiques)
+  ============================================================ */
+  .card-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 26px; margin-top: 52px; }
+
+  .feat-card { background: rgba(212,165,116,0.06); border: 1px solid rgba(212,165,116,0.25); border-radius: 8px; padding: 30px 28px; }
+  .feat-card svg { width: 32px; height: 32px; color: var(--gold); margin-bottom: 18px; }
+  .feat-card h4 { color: var(--cream); font-style: italic; margin-bottom: 12px; font-size: 20px; }
+  .feat-card p { color: var(--ice); font-size: 14.5px; line-height: 1.6; }
+
+  .pit-card { background: #fff; border: 1px solid var(--divider-dk); border-left: 3px solid var(--red); border-radius: 0 6px 6px 0; padding: 28px 30px; }
+  .pit-card svg { width: 28px; height: 28px; color: var(--red); margin-bottom: 14px; opacity: 0.9; }
+  .pit-card h4 { color: var(--navy); font-style: italic; margin-bottom: 10px; font-size: 19px; }
+  .pit-card p { color: var(--muted-dk); font-size: 14.5px; line-height: 1.6; }
+
+  .bp-card { background: rgba(127,191,127,0.05); border: 1px solid rgba(127,191,127,0.25); border-top: 3px solid var(--green); border-radius: 0 0 8px 8px; padding: 28px 26px; }
+  .bp-card svg { width: 28px; height: 28px; color: var(--green); margin-bottom: 14px; }
+  .bp-card h4 { color: var(--cream); font-style: italic; margin-bottom: 10px; font-size: 19px; }
+  .bp-card p { color: var(--ice); font-size: 14.5px; line-height: 1.6; }
+
+  .closing-card {
+    margin-top: 56px; padding: 40px 48px; background: rgba(212,165,116,0.06);
+    border: 1px solid rgba(212,165,116,0.3); border-radius: 10px; text-align: center;
+  }
+  .closing-card p {
+    font-family: 'Fraunces', serif; font-style: italic; font-size: 21px; color: var(--gold);
+    max-width: 760px; margin: 0 auto; line-height: 1.5;
+  }
+  .closing-card p strong { color: var(--cream); font-style: normal; font-weight: 600; }
+
+  /* ============================================================
+     CAS STRUCTURELS (chap. 07)
+  ============================================================ */
+  .case-card {
+    background: rgba(212,165,116,0.06); border: 1px solid rgba(212,165,116,0.25);
+    border-top: 3px solid var(--gold); border-radius: 0 0 8px 8px; padding: 28px 26px;
+    display: flex; flex-direction: column;
+  }
+  .case-card .case-tag {
+    font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--gold); margin-bottom: 14px;
+  }
+  .case-card svg { width: 30px; height: 30px; color: var(--gold); margin-bottom: 14px; }
+  .case-card h4 { color: var(--cream); font-style: italic; font-size: 19px; margin-bottom: 14px; }
+  .case-card .case-eg {
+    font-family: 'Fraunces', serif; font-style: italic; font-size: 14.5px; color: var(--ice);
+    background: rgba(15,27,61,0.45); border-left: 2px solid var(--gold-dk);
+    border-radius: 3px; padding: 10px 14px; margin-bottom: 16px;
+  }
+  .case-card p { color: var(--ice); font-size: 14.5px; line-height: 1.6; }
+  .case-note { margin-top: 44px; text-align: center; }
+  .case-note p {
+    font-family: 'Fraunces', serif; font-style: italic; font-size: 19px; color: var(--gold);
+    max-width: 820px; margin: 0 auto; line-height: 1.5;
+  }
+  .case-note em { color: var(--cream); font-style: normal; }
+
+  /* ============================================================
+     CONSEILS DE PROMPT (chap. 08)
+  ============================================================ */
+  .tips-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 26px; margin-top: 52px; }
+  .tips-panel {
+    background: #fff; border: 1px solid var(--divider-dk); border-radius: 12px;
+    padding: 30px 32px; box-shadow: 0 4px 24px rgba(15,27,61,0.04);
+  }
+  .tips-panel-head { display: flex; align-items: center; gap: 12px; margin-bottom: 22px; }
+  .tips-panel-head svg { width: 26px; height: 26px; color: var(--gold-dk); }
+  .tips-panel-head h4 { color: var(--navy); font-style: italic; font-size: 20px; margin: 0; }
+  .tip-list { display: flex; flex-direction: column; gap: 16px; }
+  .tip { display: flex; gap: 12px; align-items: flex-start; }
+  .tip .tip-mark { color: var(--gold-dk); font-weight: 700; flex: 0 0 auto; }
+  .tip p { color: var(--muted-dk); font-size: 14.5px; line-height: 1.6; margin: 0; }
+  .tip strong { color: var(--navy); font-weight: 600; }
+  @media (max-width: 820px) { .tips-grid { grid-template-columns: 1fr; } }
+
+  /* ============================================================
+     REVEAL
+  ============================================================ */
+  .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.7s ease, transform 0.7s ease; }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-d-1 { transition-delay: 0.08s; }
+  .reveal-d-2 { transition-delay: 0.18s; }
+  .reveal-d-3 { transition-delay: 0.28s; }
+  .reveal-d-4 { transition-delay: 0.38s; }
+
+  /* ============================================================
+     FOOTER
+  ============================================================ */
+  footer {
+    background: var(--navy-2); padding: 56px 32px; text-align: center;
+    font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 3px;
+    color: var(--muted-lt); text-transform: uppercase; border-top: 1px solid var(--divider-lt);
+  }
+
+  /* ============================================================
+     RESPONSIVE
+  ============================================================ */
+  @media (max-width: 900px) {
+    .section { padding: 70px 0; }
+    .hero-grid { grid-template-columns: 1fr; gap: 40px; }
+    .hero-illus { justify-self: center; max-width: 480px; }
+    .compare { grid-template-columns: 1fr; }
+    .rag-stage { padding: 26px 22px; }
+    .kb-row { grid-template-columns: 28px 1fr 92px; gap: 10px; }
+  }
+  @media (max-width: 600px) {
+    .container, .container-narrow { padding: 0 20px; }
+    .big-idea-card { padding: 30px 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="progress-top" id="progress-bar"></div>
+
+<nav class="toc" id="toc">
+  <a href="#hero"><span>Couverture</span></a>
+  <a href="#idee"><span>La grande idée</span></a>
+  <a href="#pipeline"><span>Le pipeline</span></a>
+  <a href="#sens"><span>La recherche par le sens</span></a>
+  <a href="#demo"><span>Le RAG en action</span></a>
+  <a href="#benefices"><span>Ce que ça change</span></a>
+  <a href="#pieges"><span>Pourquoi ça tombe à côté</span></a>
+  <a href="#angles-morts"><span>Même avec une base parfaite</span></a>
+  <a href="#prompter"><span>Bien demander à un RAG</span></a>
+  <a href="#qualite"><span>Ce qui fait un bon RAG</span></a>
+</nav>
+
+<!-- ============================================================
+     HERO
+============================================================ -->
+<section class="hero" id="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div class="hero-text">
+        <div class="hero-meta">Une introduction pour curieux</div>
+        <h1 class="h-display" style="margin-top:28px;">
+          Donner des<br><em>sources</em><br>à l'IA
+        </h1>
+        <div class="hero-divider"></div>
+        <span class="hero-badge">RAG · Retrieval-Augmented Generation</span>
+        <p class="hero-sub">
+          Comment une IA répond-elle à des questions sur des documents qu'elle n'a
+          <em>jamais vus</em> à l'entraînement ? L'astuce : on ne lui demande pas de
+          <em>savoir</em>, on lui <em>fournit</em> les bons passages au bon moment.
+        </p>
+        <div class="hero-meta">Juin 2026 · Présentation</div>
+      </div>
+
+      <div class="hero-illus">
+        <svg viewBox="0 0 720 470" xmlns="http://www.w3.org/2000/svg">
+          <!-- décor -->
+          <circle cx="600" cy="150" r="150" fill="none" stroke="var(--gold)" stroke-width="1" opacity="0.08" stroke-dasharray="2 8"/>
+
+          <!-- Connecteurs -->
+          <path d="M150 235 H300" stroke="var(--gold)" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.5"/>
+          <path d="M470 200 C 530 180, 540 165, 560 152" stroke="var(--gold)" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.5" fill="none"/>
+          <path d="M600 215 V 300" stroke="var(--gold)" stroke-width="1.2" stroke-dasharray="4 4" opacity="0.5"/>
+
+          <!-- GAUCHE : la question -->
+          <g transform="translate(40, 200)">
+            <rect x="0" y="0" width="108" height="70" rx="14" fill="var(--navy-2)" stroke="var(--gold-dk)" stroke-width="1.2"/>
+            <text x="20" y="30" font-family="Fraunces" font-style="italic" font-size="34" fill="var(--gold)">?</text>
+            <text x="46" y="30" font-family="JetBrains Mono" font-size="9" fill="var(--ice)">question</text>
+            <line x1="20" y1="46" x2="88" y2="46" stroke="var(--muted-lt)" stroke-width="2" opacity="0.4"/>
+            <line x1="20" y1="56" x2="70" y2="56" stroke="var(--muted-lt)" stroke-width="2" opacity="0.4"/>
+          </g>
+
+          <!-- CENTRE : la base documentaire (pile de passages) -->
+          <g transform="translate(300, 90)">
+            <text x="48" y="-12" text-anchor="middle" font-family="JetBrains Mono" font-size="9" letter-spacing="2" fill="var(--muted-lt)">BASE DOCUMENTAIRE</text>
+            <!-- passages -->
+            <g class="doc-hit">
+              <rect x="0" y="0" width="150" height="44" rx="8" fill="#D4A574" stroke="var(--gold)" stroke-width="1.4"/>
+              <line x1="14" y1="16" x2="120" y2="16" stroke="var(--navy)" stroke-width="2.4" opacity="0.6"/>
+              <line x1="14" y1="28" x2="96" y2="28" stroke="var(--navy)" stroke-width="2.4" opacity="0.45"/>
+            </g>
+            <g transform="translate(0,56)">
+              <rect x="0" y="0" width="150" height="44" rx="8" fill="var(--navy-3)" stroke="var(--divider-lt)" stroke-width="1"/>
+              <line x1="14" y1="16" x2="120" y2="16" stroke="var(--muted-lt)" stroke-width="2.4" opacity="0.4"/>
+              <line x1="14" y1="28" x2="100" y2="28" stroke="var(--muted-lt)" stroke-width="2.4" opacity="0.3"/>
+            </g>
+            <g class="doc-hit h-2" transform="translate(0,112)">
+              <rect x="0" y="0" width="150" height="44" rx="8" fill="#D4A574" stroke="var(--gold)" stroke-width="1.4"/>
+              <line x1="14" y1="16" x2="120" y2="16" stroke="var(--navy)" stroke-width="2.4" opacity="0.6"/>
+              <line x1="14" y1="28" x2="88" y2="28" stroke="var(--navy)" stroke-width="2.4" opacity="0.45"/>
+            </g>
+            <g transform="translate(0,168)">
+              <rect x="0" y="0" width="150" height="44" rx="8" fill="var(--navy-3)" stroke="var(--divider-lt)" stroke-width="1"/>
+              <line x1="14" y1="16" x2="120" y2="16" stroke="var(--muted-lt)" stroke-width="2.4" opacity="0.4"/>
+              <line x1="14" y1="28" x2="104" y2="28" stroke="var(--muted-lt)" stroke-width="2.4" opacity="0.3"/>
+            </g>
+            <!-- ligne de scan (position verticale animée via keyframes) -->
+            <g class="scan">
+              <line x1="-8" y1="0" x2="158" y2="0" stroke="var(--ice)" stroke-width="1.5"/>
+              <circle cx="158" cy="0" r="3" fill="var(--ice)"/>
+            </g>
+          </g>
+
+          <!-- DROITE : le modèle = capacités du LLM (cerveau) AUGMENTÉES
+               de la fiche trouvée dans la base. -->
+          <g class="core-pulse">
+            <circle cx="600" cy="150" r="50" fill="var(--gold)"/>
+            <circle cx="600" cy="150" r="50" fill="none" stroke="var(--gold)" stroke-width="1" opacity="0.4">
+              <animate attributeName="r" from="50" to="76" dur="3.5s" repeatCount="indefinite"/>
+              <animate attributeName="opacity" from="0.5" to="0" dur="3.5s" repeatCount="indefinite"/>
+            </circle>
+            <!-- Cerveau (Lucide « brain ») = capacités du modèle -->
+            <g class="lc" transform="translate(581, 131) scale(1.6)" style="color: var(--navy); stroke-width: 1.4;">
+              <path d="M12 18V5"/>
+              <path d="M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4"/>
+              <path d="M17.598 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5"/>
+              <path d="M17.997 5.125a4 4 0 0 1 2.526 5.77"/>
+              <path d="M18 18a4 4 0 0 0 2-7.464"/>
+              <path d="M19.967 17.483A4 4 0 1 1 12 18a4 4 0 1 1-7.967-.517"/>
+              <path d="M6 18a4 4 0 0 1-2-7.464"/>
+              <path d="M6.003 5.125a4 4 0 0 0-2.526 5.77"/>
+            </g>
+          </g>
+
+          <!-- La fiche récupérée dans la base, « lue » par le modèle.
+               Même motif que les cartes de la base, pour le lien visuel. -->
+          <g transform="translate(626, 150) rotate(9)">
+            <rect x="0" y="0" width="42" height="50" rx="6" fill="var(--cream)" stroke="var(--gold-dk)" stroke-width="1.5"/>
+            <line x1="9" y1="13" x2="33" y2="13" stroke="var(--navy)" stroke-width="2.2" opacity="0.7"/>
+            <line x1="9" y1="22" x2="33" y2="22" stroke="var(--navy)" stroke-width="2.2" opacity="0.45"/>
+            <line x1="9" y1="31" x2="27" y2="31" stroke="var(--navy)" stroke-width="2.2" opacity="0.45"/>
+            <rect x="9" y="38" width="17" height="9" rx="4.5" fill="var(--gold)"/>
+            <text x="17.5" y="45" text-anchor="middle" font-family="JetBrains Mono" font-size="6.5" font-weight="700" fill="var(--navy)">1</text>
+          </g>
+
+          <!-- Badge « + » : capacités du LLM AUGMENTÉES des documents -->
+          <g transform="translate(622, 150)">
+            <circle cx="0" cy="0" r="11" fill="var(--navy-2)" stroke="var(--gold)" stroke-width="1.3"/>
+            <path d="M0 -5 V5 M-5 0 H5" stroke="var(--gold)" stroke-width="2" stroke-linecap="round"/>
+          </g>
+
+          <!-- BAS DROITE : la réponse sourcée -->
+          <g transform="translate(540, 300)">
+            <rect x="0" y="0" width="130" height="76" rx="12" fill="var(--navy-2)" stroke="var(--green)" stroke-width="1.3"/>
+            <text x="14" y="22" font-family="JetBrains Mono" font-size="9" letter-spacing="1.5" fill="var(--green)">RÉPONSE</text>
+            <line x1="14" y1="36" x2="112" y2="36" stroke="var(--ice)" stroke-width="2.4" opacity="0.6"/>
+            <line x1="14" y1="48" x2="92" y2="48" stroke="var(--ice)" stroke-width="2.4" opacity="0.45"/>
+            <g transform="translate(14, 56)">
+              <rect x="0" y="0" width="20" height="13" rx="6.5" fill="var(--gold)"/>
+              <text x="10" y="10" text-anchor="middle" font-family="JetBrains Mono" font-size="8" font-weight="700" fill="var(--navy)">1</text>
+              <rect x="26" y="0" width="20" height="13" rx="6.5" fill="var(--gold)"/>
+              <text x="36" y="10" text-anchor="middle" font-family="JetBrains Mono" font-size="8" font-weight="700" fill="var(--navy)">3</text>
+            </g>
+          </g>
+        </svg>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-cue">Faites défiler</div>
+</section>
+
+<!-- ============================================================
+     01 — LA GRANDE IDÉE
+============================================================ -->
+<section class="section dark-2" id="idee">
+  <div class="container">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">01</span>
+        <span class="chapter-label">La grande idée</span>
+      </div>
+      <h2>L'IA ne connaît pas vos documents</h2>
+      <p class="lede">
+        Un modèle de langage n'a appris que ce qui se trouvait sur internet, jusqu'à une
+        certaine date. Vos notes internes, vos procédures, votre documentation métier : il
+        ne les a <em>jamais vues</em>. Pire : si vous l'interrogez quand même, il
+        <em>inventera</em> une réponse plausible plutôt que d'avouer son ignorance.
+      </p>
+    </div>
+
+    <div class="big-idea-card reveal reveal-d-1">
+      <h3>Le RAG renverse le problème</h3>
+      <p>
+        Plutôt que d'espérer que le modèle <em>sache</em>, on lui <em>fournit la réponse à lire</em>.
+        À chaque question, un moteur de recherche va d'abord chercher, dans <strong>votre</strong>
+        base documentaire, les quelques passages les plus pertinents. On les glisse ensuite dans
+        le prompt, avec la question. Le modèle n'a plus qu'à <strong>répondre à partir de ce qu'on
+        lui a mis sous les yeux</strong>, en citant ses sources.
+      </p>
+      <p>
+        C'est tout. <em>Retrieval</em> (aller chercher) + <em>Augmented Generation</em>
+        (génération enrichie). On n'a pas rendu le modèle plus savant : on lui a donné les
+        bons documents au bon moment.
+      </p>
+
+      <div class="big-idea-flow">
+        <span class="fx q">Question</span>
+        <span class="arr">→</span>
+        <span class="fx doc">Passages trouvés</span>
+        <span class="arr">+</span>
+        <span class="fx model">MODÈLE</span>
+        <span class="arr">→</span>
+        <span class="fx out">Réponse sourcée</span>
+      </div>
+    </div>
+
+    <div class="compare reveal reveal-d-2">
+      <div class="compare-card bad">
+        <div class="compare-tag">Sans RAG · examen à livre fermé</div>
+        <h4>Le modèle récite de mémoire</h4>
+        <p>
+          On pose la question, le modèle répond avec ce qu'il a retenu de son entraînement.
+          Sur un sujet général, ça passe. Sur <em>votre</em> contexte précis, il comble les
+          trous : dates approximatives, règles inventées, détails faux énoncés avec aplomb.
+        </p>
+        <div class="verdict">→ Confiant, mais pas fiable sur vos sujets.</div>
+      </div>
+      <div class="compare-card good">
+        <div class="compare-tag">Avec RAG · examen à livre ouvert</div>
+        <h4>Le modèle consulte avant de répondre</h4>
+        <p>
+          On lui ouvre d'abord la bonne page. Il lit les passages fournis, puis formule sa
+          réponse à partir d'eux. Il peut indiquer <em>d'où</em> vient l'information. Et si
+          la base ne contient rien d'utile, il le signale plutôt que d'inventer.
+        </p>
+        <div class="verdict">→ Ancré dans vos documents, et vérifiable.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     02 — LE PIPELINE
+============================================================ -->
+<section class="section light" id="pipeline">
+  <div class="container">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">02</span>
+        <span class="chapter-label">Sous le capot</span>
+      </div>
+      <h2 style="color: var(--navy);">Deux temps : ranger, puis retrouver</h2>
+      <p class="lede">
+        Un RAG, ça se déroule en deux moments bien distincts. D'abord on <strong>prépare</strong>
+        la base, une fois pour toutes (et à chaque mise à jour). Ensuite, à <strong>chaque
+        question</strong>, on va y pêcher les bons passages. Le premier temps se fait en
+        coulisses ; le second, en une fraction de seconde, quand vous tapez votre question.
+      </p>
+    </div>
+
+    <div class="pipeline">
+      <!-- Phase indexation -->
+      <div class="pipeline-phase reveal reveal-d-1">
+        <div class="pipeline-phase-head">
+          <span class="pipeline-phase-tag">Temps 1 · Indexation</span>
+          <h3>Préparer la base</h3>
+          <span class="when">en amont, puis à chaque mise à jour</span>
+        </div>
+        <div class="pipeline-steps">
+          <div class="pstep">
+            <svg class="lc" viewBox="0 0 24 24"><path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7z"/><path d="M14 2v5h5"/></svg>
+            <span class="pstep-t">Documents</span>
+            <span class="pstep-d">Procédures, notes, FAQ, specs…</span>
+          </div>
+          <span class="parrow">→</span>
+          <div class="pstep">
+            <svg class="lc" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.12 15.88"/><path d="M14.47 14.48 20 20"/><path d="M8.12 8.12 12 12"/></svg>
+            <span class="pstep-t">Découpage</span>
+            <span class="pstep-d">En passages de taille raisonnable</span>
+          </div>
+          <span class="parrow">→</span>
+          <div class="pstep">
+            <svg class="lc" viewBox="0 0 24 24"><path d="M12 2v20"/><path d="m5 9 7-7 7 7"/><path d="M5 15l7 7 7-7"/></svg>
+            <span class="pstep-t">Vectorisation</span>
+            <span class="pstep-d">Chaque passage → une « empreinte » de sens</span>
+          </div>
+          <span class="parrow">→</span>
+          <div class="pstep accent">
+            <svg class="lc" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"/><path d="M3 5V19A9 3 0 0 0 21 19V5"/><path d="M3 12A9 3 0 0 0 21 12"/></svg>
+            <span class="pstep-t">Base vectorielle</span>
+            <span class="pstep-d">Le « classeur » consultable par le sens</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Phase interrogation -->
+      <div class="pipeline-phase reveal reveal-d-2">
+        <div class="pipeline-phase-head">
+          <span class="pipeline-phase-tag">Temps 2 · Interrogation</span>
+          <h3>Répondre à une question</h3>
+          <span class="when">à chaque question posée</span>
+        </div>
+        <div class="pipeline-steps">
+          <div class="pstep">
+            <svg class="lc" viewBox="0 0 24 24"><path d="M12 8a2 2 0 0 0-2 2c0 1 2 2 2 2"/><circle cx="12" cy="12" r="10"/><path d="M12 16h.01"/></svg>
+            <span class="pstep-t">Question</span>
+            <span class="pstep-d">Posée en langage naturel</span>
+          </div>
+          <span class="parrow">→</span>
+          <div class="pstep">
+            <svg class="lc" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <span class="pstep-t">Recherche</span>
+            <span class="pstep-d">Les passages les plus proches de la question</span>
+          </div>
+          <span class="parrow">→</span>
+          <div class="pstep accent">
+            <svg class="lc" viewBox="0 0 24 24"><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20"/></svg>
+            <span class="pstep-t">Passages + Question</span>
+            <span class="pstep-d">Réunis dans un seul prompt</span>
+          </div>
+          <span class="parrow">→</span>
+          <div class="pstep model">
+            <svg class="lc" viewBox="0 0 24 24"><path d="M12 18V5"/><path d="M15 13a4.17 4.17 0 0 1-3-4 4.17 4.17 0 0 1-3 4"/><path d="M17.598 6.5A3 3 0 1 0 12 5a3 3 0 1 0-5.598 1.5"/><path d="M18 18a4 4 0 0 0 2-7.464"/><path d="M6 18a4 4 0 0 1-2-7.464"/></svg>
+            <span class="pstep-t">Modèle</span>
+            <span class="pstep-d">Rédige une réponse sourcée</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal reveal-d-3" style="margin-top: 44px; text-align: center;">
+      <p style="font-family: 'Fraunces', serif; font-style: italic; font-size: 19px; color: var(--gold-dk); max-width: 740px; margin: 0 auto;">
+        Le modèle n'a jamais « appris » vos documents. Il les <em>lit</em> à l'instant où
+        vous posez la question, comme on tend un dossier à un expert avant de l'interroger.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     03 — LA RECHERCHE PAR LE SENS
+============================================================ -->
+<section class="section dark" id="sens">
+  <div class="container">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">03</span>
+        <span class="chapter-label">Le principe</span>
+      </div>
+      <h2>Chercher par le sens, pas par les mots</h2>
+      <p class="lede">
+        Un simple <code>Ctrl+F</code> cherche des <em>mots exacts</em>. Le RAG, lui, cherche
+        des <em>significations proches</em>. C'est ce qui lui permet de retrouver le bon
+        passage même quand la question n'emploie aucun des mots du document. Prenons une
+        question concrète :
+      </p>
+    </div>
+
+    <div class="sens-question reveal reveal-d-1">
+      <span class="sq-tag">La question posée</span>
+      <p>« Puis-je <em>travailler depuis chez moi</em> quelques jours&nbsp;? »</p>
+    </div>
+
+    <div class="semantic-wrap">
+      <div class="semantic-map reveal reveal-d-1">
+        <svg viewBox="0 0 520 360" xmlns="http://www.w3.org/2000/svg">
+          <!-- repères -->
+          <line x1="40" y1="320" x2="500" y2="320" stroke="var(--divider-lt)" stroke-width="1"/>
+          <line x1="40" y1="40"  x2="40"  y2="320" stroke="var(--divider-lt)" stroke-width="1"/>
+          <text x="500" y="338" text-anchor="end" font-family="JetBrains Mono" font-size="9" fill="var(--muted-lt)">espace du sens</text>
+
+          <!-- voisinage retenu : centré sur la question (tout part de son sens) -->
+          <circle cx="178" cy="150" r="80" fill="rgba(212,165,116,0.10)" stroke="var(--gold)" stroke-width="1.2" stroke-dasharray="5 5"/>
+
+          <g class="semantic-points">
+            <!-- document proche : retrouvé. Bleu, comme toute la base. -->
+            <g>
+              <circle cx="120" cy="100" r="8" fill="var(--ice)" stroke="var(--navy)" stroke-width="1"/>
+              <text x="120" y="84" text-anchor="middle" font-size="11" fill="var(--ice)">« télétravail »</text>
+            </g>
+            <!-- la question : beige, car extérieure à la base. Au centre. -->
+            <g class="sm-query">
+              <circle cx="178" cy="150" r="10" fill="var(--gold)" stroke="var(--cream)" stroke-width="1.5"/>
+              <text x="178" y="174" text-anchor="middle" font-size="11" fill="var(--gold)" font-style="italic">votre question</text>
+            </g>
+            <!-- loin -->
+            <g>
+              <circle cx="360" cy="90" r="7" fill="var(--navy-3)" stroke="var(--muted-lt)" stroke-width="1"/>
+              <text x="372" y="86" font-size="11" fill="var(--muted-lt)">« note de frais »</text>
+            </g>
+            <g>
+              <circle cx="410" cy="230" r="7" fill="var(--navy-3)" stroke="var(--muted-lt)" stroke-width="1"/>
+              <text x="422" y="226" font-size="11" fill="var(--muted-lt)">« matériel »</text>
+            </g>
+            <g>
+              <circle cx="300" cy="270" r="7" fill="var(--navy-3)" stroke="var(--muted-lt)" stroke-width="1"/>
+              <text x="312" y="266" font-size="11" fill="var(--muted-lt)">« congés »</text>
+            </g>
+          </g>
+        </svg>
+      </div>
+
+      <div class="semantic-note reveal reveal-d-2">
+        <p>
+          À l'indexation, chaque passage est transformé en une <em>empreinte numérique</em>
+          de son sens, un point dans un vaste « espace du sens ». Deux textes qui parlent
+          de la même chose se retrouvent <strong>côte à côte</strong>, même s'ils n'emploient
+          pas les mêmes mots.
+        </p>
+        <p>
+          Au moment de la question, on calcule la même empreinte pour la question, et on
+          garde les passages <strong>les plus proches</strong>. Proximité = parenté de sens.
+        </p>
+        <div class="kw">
+          Question : « <em>puis-je travailler depuis chez moi&nbsp;?</em> »<br>
+          Document : « chaque salarié peut <span class="doc-word">télétravailler</span>… »<br>
+          <span style="font-family:'JetBrains Mono',monospace; font-size:12px; color:var(--gold);">→ aucun mot commun, et pourtant : trouvé.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     04 — LE RAG EN ACTION (interactif)
+============================================================ -->
+<section class="section light" id="demo" style="background: #FAF7F0;">
+  <div class="container">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">04</span>
+        <span class="chapter-label">Démonstration</span>
+      </div>
+      <h2 style="color: var(--navy);">Le RAG en action, étape par étape</h2>
+      <p class="lede">
+        Voici une mini base documentaire : la FAQ interne d'une entreprise fictive. Choisissez
+        une question et lancez. La recherche note chaque passage, garde le plus proche, et le
+        modèle rédige sa réponse <strong>à partir de lui</strong>.
+      </p>
+    </div>
+
+    <div class="rag-stage reveal reveal-d-1">
+      <div class="rag-qtabs" id="rag-qtabs">
+        <button class="rag-qtab active" data-q="0">Question A</button>
+        <button class="rag-qtab" data-q="1">Question B</button>
+      </div>
+
+      <div class="rag-label">La question posée</div>
+      <div class="rag-question" id="rag-question"></div>
+
+      <div class="rag-label">La base documentaire : proximité de sens avec la question</div>
+      <div class="kb" id="rag-kb"></div>
+
+      <div class="rag-answer" id="rag-answer">
+        <div class="rag-answer-card">
+          <div class="ra-label">Réponse du modèle</div>
+          <p id="rag-answer-body"></p>
+          <div class="ra-note" id="rag-answer-note"></div>
+        </div>
+      </div>
+
+      <div class="rag-narration" id="rag-narration">
+        Choisissez une question, puis cliquez sur <strong>▶ Lancer</strong>.
+      </div>
+
+      <div class="rag-controls">
+        <button class="rag-btn primary" id="rag-play">▶ Lancer la recherche</button>
+        <button class="rag-btn" id="rag-reset">↻ Recommencer</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     05 — CE QUE ÇA CHANGE
+============================================================ -->
+<section class="section dark-2" id="benefices">
+  <div class="container">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">05</span>
+        <span class="chapter-label">Les bénéfices</span>
+      </div>
+      <h2>Pourquoi on s'en sert</h2>
+      <p class="lede">
+        Le RAG ne rend pas le modèle plus intelligent. Il le rend <em>pertinent</em> sur
+        votre contexte. Et c'est souvent ça qui compte.
+      </p>
+    </div>
+
+    <div class="card-grid">
+      <div class="feat-card reveal reveal-d-1">
+        <svg class="lc" viewBox="0 0 24 24"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg>
+        <h4>Des réponses sourcées</h4>
+        <p>
+          Chaque réponse peut renvoyer aux passages qui l'ont produite. On peut vérifier,
+          remonter à la source, et faire confiance en connaissance de cause.
+        </p>
+      </div>
+      <div class="feat-card reveal reveal-d-2">
+        <svg class="lc" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <h4>Toujours à jour</h4>
+        <p>
+          Pas besoin de réentraîner le modèle, opération longue et coûteuse. Vous mettez à
+          jour un document dans la base, et la prochaine réponse en tient compte.
+        </p>
+      </div>
+      <div class="feat-card reveal reveal-d-3">
+        <svg class="lc" viewBox="0 0 24 24"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"/></svg>
+        <h4>Vos données restent vôtres</h4>
+        <p>
+          Les documents sont consultés au moment de la question, pas absorbés dans
+          l'entraînement d'un modèle public. Le savoir interne reste interne.
+        </p>
+      </div>
+      <div class="feat-card reveal reveal-d-4">
+        <svg class="lc" viewBox="0 0 24 24"><path d="M12 9v4"/><path d="M12 17h.01"/><path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/></svg>
+        <h4>Moins d'inventions</h4>
+        <p>
+          En donnant la matière à lire, on réduit fortement les hallucinations : le modèle
+          s'appuie sur du concret plutôt que de combler les trous. Réduit, pas
+          supprimé : on y revient juste après.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     06 — POURQUOI ÇA TOMBE À CÔTÉ
+============================================================ -->
+<section class="section light" id="pieges">
+  <div class="container">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">06</span>
+        <span class="chapter-label">Les pièges</span>
+      </div>
+      <h2 style="color: var(--navy);">Pourquoi un RAG « tombe à côté »</h2>
+      <p class="lede">
+        Quand un RAG déçoit, le coupable n'est presque jamais le modèle, mais ce qu'on
+        lui a (ou pas) donné à lire. Les quatre pièges les plus courants.
+      </p>
+    </div>
+
+    <div class="card-grid">
+      <div class="pit-card reveal reveal-d-1">
+        <svg class="lc" viewBox="0 0 24 24"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3z"/><path d="M12 9v4"/><path d="M12 17h.01"/></svg>
+        <h4>Documentation périmée</h4>
+        <p>
+          Si la base contient une vieille version, le RAG répondra avec assurance… une
+          information fausse. La réponse n'est jamais meilleure que la source la plus
+          proche. <em>Mauvais document, mauvaise réponse.</em>
+        </p>
+      </div>
+      <div class="pit-card reveal reveal-d-2">
+        <svg class="lc" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/><path d="M8 11h6"/></svg>
+        <h4>L'information manque</h4>
+        <p>
+          Ce qui n'est pas dans la base ne peut pas être retrouvé. Sur un sujet non couvert,
+          le RAG donne au mieux une réponse vague et générale, au pire une invention.
+        </p>
+      </div>
+      <div class="pit-card reveal reveal-d-3">
+        <svg class="lc" viewBox="0 0 24 24"><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M20 4 8.12 15.88"/><path d="M14.47 14.48 20 20"/><path d="M8.12 8.12 12 12"/></svg>
+        <h4>Mauvais découpage</h4>
+        <p>
+          Si les documents sont mal tranchés, un passage peut arriver tronqué ou hors
+          contexte. Le modèle lit alors un bout de phrase et conclut de travers.
+        </p>
+      </div>
+      <div class="pit-card reveal reveal-d-4">
+        <svg class="lc" viewBox="0 0 24 24"><path d="m2 2 20 20"/><path d="M8.5 16.4a5 5 0 0 1 7 0"/><path d="M12 20h.01"/><circle cx="12" cy="11" r="1"/></svg>
+        <h4>Le bon passage n'est pas retrouvé</h4>
+        <p>
+          La recherche peut rapporter un passage à côté de la plaque, surtout quand la
+          question est très pointue. Et même avec les bons documents, le modèle peut encore
+          halluciner. Le RAG réduit le risque, il ne l'efface pas.
+        </p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     07 — MÊME AVEC UNE BASE PARFAITE (cas structurels)
+============================================================ -->
+<section class="section dark-2" id="angles-morts">
+  <div class="container">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">07</span>
+        <span class="chapter-label">Les angles morts</span>
+      </div>
+      <h2>Ce qu'il ne sait pas faire, même avec une base parfaite</h2>
+      <p class="lede">
+        Les pièges précédents venaient de la base. Ceux-là sont d'une autre nature : même
+        avec une documentation impeccable, certaines questions échouent par construction,
+        parce que la réponse ne « ressemble » à aucun passage.
+      </p>
+    </div>
+
+    <div class="card-grid">
+      <div class="case-card reveal reveal-d-1">
+        <span class="case-tag">Cas 1 · La vue d'ensemble</span>
+        <svg class="lc" viewBox="0 0 24 24"><path d="M8 6h13"/><path d="M8 12h13"/><path d="M8 18h13"/><path d="M3 6h.01"/><path d="M3 12h.01"/><path d="M3 18h.01"/></svg>
+        <h4>« Liste tout ce que tu sais »</h4>
+        <div class="case-eg">« Donne-moi la liste de tout ce qu'il y a dans la base. »</div>
+        <p>
+          Le RAG récupère ce qui <em>ressemble</em> à une question, il n'énumère pas le
+          corpus. Sans passage qui soit lui-même un sommaire, la question n'a aucune cible :
+          rien à « retrouver ». L'information existe pourtant, dispersée partout.
+        </p>
+      </div>
+
+      <div class="case-card reveal reveal-d-2">
+        <span class="case-tag">Cas 2 · La comparaison</span>
+        <svg class="lc" viewBox="0 0 24 24"><circle cx="18" cy="18" r="3"/><circle cx="6" cy="6" r="3"/><path d="M13 6h3a2 2 0 0 1 2 2v7"/><path d="M11 18H8a2 2 0 0 1-2-2V9"/></svg>
+        <h4>« Compare A et B »</h4>
+        <div class="case-eg">« Quelle est la différence entre la procédure A et la procédure B ? »</div>
+        <p>
+          Si aucun document ne compare déjà A et B, le sens « A vs B » est absent de la base.
+          Il faudrait chercher A, puis B, puis les confronter. En une seule recherche, sans
+          boucle, le rapprochement ne se fait pas.
+        </p>
+      </div>
+
+      <div class="case-card reveal reveal-d-3">
+        <span class="case-tag">Cas 3 · Le comptage</span>
+        <svg class="lc" viewBox="0 0 24 24"><path d="M18 7V5a1 1 0 0 0-1-1H6.5a.5.5 0 0 0-.4.8l4.5 6-4.5 6a.5.5 0 0 0 .4.8H17a1 1 0 0 0 1-1v-2"/></svg>
+        <h4>« Combien, au total ? »</h4>
+        <div class="case-eg">« Combien de dossiers sont concernés sur l'ensemble de la base ? »</div>
+        <p>
+          Compter ou agréger suppose de tout récupérer. Or la recherche ne ramène qu'une
+          poignée de passages : le total tombe court. Et tout charger noierait le modèle et
+          dépasserait sa mémoire de travail.
+        </p>
+      </div>
+    </div>
+
+    <div class="case-note reveal reveal-d-2">
+      <p>
+        Le point commun des trois : la réponse n'habite <em>aucun passage isolé</em>. La
+        parade ? Un <em>harnais agentique</em> qui enchaîne plusieurs recherches, rassemble
+        les morceaux, puis raisonne. Sans lui, c'est à la question de s'adapter.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     08 — BIEN DEMANDER À UN RAG (conseils de prompt)
+============================================================ -->
+<section class="section light" id="prompter">
+  <div class="container">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">08</span>
+        <span class="chapter-label">Côté utilisateur</span>
+      </div>
+      <h2 style="color: var(--navy);">Bien demander à un RAG</h2>
+      <p class="lede">
+        Une base bien tenue peut quand même décevoir si la question est mal posée. Quelques
+        réflexes : d'abord généraux, puis pour désamorcer les trois cas précédents.
+      </p>
+    </div>
+
+    <div class="tips-grid">
+      <div class="tips-panel reveal reveal-d-1">
+        <div class="tips-panel-head">
+          <svg class="lc" viewBox="0 0 24 24"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.8.8 1.3 1.5 1.5 2.5"/><path d="M9 18h6"/><path d="M10 22h4"/></svg>
+          <h4>Réflexes généraux</h4>
+        </div>
+        <div class="tip-list">
+          <div class="tip"><span class="tip-mark">→</span><p>Soyez <strong>précis</strong> : donnez le contexte et les termes exacts du domaine (un code, un nom). C'est ce qui guide la recherche.</p></div>
+          <div class="tip"><span class="tip-mark">→</span><p>Une question, <strong>une intention</strong>. Si vous empilez plusieurs sujets, posez-les séparément.</p></div>
+          <div class="tip"><span class="tip-mark">→</span><p>Demandez les <strong>sources</strong> (« cite les passages utilisés ») et vérifiez-les.</p></div>
+          <div class="tip"><span class="tip-mark">→</span><p>Autorisez le <strong>« je ne sais pas »</strong> : « si ce n'est pas dans les documents, dis-le » coupe court aux inventions.</p></div>
+          <div class="tip"><span class="tip-mark">→</span><p>Réponse floue ? <strong>Reformulez</strong> : changer les mots change ce qu'on récupère.</p></div>
+        </div>
+      </div>
+
+      <div class="tips-panel reveal reveal-d-2">
+        <div class="tips-panel-head">
+          <svg class="lc" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+          <h4>Pour les questions piégeuses</h4>
+        </div>
+        <div class="tip-list">
+          <div class="tip"><span class="tip-mark">→</span><p>Pour une <strong>vue d'ensemble</strong>, au lieu de « tout ce que tu sais », ciblez un sujet ou faites parcourir thème par thème.</p></div>
+          <div class="tip"><span class="tip-mark">→</span><p>Pour <strong>comparer</strong>, décomposez : demandez A, puis B, puis « compare les deux ».</p></div>
+          <div class="tip"><span class="tip-mark">→</span><p>Pour <strong>compter</strong>, restreignez le périmètre, ou récupérez la donnée structurée (un tableau, une base), pas le RAG.</p></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="reveal reveal-d-3" style="margin-top: 44px; text-align: center;">
+      <p style="font-family: 'Fraunces', serif; font-style: italic; font-size: 19px; color: var(--gold-dk); max-width: 760px; margin: 0 auto;">
+        Beaucoup de ces réflexes s'effacent quand un agent pilote le RAG : il boucle,
+        récupère ce qui manque, recoupe. En attendant, c'est la question qui s'adapte.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ============================================================
+     09 — CE QUI FAIT UN BON RAG
+============================================================ -->
+<section class="section dark" id="qualite">
+  <div class="container">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">09</span>
+        <span class="chapter-label">Ce qui fait la différence</span>
+      </div>
+      <h2>Un bon RAG, ça s'entretient</h2>
+      <p class="lede">
+        La qualité d'un RAG ne se joue pas dans le modèle, mais dans la
+        <em>base documentaire</em>. Et celle-ci ne vit que si on la nourrit. C'est un
+        travail humain, continu, et c'est là que chacun a un rôle à jouer.
+      </p>
+    </div>
+
+    <div class="card-grid">
+      <div class="bp-card reveal reveal-d-1">
+        <svg class="lc" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        <h4>Fraîcheur</h4>
+        <p>Mettre à jour la base dès que le sujet évolue. Une doc qui vit produit des réponses justes ; une doc figée vieillit avec ses erreurs.</p>
+      </div>
+      <div class="bp-card reveal reveal-d-2">
+        <svg class="lc" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>
+        <h4>Couverture</h4>
+        <p>Plus de sujets documentés, moins de zones d'ombre. Chaque sujet ajouté est une question de plus à laquelle le RAG saura répondre.</p>
+      </div>
+      <div class="bp-card reveal reveal-d-3">
+        <svg class="lc" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+        <h4>Des sources nettes</h4>
+        <p>Des documents clairs et bien découpés se retrouvent et se citent mieux. La forme aide autant que le fond.</p>
+      </div>
+      <div class="bp-card reveal reveal-d-4">
+        <svg class="lc" viewBox="0 0 24 24"><path d="M16 7a4 4 0 1 0-8 0"/><rect width="18" height="11" x="3" y="11" rx="2"/></svg>
+        <h4>Exiger les sources</h4>
+        <p>Toujours demander d'où vient l'info, et la vérifier sur les sujets sensibles. Une réponse sans source citée se traite comme une piste, pas comme une vérité.</p>
+      </div>
+    </div>
+
+    <div class="closing-card reveal reveal-d-2">
+      <p>
+        Le RAG n'est pas une boîte magique : c'est un <strong>moteur de recherche branché sur
+        un rédacteur</strong>. Sa pertinence est le reflet exact de la base qu'on lui confie.
+        Bien nourrie, elle répond juste. Négligée, elle répond à côté, avec le même aplomb.
+      </p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  Le RAG · Une introduction pour curieux · Juin 2026
+</footer>
+
+<script>
+// ============================================================
+// PROGRESS BAR
+// ============================================================
+const progressBar = document.getElementById('progress-bar');
+window.addEventListener('scroll', () => {
+  const max = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = (window.scrollY / max) * 100;
+  progressBar.style.width = pct + '%';
+});
+
+// ============================================================
+// TOC : visibilité + lien actif + bascule clair/sombre
+// ============================================================
+const toc = document.getElementById('toc');
+const tocLinks = toc.querySelectorAll('a');
+const tocSections = Array.from(tocLinks).map(a => document.querySelector(a.getAttribute('href')));
+
+function updateToc() {
+  const scrollY = window.pageYOffset;
+  const hero = document.getElementById('hero');
+  toc.classList.toggle('visible', scrollY > hero.offsetHeight - 200);
+  let active = 0;
+  for (let i = 0; i < tocSections.length; i++) {
+    if (tocSections[i] && tocSections[i].offsetTop <= scrollY + window.innerHeight / 3) active = i;
+  }
+  tocLinks.forEach((a, i) => a.classList.toggle('active', i === active));
+  const sec = tocSections[active];
+  toc.classList.toggle('on-light', !!sec && sec.classList.contains('light'));
+}
+window.addEventListener('scroll', updateToc, { passive: true });
+updateToc();
+
+// ============================================================
+// REVEAL au scroll
+// ============================================================
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      revealObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -8% 0px' });
+document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
+
+// ============================================================
+// DÉMO RAG INTERACTIVE
+// ============================================================
+// Base documentaire générique (FAQ interne d'une entreprise fictive).
+const KB = [
+  "Télétravail — Chaque salarié peut télétravailler jusqu'à 3 jours par semaine, sur accord de son manager.",
+  "Note de frais — Les trajets en train sont remboursés sur présentation du billet, via le portail des notes de frais, sous 30 jours.",
+  "Congés payés — Les congés se demandent au minimum deux semaines à l'avance dans l'outil RH.",
+  "Matériel — Un ordinateur portable est fourni à l'arrivée ; toute demande passe par le support informatique.",
+  "Titres-restaurant — Ils sont crédités le 5 de chaque mois sur la carte du salarié.",
+  "Horaires — Les horaires sont flexibles : l'arrivée se fait entre 8 h et 10 h."
+];
+
+// Deux questions, avec un score de proximité prédéfini par passage, le(s)
+// passage(s) retenu(s), une réponse sourcée et une petite remarque pédagogique.
+const QUESTIONS = [
+  {
+    q: "Puis-je travailler depuis chez moi quelques jours par semaine ?",
+    scores: [0.93, 0.12, 0.34, 0.18, 0.08, 0.46],
+    retained: [0],
+    answer: "Oui. Vous pouvez télétravailler jusqu'à <strong>3 jours par semaine</strong>, sous réserve de l'accord de votre manager. <span class=\"src-chip\">1</span>",
+    note: "À noter : la question ne contient pas le mot « télétravail », et pourtant le bon passage ressort nettement. C'est la recherche par le sens."
+  },
+  {
+    q: "Comment me faire rembourser un trajet en TGV ?",
+    scores: [0.09, 0.95, 0.15, 0.22, 0.13, 0.10],
+    retained: [1],
+    answer: "Présentez votre billet sur le portail de notes de frais : le remboursement intervient <strong>sous 30 jours</strong>. <span class=\"src-chip\">2</span>",
+    note: "« TGV » n'apparaît nulle part dans la base : le passage parle de « train ». La proximité de sens suffit à le retrouver."
+  }
+];
+
+let ragCurrent = 0;
+let ragPlaying = false;
+let ragRunId = 0;
+let ragTimeouts = [];
+
+const ragQuestionEl  = document.getElementById('rag-question');
+const ragKbEl        = document.getElementById('rag-kb');
+const ragNarrationEl = document.getElementById('rag-narration');
+const ragAnswerEl    = document.getElementById('rag-answer');
+const ragAnswerBody  = document.getElementById('rag-answer-body');
+const ragAnswerNote  = document.getElementById('rag-answer-note');
+const ragPlayBtn     = document.getElementById('rag-play');
+const ragResetBtn    = document.getElementById('rag-reset');
+
+function ragClearTimeouts() { ragTimeouts.forEach(h => clearTimeout(h)); ragTimeouts = []; }
+function ragDelay(ms, runId) {
+  return new Promise((resolve, reject) => {
+    const h = setTimeout(() => {
+      if (runId !== ragRunId) { reject(new Error('aborted')); return; }
+      resolve();
+    }, ms);
+    ragTimeouts.push(h);
+  });
+}
+function ragNarr(html) { ragNarrationEl.innerHTML = html; }
+
+function ragRenderKb() {
+  ragKbEl.innerHTML = KB.map((text, i) => `
+    <div class="kb-row" data-index="${i}">
+      <div class="kb-badge">${i + 1}</div>
+      <div class="kb-text">${text}<span class="kb-tag">✓ retenu</span></div>
+      <div class="kb-right">
+        <div class="kb-bar-wrap"><div class="kb-bar" data-index="${i}"></div></div>
+        <div class="kb-score" data-index="${i}">—</div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function ragRenderQuestion() {
+  ragQuestionEl.textContent = '« ' + QUESTIONS[ragCurrent].q + ' »';
+}
+
+function ragResetVisual() {
+  ragRenderQuestion();
+  ragQuestionEl.classList.remove('vectorizing');
+  ragAnswerEl.classList.remove('show');
+  document.querySelectorAll('.kb-row').forEach(r => r.classList.remove('dim', 'retained'));
+  document.querySelectorAll('.kb-bar').forEach(b => { b.style.width = '0%'; });
+  document.querySelectorAll('.kb-score').forEach(s => { s.textContent = '—'; });
+}
+
+async function ragRun() {
+  if (ragPlaying) return;
+  ragPlaying = true;
+  ragRunId++;
+  const runId = ragRunId;
+  ragPlayBtn.disabled = true;
+  ragPlayBtn.textContent = '⏵ Recherche en cours…';
+
+  const data = QUESTIONS[ragCurrent];
+
+  try {
+    ragResetVisual();
+    await ragDelay(250, runId);
+
+    // 1 — vectorisation de la question
+    ragQuestionEl.classList.add('vectorizing');
+    ragNarr("<strong>1.</strong> La question est transformée en empreinte de sens (un vecteur).");
+    await ragDelay(1100, runId);
+    ragQuestionEl.classList.remove('vectorizing');
+
+    // 2 — scoring de chaque passage
+    ragNarr("<strong>2.</strong> Chaque passage de la base est comparé à la question, avec un score de proximité.");
+    KB.forEach((_, i) => {
+      const bar = ragKbEl.querySelector(`.kb-bar[data-index="${i}"]`);
+      const score = ragKbEl.querySelector(`.kb-score[data-index="${i}"]`);
+      const pct = Math.round(data.scores[i] * 100);
+      const h = setTimeout(() => {
+        if (runId !== ragRunId) return;
+        if (bar) bar.style.width = pct + '%';
+        if (score) score.textContent = pct + '%';
+      }, 120 * i);
+      ragTimeouts.push(h);
+    });
+    await ragDelay(1500, runId);
+
+    // 3 — sélection du/des passage(s) retenu(s)
+    ragNarr("<strong>3.</strong> Le passage le plus proche est retenu, puis injecté avec la question dans le prompt.");
+    document.querySelectorAll('.kb-row').forEach(r => {
+      const idx = parseInt(r.dataset.index, 10);
+      if (data.retained.includes(idx)) r.classList.add('retained');
+      else r.classList.add('dim');
+    });
+    await ragDelay(1500, runId);
+
+    // 4 — réponse du modèle
+    ragNarr("<strong>4.</strong> Le modèle rédige sa réponse à partir du passage retenu, en citant sa source.");
+    ragAnswerBody.innerHTML = data.answer;
+    ragAnswerNote.textContent = data.note;
+    ragAnswerEl.classList.add('show');
+    await ragDelay(400, runId);
+
+  } catch (e) {
+    // aborted — rien à faire
+  } finally {
+    if (runId === ragRunId) {
+      ragPlaying = false;
+      ragPlayBtn.disabled = false;
+      ragPlayBtn.textContent = '▶ Lancer la recherche';
+    }
+  }
+}
+
+function ragReset() {
+  ragRunId++;
+  ragClearTimeouts();
+  ragPlaying = false;
+  ragPlayBtn.disabled = false;
+  ragPlayBtn.textContent = '▶ Lancer la recherche';
+  ragResetVisual();
+  ragNarr("Choisissez une question, puis cliquez sur <strong>▶ Lancer</strong>.");
+}
+
+// Onglets de question
+document.getElementById('rag-qtabs').addEventListener('click', (e) => {
+  const btn = e.target.closest('.rag-qtab');
+  if (!btn) return;
+  document.querySelectorAll('.rag-qtab').forEach(t => t.classList.remove('active'));
+  btn.classList.add('active');
+  ragCurrent = parseInt(btn.dataset.q, 10);
+  ragReset();
+});
+
+ragPlayBtn.addEventListener('click', ragRun);
+ragResetBtn.addEventListener('click', ragReset);
+
+// Initialisation
+ragRenderKb();
+ragRenderQuestion();
+</script>
+
+</body>
+</html>
