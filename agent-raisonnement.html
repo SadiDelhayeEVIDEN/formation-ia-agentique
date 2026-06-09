@@ -1,0 +1,2528 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Comment un agent raisonne — CoT, ToT, ReAct</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy:    #0F1B3D;
+    --navy-2:  #0A1230;
+    --navy-3:  #1A2750;
+    --cream:   #F5F1E8;
+    --ice:     #CADCFC;
+    --gold:    #D4A574;
+    --gold-dk: #9C7A50;
+    --ink:     #1A1A1A;
+    --muted-dk: #5C6478;
+    --muted-lt: #A8AFC0;
+    --divider-dk: #DCD4C2;
+    --divider-lt: #2A3556;
+    --red:     #E36B5A;
+    --orange:  #E89A4E;
+    --green:   #7FBF7F;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--navy);
+    color: var(--cream);
+    font-family: 'Inter', -apple-system, sans-serif;
+    line-height: 1.6;
+    font-size: 16px;
+    overflow-x: hidden;
+  }
+
+  /* ============================================================
+     PALETTE / SECTIONS
+  ============================================================ */
+  .section {
+    position: relative;
+    padding: 120px 0;
+    overflow: hidden;
+  }
+  .section.dark { background: var(--navy); color: var(--cream); }
+  .section.dark-2 { background: var(--navy-2); color: var(--cream); }
+  .section.light { background: var(--cream); color: var(--ink); }
+  .section.gold-bg {
+    background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dk) 100%);
+    color: var(--navy);
+  }
+
+  .container { max-width: 1180px; margin: 0 auto; padding: 0 32px; }
+  .container-narrow { max-width: 880px; margin: 0 auto; padding: 0 32px; }
+
+  /* ============================================================
+     TYPOGRAPHY
+  ============================================================ */
+  .eyebrow {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .eyebrow::before {
+    content: '';
+    width: 32px; height: 2px;
+    background: currentColor;
+    opacity: 0.9;
+  }
+  .dark .eyebrow, .dark-2 .eyebrow { color: var(--gold); }
+  .light .eyebrow { color: var(--gold-dk); }
+  .gold-bg .eyebrow { color: var(--navy); }
+
+  h1, h2, h3, h4 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+    line-height: 1.1;
+  }
+  .h-display {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-style: italic;
+    line-height: 1.0;
+    letter-spacing: -0.025em;
+    font-size: clamp(56px, 9vw, 120px);
+  }
+  h2 {
+    font-size: clamp(32px, 4.5vw, 52px);
+    font-style: italic;
+    margin-bottom: 28px;
+  }
+  h3 {
+    font-size: clamp(22px, 2.5vw, 28px);
+    margin-bottom: 14px;
+  }
+
+  .lede {
+    font-family: 'Fraunces', serif;
+    font-weight: 400;
+    font-style: italic;
+    font-size: clamp(18px, 2.2vw, 22px);
+    line-height: 1.5;
+    max-width: 720px;
+    margin-bottom: 48px;
+  }
+  .dark .lede, .dark-2 .lede { color: var(--ice); }
+  .light .lede { color: var(--muted-dk); }
+
+  p { font-size: 16px; line-height: 1.7; }
+  .light p { color: var(--ink); }
+  .dark p, .dark-2 p { color: var(--ice); }
+
+  em { font-style: italic; color: var(--gold); }
+  .light em { color: var(--gold-dk); }
+  strong { font-weight: 600; }
+
+  code, .mono {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.92em;
+  }
+  .light code {
+    background: rgba(15,27,61,0.06);
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: var(--gold-dk);
+  }
+  .dark code, .dark-2 code {
+    background: rgba(212,165,116,0.12);
+    padding: 2px 6px;
+    border-radius: 3px;
+    color: var(--gold);
+  }
+
+  /* ============================================================
+     HERO
+  ============================================================ */
+  .hero {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+    background:
+      radial-gradient(circle at 78% 28%, rgba(212,165,116,0.13), transparent 50%),
+      radial-gradient(circle at 18% 80%, rgba(202,220,252,0.05), transparent 40%),
+      var(--navy);
+    padding: 80px 0;
+  }
+  .hero-grid {
+    display: grid;
+    grid-template-columns: 1.35fr 1fr;
+    gap: 80px;
+    align-items: center;
+  }
+  .hero-text h1 {
+    color: #fff;
+    margin-bottom: 32px;
+  }
+  .hero-text h1 em {
+    color: var(--gold);
+    font-style: italic;
+    font-weight: 500;
+  }
+  .hero-divider {
+    width: 60px; height: 3px;
+    background: var(--gold);
+    margin-bottom: 28px;
+  }
+  .hero-sub {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 22px;
+    color: var(--ice);
+    line-height: 1.5;
+    max-width: 560px;
+    margin-bottom: 40px;
+  }
+  .hero-meta {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+
+  /* Hero illustration : un prompt qui se construit par couches.
+     L'idée : on voit un document XML s'empiler, balise par balise,
+     avec le curseur clignotant. Chaque couche représente une partie
+     d'un system prompt d'agent (role, context, tools, constraints). */
+  .hero-illus {
+    position: relative;
+    aspect-ratio: 460 / 500;
+    max-width: 440px;
+    justify-self: end;
+    width: 100%;
+  }
+  .hero-illus svg {
+    width: 100%; height: 100%;
+    overflow: visible;
+  }
+
+  /* Document central qui pulse doucement */
+  .hero-illus .doc-core {
+    transform-origin: 230px 260px;
+    animation: doc-breathe 5s ease-in-out infinite;
+  }
+  @keyframes doc-breathe {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.015); }
+  }
+
+  /* Couches qui apparaissent en cascade (chacune fade-in à son tour) */
+  .hero-illus .layer-1 { animation: layer-in 6s ease-in-out infinite; }
+  .hero-illus .layer-2 { animation: layer-in 6s ease-in-out infinite 0.4s; }
+  .hero-illus .layer-3 { animation: layer-in 6s ease-in-out infinite 0.8s; }
+  .hero-illus .layer-4 { animation: layer-in 6s ease-in-out infinite 1.2s; }
+  .hero-illus .layer-5 { animation: layer-in 6s ease-in-out infinite 1.6s; }
+  @keyframes layer-in {
+    0%      { opacity: 0; transform: translateX(-8px); }
+    8%, 80% { opacity: 1; transform: translateX(0); }
+    100%    { opacity: 0.85; transform: translateX(0); }
+  }
+
+  /* Curseur de saisie qui clignote */
+  .hero-illus .cursor {
+    animation: cursor-blink 1.1s steps(2) infinite;
+  }
+  @keyframes cursor-blink {
+    50% { opacity: 0; }
+  }
+
+  /* Petite étoile de “sortie” qui scintille dans le coin */
+  .hero-illus .out-spark {
+    transform-origin: 380px 90px;
+    animation: spark-pulse 3s ease-in-out infinite;
+  }
+  @keyframes spark-pulse {
+    0%, 100% { transform: scale(1); opacity: 0.7; }
+    50%      { transform: scale(1.25); opacity: 1; }
+  }
+
+  /* Marque orbitale lente */
+  .hero-illus .orbit-mark {
+    transform-origin: 230px 260px;
+    animation: orbit-slow 60s linear infinite;
+  }
+  @keyframes orbit-slow {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+  }
+
+  .scroll-cue {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    text-transform: uppercase;
+    opacity: 0.7;
+  }
+  .scroll-cue::after {
+    content: '↓';
+    display: block;
+    margin-top: 8px;
+    font-size: 16px;
+    animation: bounce 2s ease-in-out infinite;
+  }
+  @keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(6px); }
+  }
+
+  /* ============================================================
+     PROGRESS BAR (top)
+  ============================================================ */
+  .progress-top {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    width: 0%;
+    background: var(--gold);
+    z-index: 1000;
+    transition: width 0.1s linear;
+  }
+
+  /* ============================================================
+     CHAPTER MARK / NAV
+  ============================================================ */
+  .chapter-mark {
+    display: flex;
+    align-items: baseline;
+    gap: 18px;
+    margin-bottom: 16px;
+  }
+  .chapter-num {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 500;
+    font-size: 64px;
+    color: var(--gold);
+    line-height: 1;
+  }
+  .light .chapter-num { color: var(--gold-dk); }
+  .chapter-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3.5px;
+    text-transform: uppercase;
+    color: var(--muted-dk);
+  }
+  .dark .chapter-label, .dark-2 .chapter-label { color: var(--muted-lt); }
+
+  /* TOC sidebar (desktop) */
+  .toc {
+    position: fixed;
+    right: 32px;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 100;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+  .toc.visible { opacity: 1; pointer-events: auto; }
+  .toc a {
+    width: 32px; height: 4px;
+    background: rgba(255,255,255,0.15);
+    border-radius: 2px;
+    transition: all 0.3s ease;
+    display: block;
+    position: relative;
+  }
+  .toc a:hover, .toc a.active {
+    background: var(--gold);
+    width: 44px;
+  }
+  .toc.on-light a { background: rgba(15,27,61,0.22); }
+  .toc.on-light a:hover, .toc.on-light a.active { background: var(--gold-dk); }
+  .toc a span {
+    position: absolute;
+    right: 50px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    color: var(--cream);
+    background: var(--navy-2);
+    padding: 4px 10px;
+    border-radius: 3px;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+  }
+  .toc a:hover span { opacity: 1; }
+  @media (max-width: 1100px) { .toc { display: none; } }
+
+  /* ============================================================
+     CHAPITRE 1 — LA FRISE DES TROIS ÈRES
+  ============================================================ */
+  .era-intro {
+    margin-bottom: 56px;
+  }
+  .myth-quote {
+    border-left: 3px solid var(--red);
+    padding: 14px 0 14px 28px;
+    margin: 0 0 40px;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: clamp(22px, 2.6vw, 28px);
+    line-height: 1.4;
+    color: var(--ice);
+    max-width: 880px;
+  }
+  .myth-quote .strike {
+    text-decoration: line-through;
+    text-decoration-color: var(--red);
+    text-decoration-thickness: 2px;
+    opacity: 0.75;
+  }
+  .myth-quote .ok {
+    color: var(--gold);
+    font-weight: 500;
+    display: inline-block;
+    margin-left: 6px;
+  }
+
+  .era-frieze {
+    margin-top: 64px;
+    position: relative;
+  }
+  .era-track {
+    position: absolute;
+    left: 6%; right: 6%;
+    top: 88px;
+    height: 3px;
+    background: linear-gradient(90deg,
+      var(--muted-lt) 0%,
+      var(--gold) 50%,
+      var(--gold-dk) 100%);
+    border-radius: 2px;
+    opacity: 0.7;
+    z-index: 0;
+  }
+  .era-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 28px;
+    position: relative;
+    z-index: 1;
+  }
+  .era-card {
+    background: var(--navy-2);
+    border: 1px solid rgba(212,165,116,0.25);
+    border-radius: 8px;
+    padding: 32px 28px 32px;
+    position: relative;
+    transition: transform 0.4s ease, border-color 0.4s ease, box-shadow 0.4s ease;
+  }
+  .era-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--gold);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.28);
+  }
+  .era-card.current {
+    border-color: var(--gold);
+    background: linear-gradient(180deg, var(--navy-2) 0%, rgba(212,165,116,0.06) 100%);
+  }
+  .era-dot {
+    position: absolute;
+    top: -10px;
+    left: 32px;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--navy);
+    border: 2px solid var(--gold);
+  }
+  .era-card.current .era-dot {
+    background: var(--gold);
+    box-shadow: 0 0 0 6px rgba(212,165,116,0.18);
+  }
+  .era-years {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--gold);
+    margin-top: 6px;
+    margin-bottom: 14px;
+  }
+  .era-card h3 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 24px;
+    color: var(--cream);
+    margin-bottom: 14px;
+  }
+  .era-card .era-tagline {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 14.5px;
+    color: var(--ice);
+    margin-bottom: 18px;
+    opacity: 0.8;
+  }
+  .era-card .era-focus {
+    font-size: 14px;
+    line-height: 1.6;
+    color: var(--ice);
+  }
+  .era-card .era-focus strong { color: var(--gold); font-weight: 600; }
+  .era-card .era-quote {
+    margin-top: 18px;
+    padding-top: 16px;
+    border-top: 1px solid rgba(212,165,116,0.18);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 1.5px;
+    color: var(--muted-lt);
+    line-height: 1.5;
+  }
+
+  /* Le « zoom » sous la frise : le prompt comme couche d'échange,
+     posée à l'intérieur du contexte, posé à l'intérieur du harnais.
+     Trois cadres imbriqués, avec le prompt mis en valeur au centre. */
+  .nested-frame {
+    margin-top: 72px;
+    padding: 36px;
+    border: 1px dashed rgba(212,165,116,0.5);
+    border-radius: 12px;
+    position: relative;
+  }
+  .nested-frame::before {
+    content: 'HARNAIS — l\'écosystème';
+    position: absolute;
+    top: -10px;
+    left: 28px;
+    background: var(--navy-2);
+    padding: 0 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--gold-dk);
+  }
+  .nested-frame .lvl-2 {
+    padding: 30px;
+    border: 1px dashed rgba(212,165,116,0.7);
+    border-radius: 10px;
+    position: relative;
+  }
+  .nested-frame .lvl-2::before {
+    content: 'CONTEXTE — ce qu\'on met dans la fenêtre';
+    position: absolute;
+    top: -10px;
+    left: 24px;
+    background: var(--navy-2);
+    padding: 0 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--gold);
+  }
+  .nested-frame .lvl-3 {
+    padding: 26px 28px;
+    background: linear-gradient(135deg, rgba(212,165,116,0.18) 0%, rgba(212,165,116,0.06) 100%);
+    border: 1.5px solid var(--gold);
+    border-radius: 8px;
+    position: relative;
+  }
+  .nested-frame .lvl-3::before {
+    content: 'PROMPT — l\'échange effectif avec l\'agent';
+    position: absolute;
+    top: -10px;
+    left: 22px;
+    background: var(--navy-2);
+    padding: 0 10px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    color: var(--gold);
+    font-weight: 700;
+  }
+  .nested-frame .lvl-3 .lvl-3-body {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 17px;
+    line-height: 1.55;
+    color: var(--cream);
+  }
+  .nested-frame .lvl-3 .lvl-3-body strong {
+    color: var(--gold);
+    font-weight: 600;
+  }
+
+  .nested-takeaway {
+    margin-top: 28px;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 17px;
+    color: var(--ice);
+    text-align: center;
+    opacity: 0.88;
+  }
+  .nested-takeaway strong {
+    color: var(--gold);
+    font-weight: 600;
+  }
+
+  /* ============================================================
+     CHAPITRE 2 — FONDAMENTAUX
+     Chaque fondamental = une carte avec : header (num + icône + titre),
+     description, et une grille avant/après côte-à-côte. Le bloc avant/après
+     est le composant central : il revient dans plusieurs chapitres.
+  ============================================================ */
+  .fund-stack { margin-top: 56px; display: flex; flex-direction: column; gap: 56px; }
+
+  .fund-head {
+    display: flex;
+    align-items: flex-start;
+    gap: 22px;
+    margin-bottom: 24px;
+  }
+  .fund-num {
+    flex-shrink: 0;
+    width: 56px; height: 56px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: var(--navy);
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 24px;
+  }
+  .fund-head h3 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: clamp(24px, 2.8vw, 30px);
+    color: var(--navy);
+    margin-bottom: 8px;
+  }
+  .fund-head .fund-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--gold-dk);
+  }
+  .fund-desc {
+    margin: 0 0 28px 78px;
+    color: var(--ink);
+    font-size: 15.5px;
+    line-height: 1.65;
+    max-width: 780px;
+  }
+  .fund-desc strong { color: var(--gold-dk); font-weight: 600; }
+
+  /* ----- Bloc avant/après (réutilisable) ----- */
+  .ba-pair {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-left: 78px;
+  }
+  .ba-card {
+    border-radius: 8px;
+    padding: 0;
+    position: relative;
+    background: #fff;
+    border: 1px solid var(--divider-dk);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .ba-card.bad { border-top: 4px solid var(--red); }
+  .ba-card.good { border-top: 4px solid var(--green); }
+
+  .ba-tag {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 16px 22px 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+  .ba-card.bad .ba-tag { color: var(--red); }
+  .ba-card.good .ba-tag { color: #4a9d4a; }
+  .ba-tag .ba-icon {
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+    color: #fff;
+  }
+  .ba-card.bad .ba-tag .ba-icon { background: var(--red); }
+  .ba-card.good .ba-tag .ba-icon { background: #4a9d4a; }
+
+  .ba-title {
+    padding: 0 22px 14px;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 16px;
+    color: var(--navy);
+    line-height: 1.35;
+  }
+  .ba-code {
+    background: var(--navy-2);
+    color: var(--cream);
+    padding: 18px 20px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.65;
+    white-space: pre-wrap;
+    word-break: break-word;
+    flex: 1;
+    border-top: 1px solid var(--divider-dk);
+  }
+  .ba-code .tag   { color: var(--gold); }
+  .ba-code .attr  { color: #b9d4a0; }
+  .ba-code .str   { color: #ead9b3; }
+  .ba-code .cmt   { color: var(--muted-lt); font-style: italic; }
+  .ba-code .high  { background: rgba(212,165,116,0.18); border-radius: 2px; padding: 1px 3px; }
+  .ba-code .bad-h { background: rgba(227,107,90,0.22); border-radius: 2px; padding: 1px 3px; }
+
+  .ba-note {
+    padding: 14px 22px 18px;
+    font-size: 13px;
+    line-height: 1.55;
+    color: var(--muted-dk);
+    font-style: italic;
+    border-top: 1px solid var(--divider-dk);
+    background: #fafafa;
+  }
+  .ba-card.good .ba-note { color: var(--ink); }
+  .ba-note strong { color: var(--navy); font-style: normal; font-weight: 600; }
+
+  /* Pour les fondamentaux qui n'ont pas de comparaison directe mais
+     un seul exemple de référence. */
+  .single-example {
+    margin-left: 78px;
+    background: var(--navy-2);
+    border-radius: 8px;
+    padding: 22px 26px;
+    border-left: 4px solid var(--gold);
+  }
+  .single-example .ba-code {
+    background: transparent;
+    border: none;
+    padding: 0;
+  }
+
+  /* ============================================================
+     CHAPITRE 3 — RAISONNEMENT
+     Trois cartes (CoT, ToT, ReAct) avec un mini-diagramme SVG dans
+     chacune, puis un tableau « quand utiliser quoi », puis un
+     avant/après sur un problème concret.
+  ============================================================ */
+  .reasoning-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+    margin-top: 56px;
+  }
+  .reasoning-card {
+    background: var(--navy-2);
+    border: 1px solid rgba(212,165,116,0.25);
+    border-radius: 8px;
+    padding: 28px 26px 30px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+    transition: transform 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease;
+  }
+  .reasoning-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--gold);
+    box-shadow: 0 12px 28px rgba(0,0,0,0.28);
+  }
+  .reasoning-card .r-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+  }
+  .reasoning-card h3 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 26px;
+    color: var(--cream);
+  }
+  .reasoning-card .r-diagram {
+    width: 100%;
+    aspect-ratio: 280 / 120;
+    background: var(--navy-3);
+    border-radius: 6px;
+    padding: 10px;
+    border: 1px solid rgba(212,165,116,0.18);
+  }
+  .reasoning-card .r-diagram svg {
+    width: 100%; height: 100%;
+    overflow: visible;
+  }
+  .reasoning-card .r-desc {
+    color: var(--ice);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .reasoning-card .r-desc strong { color: var(--gold); font-weight: 600; }
+  .reasoning-card .r-good {
+    margin-top: auto;
+    padding-top: 14px;
+    border-top: 1px solid rgba(212,165,116,0.18);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 1.5px;
+    color: var(--gold-dk);
+    line-height: 1.5;
+  }
+  .reasoning-card .r-good span { color: var(--gold); }
+
+  /* Tableau comparatif quand-utiliser-quoi */
+  .reasoning-table {
+    margin-top: 64px;
+    border: 1px solid var(--divider-lt);
+    border-radius: 8px;
+    overflow: hidden;
+    background: var(--navy-2);
+  }
+  .reasoning-table table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  .reasoning-table th,
+  .reasoning-table td {
+    padding: 16px 22px;
+    text-align: left;
+    border-bottom: 1px solid var(--divider-lt);
+    font-size: 14px;
+  }
+  .reasoning-table tr:last-child td { border-bottom: none; }
+  .reasoning-table th {
+    background: var(--navy-3);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 700;
+  }
+  .reasoning-table td {
+    color: var(--ice);
+    line-height: 1.55;
+  }
+  .reasoning-table td:first-child {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 17px;
+    color: var(--cream);
+    width: 22%;
+  }
+  .reasoning-table td .pat-bad { color: var(--red); font-weight: 500; }
+  .reasoning-table td .pat-good { color: var(--green); font-weight: 500; }
+
+  /* Encart spécial pour la nuance modèles raisonneurs */
+  .reasoner-callout {
+    margin-top: 48px;
+    padding: 24px 28px;
+    background: linear-gradient(135deg, rgba(212,165,116,0.12) 0%, rgba(212,165,116,0.02) 100%);
+    border: 1px solid var(--gold);
+    border-left: 4px solid var(--gold);
+    border-radius: 6px;
+    display: flex;
+    gap: 20px;
+    align-items: flex-start;
+  }
+  .reasoner-callout .rc-icon {
+    width: 36px; height: 36px;
+    flex-shrink: 0;
+    color: var(--gold);
+  }
+  .reasoner-callout p {
+    color: var(--ice);
+    font-size: 14.5px;
+    line-height: 1.65;
+  }
+  .reasoner-callout p strong { color: var(--gold); font-weight: 600; }
+
+  /* ============================================================
+     CHAPITRE 4 — ANATOMIE D'UN SYSTEM PROMPT D'AGENT
+     Le chapitre central. Stack visuel de 6 couches au-dessus, puis
+     une sous-section par couche avec une description + un exemple,
+     puis un system prompt complet annoté en bas.
+  ============================================================ */
+
+  /* Stack visuel : 6 couches empilées comme un gâteau */
+  .anat-stack {
+    margin: 56px auto 64px;
+    max-width: 560px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .anat-layer {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    padding: 14px 20px;
+    background: #fff;
+    border: 1px solid var(--divider-dk);
+    border-left: 4px solid var(--gold);
+    border-radius: 4px;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .anat-layer:hover {
+    transform: translateX(6px);
+    box-shadow: 0 6px 18px rgba(15,27,61,0.08);
+  }
+  .anat-layer .al-num {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 22px;
+    color: var(--gold-dk);
+    width: 24px;
+    flex-shrink: 0;
+  }
+  .anat-layer .al-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--navy);
+    font-weight: 700;
+    flex-shrink: 0;
+    width: 130px;
+  }
+  .anat-layer .al-desc {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    color: var(--muted-dk);
+    font-size: 15px;
+    line-height: 1.4;
+    flex: 1;
+  }
+
+  /* Chaque sous-section dans l'anatomie */
+  .anat-section {
+    margin-top: 48px;
+    padding-top: 32px;
+    border-top: 1px solid var(--divider-dk);
+  }
+  .anat-section:first-of-type { border-top: none; padding-top: 0; margin-top: 0; }
+  .anat-section .anat-head {
+    display: flex;
+    align-items: baseline;
+    gap: 20px;
+    margin-bottom: 18px;
+  }
+  .anat-section .anat-head .anat-pin {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    color: var(--gold-dk);
+    font-weight: 700;
+    flex-shrink: 0;
+  }
+  .anat-section h3 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: clamp(22px, 2.6vw, 28px);
+    color: var(--navy);
+  }
+  .anat-section .anat-lede {
+    color: var(--ink);
+    font-size: 15.5px;
+    line-height: 1.65;
+    margin-bottom: 24px;
+    max-width: 820px;
+  }
+  .anat-section .anat-lede strong { color: var(--gold-dk); font-weight: 600; }
+
+  /* Encart « le piège à éviter » accompagne souvent une sous-section */
+  .anat-pitfall {
+    margin-top: 20px;
+    padding: 14px 18px;
+    background: rgba(227,107,90,0.08);
+    border-left: 3px solid var(--red);
+    border-radius: 4px;
+    font-size: 13.5px;
+    line-height: 1.55;
+    color: var(--ink);
+    max-width: 820px;
+  }
+  .anat-pitfall strong {
+    color: var(--red);
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+
+  /* System prompt annoté — l'apothéose du chapitre */
+  .full-prompt {
+    margin-top: 80px;
+    background: var(--navy-2);
+    border-radius: 10px;
+    border: 1px solid var(--gold);
+    overflow: hidden;
+  }
+  .full-prompt-head {
+    padding: 22px 28px;
+    background: var(--navy-3);
+    border-bottom: 1px solid var(--gold);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 14px;
+  }
+  .full-prompt-head h4 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 22px;
+    color: var(--cream);
+  }
+  .full-prompt-head .agent-id {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+  .full-prompt-body {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 0;
+  }
+  .full-prompt-code {
+    padding: 24px 28px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--cream);
+    white-space: pre-wrap;
+    border-right: 1px solid rgba(212,165,116,0.18);
+  }
+  .full-prompt-code .tag { color: var(--gold); }
+  .full-prompt-code .str { color: #ead9b3; }
+  .full-prompt-code .cmt { color: var(--muted-lt); font-style: italic; }
+  .full-prompt-code .sec {
+    display: inline-block;
+    background: rgba(212,165,116,0.16);
+    border-radius: 3px;
+    padding: 1px 6px;
+    margin-right: 6px;
+    font-size: 0.92em;
+    color: var(--gold);
+    letter-spacing: 1px;
+  }
+  .full-prompt-code .pin {
+    display: inline-block;
+    width: 18px; height: 18px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: var(--navy);
+    text-align: center;
+    line-height: 18px;
+    font-size: 10px;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    margin-right: 8px;
+    vertical-align: middle;
+  }
+  .full-prompt-notes {
+    padding: 24px 28px;
+    background: var(--navy-2);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+  }
+  .full-prompt-notes .fpn {
+    padding: 12px 14px;
+    background: var(--navy-3);
+    border-left: 3px solid var(--gold);
+    border-radius: 4px;
+  }
+  .full-prompt-notes .fpn-num {
+    display: inline-block;
+    width: 20px; height: 20px;
+    border-radius: 50%;
+    background: var(--gold);
+    color: var(--navy);
+    text-align: center;
+    line-height: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    margin-right: 8px;
+  }
+  .full-prompt-notes .fpn-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--gold);
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 6px;
+  }
+  .full-prompt-notes .fpn-body {
+    color: var(--ice);
+    font-size: 13.5px;
+    line-height: 1.55;
+  }
+
+  /* ============================================================
+     CHAPITRE 5 — PATTERNS AVANCÉS
+     Quatre cartes (self-consistency, Reflexion, Gen/Eval, meta-prompting),
+     puis un schéma central Generator/Evaluator.
+  ============================================================ */
+  .patterns-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 22px;
+    margin-top: 56px;
+  }
+  .pattern-card {
+    background: var(--navy-2);
+    border: 1px solid rgba(212,165,116,0.25);
+    border-radius: 8px;
+    padding: 28px 28px 26px;
+    display: flex;
+    gap: 22px;
+    align-items: flex-start;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+  }
+  .pattern-card:hover {
+    transform: translateY(-3px);
+    border-color: var(--gold);
+  }
+  .pattern-card .p-diagram {
+    width: 88px; height: 88px;
+    flex-shrink: 0;
+    background: var(--navy-3);
+    border: 1px solid rgba(212,165,116,0.25);
+    border-radius: 6px;
+    padding: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .pattern-card .p-diagram svg {
+    width: 100%; height: 100%;
+    overflow: visible;
+  }
+  .pattern-card .p-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--gold);
+    margin-bottom: 6px;
+  }
+  .pattern-card h3 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 22px;
+    color: var(--cream);
+    margin-bottom: 10px;
+  }
+  .pattern-card .p-desc {
+    color: var(--ice);
+    font-size: 13.5px;
+    line-height: 1.6;
+    margin-bottom: 10px;
+  }
+  .pattern-card .p-when {
+    padding-top: 10px;
+    border-top: 1px solid rgba(212,165,116,0.18);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--gold-dk);
+    line-height: 1.5;
+  }
+  .pattern-card .p-when span { color: var(--gold); }
+
+  /* Schéma central Generator / Evaluator */
+  .geneval-section {
+    margin-top: 72px;
+    text-align: center;
+  }
+  .geneval-quote {
+    margin: 0 auto 40px;
+    max-width: 720px;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: clamp(20px, 2.4vw, 26px);
+    line-height: 1.4;
+    color: var(--cream);
+    padding: 0 16px;
+    border-left: 3px solid var(--gold);
+    text-align: left;
+  }
+  .geneval-quote .who {
+    margin-top: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-style: normal;
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    color: var(--gold);
+    text-transform: uppercase;
+  }
+  .geneval-stage {
+    margin: 0 auto;
+    max-width: 760px;
+    aspect-ratio: 760 / 360;
+    background: var(--navy-2);
+    border: 1px solid rgba(212,165,116,0.22);
+    border-radius: 10px;
+    padding: 24px;
+  }
+  .geneval-stage svg {
+    width: 100%; height: 100%;
+    overflow: visible;
+  }
+  .geneval-stage .ge-agent { transform-origin: center; animation: ge-breath 4.5s ease-in-out infinite; }
+  .geneval-stage .ge-eval { animation: ge-breath 4.5s ease-in-out infinite 2.25s; }
+  @keyframes ge-breath {
+    0%, 100% { transform: scale(1); }
+    50%      { transform: scale(1.025); }
+  }
+  .geneval-stage .ge-flow {
+    stroke-dasharray: 4 6;
+    animation: ge-dash 1.6s linear infinite;
+  }
+  @keyframes ge-dash { to { stroke-dashoffset: -20; } }
+
+  .geneval-caption {
+    margin-top: 32px;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    color: var(--ice);
+    font-size: 15.5px;
+    line-height: 1.6;
+    max-width: 720px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  /* ============================================================
+     CHAPITRE 6 — NE PAS / NE PLUS FAIRE
+     Deux grilles distinctes. Rouge sombre pour les erreurs intemporelles,
+     orangé avec badge OBSOLÈTE pour les techniques 2023-24 dépassées.
+  ============================================================ */
+  .anti-section-title {
+    margin-top: 56px;
+    margin-bottom: 28px;
+    display: flex;
+    align-items: baseline;
+    gap: 18px;
+  }
+  .anti-section-title .ast-marker {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 38px;
+    line-height: 1;
+  }
+  .anti-section-title.bad .ast-marker { color: var(--red); }
+  .anti-section-title.obs .ast-marker { color: var(--orange); }
+  .anti-section-title h3 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: clamp(24px, 2.6vw, 30px);
+    color: var(--cream);
+  }
+  .anti-section-title .ast-sub {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--muted-lt);
+    margin-left: auto;
+  }
+  .anti-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 18px;
+  }
+  .anti-card {
+    background: var(--navy-2);
+    border: 1px solid;
+    border-radius: 6px;
+    padding: 22px 22px 20px;
+    position: relative;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .anti-card.bad {
+    border-color: rgba(227,107,90,0.4);
+    border-left: 4px solid var(--red);
+  }
+  .anti-card.obs {
+    border-color: rgba(232,154,78,0.4);
+    border-left: 4px solid var(--orange);
+  }
+  .anti-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 22px rgba(0,0,0,0.28);
+  }
+  .anti-card .ac-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .anti-card .ac-icon {
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .anti-card.bad .ac-icon { background: var(--red); }
+  .anti-card.obs .ac-icon { background: var(--orange); }
+  .anti-card .ac-year {
+    display: inline-block;
+    padding: 2px 8px;
+    background: rgba(232,154,78,0.18);
+    border: 1px solid var(--orange);
+    border-radius: 3px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    color: var(--orange);
+    font-weight: 700;
+    margin-left: auto;
+  }
+  .anti-card h4 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 17px;
+    color: var(--cream);
+    line-height: 1.3;
+    margin-bottom: 10px;
+    flex: 1;
+  }
+  .anti-card .ac-body {
+    color: var(--ice);
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  .anti-card .ac-body code {
+    background: rgba(212,165,116,0.12);
+    color: var(--gold);
+    padding: 1px 5px;
+    border-radius: 2px;
+    font-size: 0.92em;
+  }
+
+  /* Encart bonus : pourquoi ça marchait, pourquoi plus */
+  .anti-explain {
+    margin-top: 56px;
+    padding: 32px 36px;
+    background: linear-gradient(135deg, rgba(212,165,116,0.10) 0%, rgba(212,165,116,0.02) 100%);
+    border: 1px solid var(--gold);
+    border-radius: 10px;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 28px;
+    align-items: flex-start;
+  }
+  .anti-explain .ae-icon {
+    width: 48px; height: 48px;
+    flex-shrink: 0;
+    color: var(--gold);
+  }
+  .anti-explain h4 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 22px;
+    color: var(--cream);
+    margin-bottom: 14px;
+  }
+  .anti-explain p {
+    color: var(--ice);
+    font-size: 14.5px;
+    line-height: 1.65;
+    margin-bottom: 10px;
+  }
+  .anti-explain p strong { color: var(--gold); font-weight: 600; }
+  .anti-explain p:last-child { margin-bottom: 0; }
+
+  /* ============================================================
+     CHAPITRE 7 — SÉCURITÉ
+  ============================================================ */
+  .threat-hero {
+    margin-top: 56px;
+    padding: 36px 40px;
+    background: linear-gradient(135deg, rgba(227,107,90,0.10) 0%, rgba(227,107,90,0.02) 100%);
+    border: 1px solid var(--red);
+    border-left: 5px solid var(--red);
+    border-radius: 8px;
+  }
+  .threat-hero .th-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 3px;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 12px;
+    font-weight: 700;
+  }
+  .threat-hero h3 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: clamp(24px, 3vw, 32px);
+    color: var(--cream);
+    margin-bottom: 16px;
+    line-height: 1.25;
+  }
+  .threat-hero p {
+    color: var(--ice);
+    font-size: 15.5px;
+    line-height: 1.65;
+  }
+  .threat-hero p strong { color: var(--gold); font-weight: 600; }
+
+  /* Démo d'injection : style « interface chat » avec mise en évidence
+     du payload caché dans un document. */
+  .inj-demo {
+    margin-top: 48px;
+    background: var(--navy-2);
+    border-radius: 8px;
+    border: 1px solid rgba(212,165,116,0.22);
+    overflow: hidden;
+  }
+  .inj-demo-head {
+    padding: 16px 24px;
+    background: var(--navy-3);
+    border-bottom: 1px solid rgba(212,165,116,0.22);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    color: var(--gold);
+    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .inj-demo-head .inj-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--red);
+  }
+  .inj-demo-body {
+    padding: 24px 28px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.7;
+    color: var(--cream);
+    white-space: pre-wrap;
+  }
+  .inj-demo-body .tag { color: var(--gold); }
+  .inj-demo-body .cmt { color: var(--muted-lt); font-style: italic; }
+  .inj-demo-body .payload {
+    background: rgba(227,107,90,0.22);
+    color: var(--red);
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-weight: 700;
+  }
+  .inj-demo-body .victim {
+    background: rgba(212,165,116,0.18);
+    color: var(--gold);
+    padding: 2px 6px;
+    border-radius: 3px;
+  }
+  .inj-demo-foot {
+    padding: 16px 28px;
+    background: var(--navy-3);
+    border-top: 1px solid rgba(227,107,90,0.3);
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 14px;
+    color: var(--ice);
+    display: flex;
+    gap: 14px;
+    align-items: center;
+  }
+  .inj-demo-foot .if-icon {
+    width: 24px; height: 24px;
+    flex-shrink: 0;
+    color: var(--red);
+  }
+
+  /* Trois principes de défense */
+  .defense-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 22px;
+    margin-top: 56px;
+  }
+  .defense-card {
+    background: var(--navy-2);
+    border: 1px solid rgba(127,191,127,0.3);
+    border-left: 4px solid var(--green);
+    border-radius: 6px;
+    padding: 24px 26px 22px;
+  }
+  .defense-card .dc-num {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 28px;
+    color: var(--green);
+    margin-bottom: 8px;
+  }
+  .defense-card h4 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 19px;
+    color: var(--cream);
+    margin-bottom: 12px;
+    line-height: 1.3;
+  }
+  .defense-card p {
+    color: var(--ice);
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .defense-card p code {
+    background: rgba(127,191,127,0.15);
+    color: #a8d8a8;
+    padding: 1px 5px;
+    border-radius: 2px;
+    font-size: 0.92em;
+  }
+
+  /* ============================================================
+     CHAPITRE 8 — EVAL-DRIVEN PROMPTING
+  ============================================================ */
+  .pipeline-flow {
+    margin-top: 56px;
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 14px;
+    position: relative;
+  }
+  .pipeline-flow::before {
+    content: '';
+    position: absolute;
+    top: 36px;
+    left: 9%; right: 9%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+    z-index: 0;
+  }
+  .pipe-step {
+    background: #fff;
+    border: 1px solid var(--divider-dk);
+    padding: 64px 18px 24px;
+    border-radius: 6px;
+    text-align: center;
+    position: relative;
+    z-index: 1;
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+  }
+  .pipe-step:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 20px rgba(15,27,61,0.08);
+  }
+  .pipe-num {
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 52px; height: 52px;
+    background: var(--gold);
+    color: var(--navy);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 20px;
+    box-shadow: 0 4px 12px rgba(212,165,116,0.3);
+  }
+  .pipe-step h4 {
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+    font-size: 17px;
+    color: var(--navy);
+    margin-bottom: 10px;
+    line-height: 1.25;
+  }
+  .pipe-step p {
+    color: var(--ink);
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+  /* Citation centrale */
+  .eval-quote {
+    margin: 72px auto 64px;
+    max-width: 820px;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: clamp(22px, 2.6vw, 28px);
+    line-height: 1.4;
+    color: var(--navy);
+    padding: 24px 0 24px 28px;
+    border-left: 3px solid var(--gold);
+  }
+  .eval-quote strong { color: var(--gold-dk); font-weight: 600; }
+  .eval-quote .who {
+    margin-top: 14px;
+    font-family: 'JetBrains Mono', monospace;
+    font-style: normal;
+    font-size: 11px;
+    letter-spacing: 2.5px;
+    color: var(--gold-dk);
+    text-transform: uppercase;
+  }
+
+  /* Outillage */
+  .tools-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+    margin-top: 32px;
+  }
+  .tool-pill {
+    background: #fff;
+    border: 1px solid var(--divider-dk);
+    border-top: 3px solid var(--gold);
+    padding: 22px 22px 20px;
+    border-radius: 4px;
+  }
+  .tool-pill h5 {
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 17px;
+    color: var(--navy);
+    margin-bottom: 6px;
+  }
+  .tool-pill .tp-vendor {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold-dk);
+    margin-bottom: 12px;
+  }
+  .tool-pill p {
+    color: var(--ink);
+    font-size: 13px;
+    line-height: 1.55;
+  }
+
+  /* ============================================================
+     CHAPITRE 9 — RÉCAP & PONTS
+     Schéma synthèse 3 couches, takeaways numérotés, CTA vers
+     les autres fichiers.
+  ============================================================ */
+  .synth-stage {
+    margin: 64px auto;
+    max-width: 720px;
+    aspect-ratio: 720 / 460;
+  }
+  .synth-stage svg {
+    width: 100%; height: 100%;
+    overflow: visible;
+  }
+
+  .recap-list {
+    margin-top: 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .recap-item {
+    display: flex;
+    gap: 22px;
+    align-items: center;
+    padding: 18px 26px;
+    background: rgba(15,27,61,0.06);
+    border-left: 4px solid var(--gold);
+    border-radius: 4px;
+    transition: transform 0.3s ease;
+  }
+  .recap-item:hover {
+    transform: translateX(6px);
+    background: rgba(15,27,61,0.10);
+  }
+  .recap-num {
+    flex-shrink: 0;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-weight: 600;
+    font-size: 22px;
+    color: var(--navy);
+    width: 32px;
+  }
+  .recap-body {
+    color: var(--navy);
+    font-size: 15.5px;
+    line-height: 1.55;
+  }
+  .recap-body strong { color: var(--navy); font-weight: 700; }
+
+  .closing-line {
+    margin-top: 80px;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 5px;
+    color: var(--navy);
+    text-transform: uppercase;
+    font-weight: 700;
+  }
+
+  /* ============================================================
+     FOOTER
+  ============================================================ */
+  footer {
+    background: var(--navy-2);
+    padding: 40px 0;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 4px;
+    color: var(--muted-dk);
+    text-transform: uppercase;
+    border-top: 1px solid var(--divider-lt);
+  }
+
+  /* ============================================================
+     SCROLL ANIMATIONS
+  ============================================================ */
+  .reveal {
+    opacity: 0;
+    transform: translateY(24px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .reveal.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .reveal-delay-1 { transition-delay: 0.1s; }
+  .reveal-delay-2 { transition-delay: 0.2s; }
+  .reveal-delay-3 { transition-delay: 0.3s; }
+  .reveal-delay-4 { transition-delay: 0.4s; }
+  .reveal-delay-5 { transition-delay: 0.5s; }
+
+  /* Lucide icon defaults */
+  .lc {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* ============================================================
+     RESPONSIVE
+  ============================================================ */
+  @media (max-width: 900px) {
+    .section { padding: 80px 0; }
+    .hero-grid { grid-template-columns: 1fr; gap: 48px; }
+    .hero-illus { justify-self: center; max-width: 340px; }
+    .era-grid { grid-template-columns: 1fr; gap: 36px; }
+    .era-track { display: none; }
+    .nested-frame { padding: 24px; }
+    .nested-frame .lvl-2 { padding: 22px; }
+    .nested-frame .lvl-3 { padding: 20px 22px; }
+    .ba-pair { grid-template-columns: 1fr; margin-left: 0; }
+    .fund-desc { margin-left: 0; }
+    .single-example { margin-left: 0; }
+    .reasoning-grid { grid-template-columns: 1fr; }
+    .reasoning-table { font-size: 13px; }
+    .reasoning-table th, .reasoning-table td { padding: 12px 14px; }
+    .anat-layer { flex-wrap: wrap; }
+    .anat-layer .al-tag { width: auto; }
+    .full-prompt-body { grid-template-columns: 1fr; }
+    .full-prompt-code { border-right: none; border-bottom: 1px solid rgba(212,165,116,0.18); }
+    .patterns-grid { grid-template-columns: 1fr; }
+    .pattern-card { flex-direction: column; }
+    .pattern-card .p-diagram { width: 80px; height: 80px; }
+    .anti-grid { grid-template-columns: 1fr; }
+    .anti-explain { grid-template-columns: 1fr; }
+    .defense-grid { grid-template-columns: 1fr; }
+    .pipeline-flow { grid-template-columns: 1fr; gap: 36px; }
+    .pipeline-flow::before { display: none; }
+    .tools-grid { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 540px) {
+    .tools-grid { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 1100px) {
+    .anti-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (max-width: 540px) {
+    .container, .container-narrow { padding: 0 20px; }
+    .chapter-num { font-size: 48px; }
+  }
+  /* ============================================================
+     LIENS INTER-MODULES (xref) + RETOUR AU SOMMAIRE
+  ============================================================ */
+  .xref { display: flex; align-items: baseline; gap: 12px; margin: 36px 0 0; padding: 15px 20px; border-left: 2px solid var(--gold); background: rgba(212,165,116,0.08); border-radius: 0 6px 6px 0; }
+  .xref .xref-tag { font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); white-space: nowrap; flex: 0 0 auto; }
+  .xref .xref-why { font-size: 14.5px; line-height: 1.55; color: var(--ice); }
+  .xref a { color: var(--gold); text-decoration: none; font-weight: 600; border-bottom: 1px solid rgba(212,165,116,0.45); transition: border-color .2s ease; }
+  .xref a:hover { border-bottom-color: var(--gold); }
+  .xref.on-light { background: rgba(212,165,116,0.12); }
+  .xref.on-light .xref-tag { color: var(--gold-dk); }
+  .xref.on-light .xref-why { color: var(--muted-dk); }
+  .xref.on-light a { color: var(--gold-dk); border-bottom-color: rgba(156,122,80,0.45); }
+  .home-link { position: fixed; top: 16px; left: 20px; z-index: 1001; display: inline-flex; align-items: center; gap: 7px; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; text-decoration: none; color: var(--cream); background: rgba(10,18,48,0.62); border: 1px solid var(--divider-lt); border-radius: 20px; padding: 7px 14px; backdrop-filter: blur(6px); opacity: 0.55; transition: opacity .2s ease, border-color .2s ease, color .2s ease; }
+  .home-link:hover { opacity: 1; border-color: var(--gold); color: var(--gold); }
+  @media (max-width: 700px) { .home-link { top: 11px; left: 12px; padding: 6px 11px; font-size: 10px; letter-spacing: 1px; } }
+  .footer-home { display: block; margin-top: 14px; color: var(--gold); text-decoration: none; font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 1.5px; }
+  .footer-home:hover { color: var(--cream); }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     PROGRESS BAR + TOC
+============================================================ -->
+<div class="progress-top" id="progress-bar"></div>
+
+<a class="home-link" href="index.html">← Sommaire</a>
+
+<nav class="toc" id="toc">
+  <a href="#hero"><span>Couverture</span></a>
+  <a href="#reasoning"><span>Raisonnement</span></a>
+  <a href="#patterns"><span>Patterns avancés</span></a>
+  <a href="#recap"><span>À retenir</span></a>
+</nav>
+<!-- ============================================================
+     HERO
+============================================================ -->
+<section class="hero" id="hero">
+  <div class="container">
+    <div class="hero-grid">
+      <div class="hero-text">
+        <div class="hero-meta">Pour comprendre ce qui se passe sous le capot</div>
+        <h1 class="h-display" style="margin-top:32px;">
+          Comment un<br>
+          agent <em>raisonne</em>
+        </h1>
+        <div class="hero-divider"></div>
+        <p class="hero-sub">
+          Chaîne, arbre, boucle : les formes du raisonnement, et les patterns
+          qui font qu'un agent se corrige tout seul.
+        </p>
+        <div class="hero-meta">Volet 2 / 3 · Les mécaniques · 2026</div>
+      </div>
+
+      <!-- Hero illustration : la boucle ReAct.
+           Trois nœuds — Pensée (T), Action (A), Observation (O) — sur un
+           anneau, reliés par des arcs fléchés. Un pulse circule en continu.
+           C'est le squelette de toute boucle agentique. -->
+      <div class="hero-illus">
+        <svg viewBox="0 0 460 500" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <marker id="ah" markerWidth="9" markerHeight="9" refX="5" refY="3" orient="auto">
+              <path d="M0,0 L6,3 L0,6 Z" fill="var(--gold)"/>
+            </marker>
+          </defs>
+
+          <!-- Cercle décoratif -->
+          <circle cx="230" cy="250" r="210" fill="none" stroke="var(--gold)" stroke-width="1" opacity="0.07" stroke-dasharray="2 8"/>
+
+          <!-- Les trois arcs de la boucle T → A → O → T -->
+          <path d="M257.6,153.9 A100 100 0 0 1 327,274.2" fill="none" stroke="var(--gold)" stroke-width="2" opacity="0.6" stroke-dasharray="4 6" marker-end="url(#ah)">
+            <animate attributeName="stroke-dashoffset" values="20;0" dur="1.4s" repeatCount="indefinite"/>
+          </path>
+          <path d="M299.5,321.9 A100 100 0 0 1 160.5,321.9" fill="none" stroke="var(--gold)" stroke-width="2" opacity="0.6" stroke-dasharray="4 6" marker-end="url(#ah)">
+            <animate attributeName="stroke-dashoffset" values="20;0" dur="1.4s" repeatCount="indefinite"/>
+          </path>
+          <path d="M133,274.2 A100 100 0 0 1 202.4,153.9" fill="none" stroke="var(--gold)" stroke-width="2" opacity="0.6" stroke-dasharray="4 6" marker-end="url(#ah)">
+            <animate attributeName="stroke-dashoffset" values="20;0" dur="1.4s" repeatCount="indefinite"/>
+          </path>
+
+          <!-- Pulse qui circule sur l'anneau -->
+          <circle r="5" fill="var(--gold)" opacity="0.95">
+            <animateMotion dur="5s" repeatCount="indefinite"
+              path="M230,150 A100 100 0 0 1 316.6,300 A100 100 0 0 1 143.4,300 A100 100 0 0 1 230,150"/>
+          </circle>
+
+          <!-- Nœud T : Pensée (carré navy, contour or) -->
+          <rect x="206" y="126" width="48" height="48" rx="6" fill="var(--navy-3)" stroke="var(--gold)" stroke-width="1.8"/>
+          <text x="230" y="156" text-anchor="middle" font-family="JetBrains Mono" font-size="15" fill="var(--gold)" font-weight="700">T</text>
+          <text x="230" y="108" text-anchor="middle" font-family="JetBrains Mono" font-size="10" letter-spacing="2" fill="var(--gold)">PENSÉE</text>
+
+          <!-- Nœud A : Action (cercle plein or) -->
+          <circle cx="316.6" cy="300" r="24" fill="var(--gold)" stroke="var(--gold)" stroke-width="1.8"/>
+          <text x="316.6" y="306" text-anchor="middle" font-family="JetBrains Mono" font-size="15" fill="var(--navy)" font-weight="700">A</text>
+          <text x="316.6" y="348" text-anchor="middle" font-family="JetBrains Mono" font-size="10" letter-spacing="2" fill="var(--gold)">ACTION</text>
+
+          <!-- Nœud O : Observation (cercle navy, contour glace) -->
+          <circle cx="143.4" cy="300" r="24" fill="var(--navy-2)" stroke="var(--ice)" stroke-width="1.8"/>
+          <text x="143.4" y="306" text-anchor="middle" font-family="JetBrains Mono" font-size="15" fill="var(--ice)" font-weight="700">O</text>
+          <text x="143.4" y="348" text-anchor="middle" font-family="JetBrains Mono" font-size="10" letter-spacing="2" fill="var(--ice)">OBSERVATION</text>
+
+          <!-- Centre : ce que fait la boucle -->
+          <text x="230" y="244" text-anchor="middle" font-family="Fraunces" font-style="italic" font-size="16" fill="var(--ice)" opacity="0.8">boucler,</text>
+          <text x="230" y="266" text-anchor="middle" font-family="Fraunces" font-style="italic" font-size="16" fill="var(--ice)" opacity="0.8">jusqu'à la réponse</text>
+
+          <!-- Étiquette en bas -->
+          <text x="230" y="430" text-anchor="middle" font-family="JetBrains Mono" font-size="10" letter-spacing="3" fill="var(--gold)" font-weight="700">PENSER · AGIR · OBSERVER · RECOMMENCER</text>
+          <line x1="160" y1="442" x2="300" y2="442" stroke="var(--gold)" stroke-width="0.8" opacity="0.5"/>
+          <text x="230" y="456" text-anchor="middle" font-family="Fraunces" font-style="italic" font-size="11" fill="var(--ice)" opacity="0.65">la grammaire de tout agent</text>
+        </svg>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-cue">Faites défiler</div>
+</section>
+<!-- ============================================================
+     CHAPITRE 3 — RAISONNEMENT : COT, TOT, REACT
+============================================================ -->
+<section class="section dark" id="reasoning">
+  <div class="container">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">01</span>
+        <span class="chapter-label">Faire raisonner</span>
+      </div>
+      <h2>CoT, ToT, ReAct</h2>
+      <p class="lede">
+        Trois patterns de raisonnement, trois formes différentes : une chaîne,
+        un arbre, une boucle. Le troisième — ReAct — est le pont vers
+        l'agentique.
+      </p>
+    </div>
+
+    <div class="reasoning-grid">
+
+      <!-- COT -->
+      <div class="reasoning-card reveal">
+        <div class="r-tag">2022 · Wei et al.</div>
+        <h3>Chain-of-Thought</h3>
+        <div class="r-diagram">
+          <svg viewBox="0 0 280 120" xmlns="http://www.w3.org/2000/svg">
+            <!-- Chaîne linéaire de nœuds -->
+            <line x1="32" y1="60" x2="248" y2="60" stroke="var(--gold)" stroke-width="1.5" stroke-dasharray="3 5" opacity="0.7"/>
+            <circle cx="32" cy="60" r="11" fill="var(--navy-3)" stroke="var(--gold)" stroke-width="1.5"/>
+            <text x="32" y="64" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="var(--gold)" font-weight="700">Q</text>
+            <circle cx="86" cy="60" r="8" fill="var(--navy-3)" stroke="var(--gold)" stroke-width="1.3"/>
+            <circle cx="140" cy="60" r="8" fill="var(--navy-3)" stroke="var(--gold)" stroke-width="1.3"/>
+            <circle cx="194" cy="60" r="8" fill="var(--navy-3)" stroke="var(--gold)" stroke-width="1.3"/>
+            <polygon points="248,60 240,52 244,60 240,68" fill="var(--gold)"/>
+            <rect x="234" y="46" width="28" height="28" rx="4" fill="var(--gold)" stroke="none"/>
+            <text x="248" y="64" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="var(--navy)" font-weight="700">A</text>
+            <!-- Étiquette -->
+            <text x="140" y="100" text-anchor="middle" font-family="JetBrains Mono" font-size="9" letter-spacing="2" fill="var(--muted-lt)">une chaîne d'étapes</text>
+          </svg>
+        </div>
+        <div class="r-desc">
+          Le modèle <strong>déroule son raisonnement</strong> étape par étape
+          avant de conclure. Visible, auditable, mais linéaire — si la première
+          étape se trompe, tout dérape.
+        </div>
+        <div class="r-good">
+          <span>IDÉAL :</span> problèmes logiques structurés, math,
+          débogage step-by-step
+        </div>
+      </div>
+
+      <!-- TOT -->
+      <div class="reasoning-card reveal reveal-delay-1">
+        <div class="r-tag">2023 · Yao et al.</div>
+        <h3>Tree-of-Thought</h3>
+        <div class="r-diagram">
+          <svg viewBox="0 0 280 120" xmlns="http://www.w3.org/2000/svg">
+            <!-- Racine -->
+            <circle cx="32" cy="60" r="11" fill="var(--navy-3)" stroke="var(--gold)" stroke-width="1.5"/>
+            <text x="32" y="64" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="var(--gold)" font-weight="700">Q</text>
+            <!-- Branches : 3 chemins -->
+            <line x1="43" y1="56" x2="92" y2="28" stroke="var(--gold)" stroke-width="1.3" opacity="0.55"/>
+            <line x1="43" y1="60" x2="92" y2="60" stroke="var(--gold)" stroke-width="1.8"/>
+            <line x1="43" y1="64" x2="92" y2="92" stroke="var(--gold)" stroke-width="1.3" opacity="0.55"/>
+            <!-- Niveau 2 -->
+            <circle cx="100" cy="28" r="7" fill="var(--navy-3)" stroke="var(--gold)" stroke-width="1.2" opacity="0.6"/>
+            <circle cx="100" cy="60" r="8" fill="var(--gold)" stroke="var(--gold)" stroke-width="1.5"/>
+            <circle cx="100" cy="92" r="7" fill="var(--navy-3)" stroke="var(--gold)" stroke-width="1.2" opacity="0.6"/>
+            <!-- Branches du chemin gagnant -->
+            <line x1="108" y1="60" x2="155" y2="60" stroke="var(--gold)" stroke-width="1.8"/>
+            <line x1="108" y1="28" x2="155" y2="28" stroke="var(--gold)" stroke-width="1.1" opacity="0.4"/>
+            <line x1="108" y1="92" x2="155" y2="92" stroke="var(--gold)" stroke-width="1.1" opacity="0.4"/>
+            <!-- Niveau 3 -->
+            <circle cx="162" cy="28" r="7" fill="var(--navy-3)" stroke="var(--gold)" stroke-width="1.1" opacity="0.4"/>
+            <circle cx="162" cy="60" r="8" fill="var(--gold)" stroke="var(--gold)" stroke-width="1.5"/>
+            <circle cx="162" cy="92" r="7" fill="var(--navy-3)" stroke="var(--gold)" stroke-width="1.1" opacity="0.4"/>
+            <!-- Réponse finale -->
+            <line x1="170" y1="60" x2="220" y2="60" stroke="var(--gold)" stroke-width="1.8"/>
+            <rect x="222" y="46" width="28" height="28" rx="4" fill="var(--gold)"/>
+            <text x="236" y="64" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="var(--navy)" font-weight="700">A</text>
+            <text x="140" y="115" text-anchor="middle" font-family="JetBrains Mono" font-size="9" letter-spacing="2" fill="var(--muted-lt)">explorer · élaguer · choisir</text>
+          </svg>
+        </div>
+        <div class="r-desc">
+          Plusieurs <strong>branches de raisonnement</strong> explorées en
+          parallèle, évaluées, élaguées. Coûteux (N calls) mais bien plus
+          robuste sur les problèmes ouverts.
+        </div>
+        <div class="r-good">
+          <span>IDÉAL :</span> stratégie, créativité, problèmes
+          à plusieurs solutions valides
+        </div>
+      </div>
+
+      <!-- REACT -->
+      <div class="reasoning-card reveal reveal-delay-2">
+        <div class="r-tag">2023 · Yao et al. · ICLR</div>
+        <h3>ReAct</h3>
+        <div class="r-diagram">
+          <svg viewBox="0 0 280 120" xmlns="http://www.w3.org/2000/svg">
+            <!-- Boucle pensée → action → observation -->
+            <!-- Pensée 1 -->
+            <rect x="20" y="44" width="32" height="32" rx="4" fill="var(--navy-3)" stroke="var(--gold)" stroke-width="1.4"/>
+            <text x="36" y="64" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="var(--gold)" font-weight="700">T</text>
+            <line x1="52" y1="60" x2="70" y2="60" stroke="var(--gold)" stroke-width="1.3" stroke-dasharray="2 3"/>
+            <!-- Action 1 -->
+            <circle cx="86" cy="60" r="14" fill="var(--gold)" stroke="var(--gold)" stroke-width="1.4"/>
+            <text x="86" y="64" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="var(--navy)" font-weight="700">A</text>
+            <line x1="100" y1="60" x2="118" y2="60" stroke="var(--ice)" stroke-width="1.3" stroke-dasharray="2 3"/>
+            <!-- Observation 1 -->
+            <rect x="118" y="44" width="32" height="32" rx="16" fill="var(--navy-2)" stroke="var(--ice)" stroke-width="1.4"/>
+            <text x="134" y="64" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="var(--ice)" font-weight="700">O</text>
+            <line x1="150" y1="60" x2="168" y2="60" stroke="var(--gold)" stroke-width="1.3" stroke-dasharray="2 3"/>
+            <!-- Pensée 2 -->
+            <rect x="168" y="44" width="32" height="32" rx="4" fill="var(--navy-3)" stroke="var(--gold)" stroke-width="1.4"/>
+            <text x="184" y="64" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="var(--gold)" font-weight="700">T</text>
+            <line x1="200" y1="60" x2="218" y2="60" stroke="var(--gold)" stroke-width="1.3" stroke-dasharray="2 3"/>
+            <!-- Réponse -->
+            <rect x="222" y="46" width="28" height="28" rx="4" fill="var(--gold)"/>
+            <text x="236" y="64" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="var(--navy)" font-weight="700">A</text>
+            <!-- Légende -->
+            <text x="140" y="22" text-anchor="middle" font-family="JetBrains Mono" font-size="8" letter-spacing="1.5" fill="var(--muted-lt)">Thought · Action · Observation</text>
+            <text x="140" y="106" text-anchor="middle" font-family="JetBrains Mono" font-size="9" letter-spacing="2" fill="var(--gold)" font-weight="700">le pattern de l'agent</text>
+          </svg>
+        </div>
+        <div class="r-desc">
+          Le modèle <strong>alterne pensée et action</strong> : il pense, appelle
+          un outil, observe, repense. C'est <em>exactement</em> ce que fait un
+          agent moderne — ReAct est le squelette de toute boucle agentique.
+        </div>
+        <div class="r-good">
+          <span>IDÉAL :</span> tâches dynamiques, recherche en
+          contexte, tout ce qui nécessite des outils
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Tableau comparatif -->
+    <div class="reasoning-table reveal reveal-delay-3">
+      <table>
+        <thead>
+          <tr>
+            <th></th>
+            <th>Chain-of-Thought</th>
+            <th>Tree-of-Thought</th>
+            <th>ReAct</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Forme</td>
+            <td>Une chaîne linéaire</td>
+            <td>Un arbre exploré</td>
+            <td>Boucle pensée ↔ outil</td>
+          </tr>
+          <tr>
+            <td>Coût</td>
+            <td>1 call</td>
+            <td>N calls (souvent 5–20)</td>
+            <td>K calls (1 par tour)</td>
+          </tr>
+          <tr>
+            <td>Idéal pour</td>
+            <td>Maths, logique, dette pas-à-pas</td>
+            <td>Plans, stratégie, créativité</td>
+            <td>Toute tâche avec outils ou monde extérieur</td>
+          </tr>
+          <tr>
+            <td>À éviter pour</td>
+            <td><span class="pat-bad">Tâches qui exigent des outils</span></td>
+            <td><span class="pat-bad">Quand le budget compte</span></td>
+            <td><span class="pat-bad">Problèmes purement clos</span></td>
+          </tr>
+          <tr>
+            <td>Maturité 2026</td>
+            <td><span class="pat-good">Production · partout</span></td>
+            <td>Production sur cas premium</td>
+            <td><span class="pat-good">Production · standard des agents</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Nuance modèles raisonneurs -->
+    <div class="reasoner-callout reveal reveal-delay-4">
+      <svg class="rc-icon lc" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="10"/>
+        <path d="M12 8v4"/>
+        <path d="M12 16h.01"/>
+      </svg>
+      <p>
+        <strong>Nuance 2026 sur CoT.</strong> Les modèles à raisonnement natif
+        (Claude 4.7, o-series, Gemini 3.x) raisonnent déjà <em>en interne</em>
+        avant de répondre. Sur ces modèles, ajouter <code>raisonne étape par
+        étape</code> dans le prompt a un effet <strong>faible voire négatif</strong> :
+        ça force un raisonnement explicite en sortie, plus long, parfois moins
+        bon que la chaîne interne. CoT reste utile sur les modèles
+        non-raisonneurs et quand on <em>veut</em> auditer le raisonnement.
+        Sur les autres, laissez le modèle raisonner seul.
+      </p>
+    </div>
+
+    <!-- Avant/après concret : un exemple ReAct (le plus utile pour devs) -->
+    <div class="reveal reveal-delay-5" style="margin-top: 64px;">
+      <h3 style="font-style: italic; color: var(--cream); margin-bottom: 18px; font-size: 24px;">
+        Concrètement, ReAct dans un prompt
+      </h3>
+      <p style="color: var(--ice); max-width: 780px; margin-bottom: 28px;">
+        Pour cadrer un agent en ReAct, on n'a pas besoin de framework. Il suffit
+        d'instruire le modèle à alterner les blocs <code>&lt;thought&gt;</code>,
+        <code>&lt;action&gt;</code>, <code>&lt;observation&gt;</code> — le harnais
+        intercepte chaque <code>&lt;action&gt;</code>, exécute l'outil, et
+        injecte le résultat dans l'<code>&lt;observation&gt;</code> suivante.
+      </p>
+
+      <div class="ba-pair" style="margin-left: 0;">
+        <div class="ba-card bad">
+          <div class="ba-tag"><span class="ba-icon">✕</span> Avant — pensée libre</div>
+          <div class="ba-title">Aucune structure : l'agent invente sa réponse</div>
+<pre class="ba-code">Question : Quel est le coût mensuel
+total des EC2 tagués <span class="str">env=prod</span> et
+<span class="str">tier=critical</span> ?
+
+<span class="cmt">// Réponse du modèle :</span>
+« D'après mes connaissances générales,
+ça doit tourner autour de <span class="bad-h">$12 000–$15 000</span>
+selon la taille de l'infra. »</pre>
+          <div class="ba-note">
+            <strong>Pourquoi ça rate :</strong> le modèle hallucine un chiffre.
+            Aucun outil appelé. Aucun moyen de vérifier.
+          </div>
+        </div>
+
+        <div class="ba-card good">
+          <div class="ba-tag"><span class="ba-icon">✓</span> Après — ReAct cadré</div>
+          <div class="ba-title">Pensée, action, observation explicites</div>
+<pre class="ba-code"><span class="tag">&lt;instructions&gt;</span>
+Pour répondre, alterne :
+<span class="high">&lt;thought&gt;</span>...<span class="high">&lt;/thought&gt;</span>
+<span class="high">&lt;action&gt;</span>tool(args)<span class="high">&lt;/action&gt;</span>
+<span class="high">&lt;observation&gt;</span>...<span class="high">&lt;/observation&gt;</span>
+Termine par <span class="high">&lt;answer&gt;</span>.
+<span class="tag">&lt;/instructions&gt;</span>
+
+<span class="cmt">// Trajectoire produite :</span>
+<span class="tag">&lt;thought&gt;</span>Lister les EC2 avec ces tags.<span class="tag">&lt;/thought&gt;</span>
+<span class="tag">&lt;action&gt;</span>aws_ec2.list(<span class="str">env=prod</span>,
+<span class="str">tier=critical</span>)<span class="tag">&lt;/action&gt;</span>
+<span class="tag">&lt;observation&gt;</span>[42 instances...]<span class="tag">&lt;/observation&gt;</span>
+<span class="tag">&lt;thought&gt;</span>Sommer les prix mensuels.<span class="tag">&lt;/thought&gt;</span>
+<span class="tag">&lt;action&gt;</span>aws_pricing.sum(...)<span class="tag">&lt;/action&gt;</span>
+<span class="tag">&lt;observation&gt;</span>$<span class="high">8 472,30</span>/mois<span class="tag">&lt;/observation&gt;</span>
+<span class="tag">&lt;answer&gt;</span>$8 472,30/mois (42 instances).<span class="tag">&lt;/answer&gt;</span></pre>
+          <div class="ba-note">
+            <strong>Pourquoi ça marche :</strong> chaque chiffre est traçable
+            à un appel d'outil. Le raisonnement est auditable. Le harnais
+            peut couper la boucle si une étape rate.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <p style="margin: 56px auto 0; max-width: 720px; text-align: center; font-family: 'Fraunces', serif; font-style: italic; font-size: 18px; color: var(--ice); opacity: 0.88;">
+      Le pattern ReAct n'est pas une option : c'est <em>la</em> grammaire
+      d'un agent. Quand on parle de prompter un agent, on parle
+      en grande partie de bien lui décrire <em>comment</em> alterner ses
+      pensées et ses actions.
+    </p>
+
+    <aside class="xref reveal">
+      <span class="xref-tag">↗ Module</span>
+      <span class="xref-why">Ce raisonnement « à voix haute » avant d'agir, c'est le mode <em>thinking</em> du modèle : <a href="le-llm.html">Le LLM</a>.</span>
+    </aside>
+
+  </div>
+</section>
+
+<!-- ============================================================
+     CHAPITRE 5 — PATTERNS AVANCÉS EN PRODUCTION
+============================================================ -->
+<section class="section dark" id="patterns">
+  <div class="container">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">02</span>
+        <span class="chapter-label">Patterns avancés</span>
+      </div>
+      <h2>Quand un agent ne suffit pas</h2>
+      <p class="lede">
+        Quand un agent bien cadré ne suffit plus, certaines situations
+        demandent un cran de plus : faire voter plusieurs réponses, faire
+        critiquer l'agent par lui-même, ou — le plus puissant — séparer
+        celui qui produit de celui qui juge.
+      </p>
+    </div>
+
+    <div class="patterns-grid">
+
+      <!-- SELF-CONSISTENCY -->
+      <div class="pattern-card reveal">
+        <div class="p-diagram">
+          <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+            <!-- N samples → vote -->
+            <circle cx="20" cy="22" r="6" fill="var(--gold)" opacity="0.6"/>
+            <circle cx="20" cy="40" r="6" fill="var(--gold)" opacity="0.85"/>
+            <circle cx="20" cy="58" r="6" fill="var(--gold)" opacity="0.85"/>
+            <line x1="28" y1="22" x2="50" y2="40" stroke="var(--gold)" stroke-width="1.2" opacity="0.5"/>
+            <line x1="28" y1="40" x2="50" y2="40" stroke="var(--gold)" stroke-width="1.5"/>
+            <line x1="28" y1="58" x2="50" y2="40" stroke="var(--gold)" stroke-width="1.5"/>
+            <rect x="50" y="32" width="20" height="16" rx="3" fill="var(--gold)"/>
+            <text x="60" y="44" text-anchor="middle" font-family="JetBrains Mono" font-size="9" font-weight="700" fill="var(--navy)">★</text>
+          </svg>
+        </div>
+        <div>
+          <div class="p-tag">Sample · vote</div>
+          <h3>Self-consistency</h3>
+          <p class="p-desc">
+            On génère <strong>N réponses indépendantes</strong> (typiquement 5–10,
+            température &gt; 0), on garde la majoritaire. Élimine les coups
+            de poisse sur les tâches à réponse unique.
+          </p>
+          <div class="p-when"><span>IDÉAL :</span> classification, extraction, math &mdash; tout ce qui a une réponse <em>discrète</em>.</div>
+        </div>
+      </div>
+
+      <!-- REFLEXION / SELF-REFINE -->
+      <div class="pattern-card reveal reveal-delay-1">
+        <div class="p-diagram">
+          <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+            <!-- Boucle sur soi-même -->
+            <circle cx="40" cy="40" r="22" fill="none" stroke="var(--gold)" stroke-width="1.5" stroke-dasharray="3 4"/>
+            <rect x="30" y="30" width="20" height="20" rx="3" fill="var(--gold)"/>
+            <text x="40" y="45" text-anchor="middle" font-family="JetBrains Mono" font-size="11" font-weight="700" fill="var(--navy)">A</text>
+            <!-- Arrow returning -->
+            <path d="M 56 26 A 22 22 0 0 1 56 54" fill="none" stroke="var(--gold)" stroke-width="1.5"/>
+            <polygon points="56,54 50,52 52,56" fill="var(--gold)"/>
+          </svg>
+        </div>
+        <div>
+          <div class="p-tag">Critique · itère</div>
+          <h3>Self-Refine / Reflexion</h3>
+          <p class="p-desc">
+            L'agent <strong>critique sa propre sortie</strong> et itère sur K tours
+            (souvent 2–3). Marche bien sur la rédaction, le refactoring, le
+            résumé long. Limite : un modèle qui valide ses propres erreurs.
+          </p>
+          <div class="p-when"><span>IDÉAL :</span> écriture, refactoring, brouillon → version finale.</div>
+        </div>
+      </div>
+
+      <!-- GENERATOR / EVALUATOR -->
+      <div class="pattern-card reveal reveal-delay-2">
+        <div class="p-diagram">
+          <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+            <!-- Deux agents face à face -->
+            <rect x="6" y="30" width="22" height="22" rx="3" fill="var(--gold)"/>
+            <text x="17" y="45" text-anchor="middle" font-family="JetBrains Mono" font-size="10" font-weight="700" fill="var(--navy)">G</text>
+            <rect x="52" y="30" width="22" height="22" rx="3" fill="var(--navy-3)" stroke="var(--gold)" stroke-width="1.5"/>
+            <text x="63" y="45" text-anchor="middle" font-family="JetBrains Mono" font-size="10" font-weight="700" fill="var(--gold)">E</text>
+            <!-- Échange -->
+            <line x1="28" y1="36" x2="52" y2="36" stroke="var(--gold)" stroke-width="1.5"/>
+            <polygon points="52,36 47,33 49,36 47,39" fill="var(--gold)"/>
+            <line x1="52" y1="48" x2="28" y2="48" stroke="var(--gold)" stroke-width="1.5" stroke-dasharray="2 2"/>
+            <polygon points="28,48 33,45 31,48 33,51" fill="var(--gold)"/>
+          </svg>
+        </div>
+        <div>
+          <div class="p-tag">Anthropic · pattern dominant</div>
+          <h3>Generator / Evaluator</h3>
+          <p class="p-desc">
+            <strong>Deux agents distincts</strong>, deux prompts distincts : l'un
+            produit, l'autre note avec un système de scoring strict. Si le score
+            est trop bas, l'output est rejeté ou repassé au Generator avec le
+            verdict.
+          </p>
+          <div class="p-when"><span>IDÉAL :</span> production critique, génération de code, contenu visible utilisateur.</div>
+        </div>
+      </div>
+
+      <!-- META-PROMPTING -->
+      <div class="pattern-card reveal reveal-delay-3">
+        <div class="p-diagram">
+          <svg viewBox="0 0 80 80" xmlns="http://www.w3.org/2000/svg">
+            <!-- Prompt qui se réécrit -->
+            <rect x="14" y="14" width="38" height="38" rx="3" fill="var(--navy-3)" stroke="var(--gold)" stroke-width="1.3" opacity="0.6"/>
+            <line x1="20" y1="24" x2="46" y2="24" stroke="var(--gold)" stroke-width="1" opacity="0.5"/>
+            <line x1="20" y1="32" x2="42" y2="32" stroke="var(--gold)" stroke-width="1" opacity="0.5"/>
+            <line x1="20" y1="40" x2="44" y2="40" stroke="var(--gold)" stroke-width="1" opacity="0.5"/>
+            <!-- Flèche → -->
+            <line x1="42" y1="48" x2="56" y2="60" stroke="var(--gold)" stroke-width="1.5"/>
+            <polygon points="56,60 52,55 56,58 60,55" fill="var(--gold)"/>
+            <!-- Prompt amélioré -->
+            <rect x="34" y="40" width="38" height="38" rx="3" fill="var(--gold)" opacity="0.9"/>
+            <line x1="40" y1="50" x2="66" y2="50" stroke="var(--navy)" stroke-width="1" opacity="0.7"/>
+            <line x1="40" y1="58" x2="64" y2="58" stroke="var(--navy)" stroke-width="1" opacity="0.7"/>
+            <line x1="40" y1="66" x2="68" y2="66" stroke="var(--navy)" stroke-width="1" opacity="0.7"/>
+          </svg>
+        </div>
+        <div>
+          <div class="p-tag">LLM optimise LLM</div>
+          <h3>Meta-prompting</h3>
+          <p class="p-desc">
+            On utilise un modèle pour <strong>écrire ou améliorer un prompt</strong>.
+            Anthropic et OpenAI proposent tous deux un <em>prompt improver</em>
+            dans leur console. Très utile pour bootstrapper, mais ne remplace
+            pas une vraie boucle d'éval (voir <a href="system-prompt-agent.html#evals" style="color: var(--gold); text-decoration: underline;">Eval-driven</a>).
+          </p>
+          <div class="p-when"><span>IDÉAL :</span> bootstrapper un prompt depuis zéro, harmoniser un corpus de prompts existants.</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Focus Generator/Evaluator -->
+    <div class="geneval-section reveal reveal-delay-4">
+      <h3 style="font-style: italic; color: var(--cream); margin-top: 80px; margin-bottom: 24px; font-size: 28px;">
+        Pourquoi Generator/Evaluator devient le standard
+      </h3>
+
+      <div class="geneval-quote">
+        Il est <strong style="color: var(--gold); font-weight: 600;">bien plus facile</strong> de
+        fabriquer un évaluateur impitoyable que d'apprendre à un générateur
+        à être impitoyablement auto-critique.
+        <div class="who">— Recherche Anthropic, 2026</div>
+      </div>
+
+      <div class="geneval-stage">
+        <svg viewBox="0 0 760 360" xmlns="http://www.w3.org/2000/svg">
+
+          <!-- Légende au-dessus -->
+          <text x="380" y="22" text-anchor="middle" font-family="JetBrains Mono" font-size="10" letter-spacing="3" fill="var(--muted-lt)">DEUX AGENTS · DEUX PROMPTS · UNE BOUCLE</text>
+
+          <!-- AGENT GENERATOR -->
+          <g class="ge-agent" transform="translate(0, 80)">
+            <rect x="60" y="0" width="200" height="180" rx="10" fill="var(--navy-3)" stroke="var(--gold)" stroke-width="2"/>
+            <text x="160" y="32" text-anchor="middle" font-family="JetBrains Mono" font-size="10" letter-spacing="3" fill="var(--gold)" font-weight="700">GENERATOR</text>
+            <text x="160" y="78" text-anchor="middle" font-family="Fraunces" font-style="italic" font-size="32" fill="var(--cream)" font-weight="600">A</text>
+            <text x="160" y="118" text-anchor="middle" font-family="Fraunces" font-style="italic" font-size="13" fill="var(--ice)" opacity="0.75">produit la solution</text>
+            <!-- Mini caractéristiques -->
+            <text x="160" y="146" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="var(--muted-lt)" letter-spacing="1.5">créatif · large · ouvert</text>
+            <text x="160" y="162" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="var(--muted-lt)" letter-spacing="1.5">temp = 0.7</text>
+          </g>
+
+          <!-- FLÈCHE → output -->
+          <g transform="translate(0, 80)">
+            <line class="ge-flow" x1="270" y1="60" x2="490" y2="60" stroke="var(--gold)" stroke-width="2"/>
+            <polygon points="490,60 482,55 486,60 482,65" fill="var(--gold)"/>
+            <text x="380" y="48" text-anchor="middle" font-family="JetBrains Mono" font-size="10" letter-spacing="2.5" fill="var(--gold)" font-weight="700">OUTPUT</text>
+          </g>
+
+          <!-- FLÈCHE ← verdict -->
+          <g transform="translate(0, 80)">
+            <line class="ge-flow" x1="490" y1="120" x2="270" y2="120" stroke="var(--ice)" stroke-width="2"/>
+            <polygon points="270,120 278,115 274,120 278,125" fill="var(--ice)"/>
+            <text x="380" y="142" text-anchor="middle" font-family="JetBrains Mono" font-size="10" letter-spacing="2.5" fill="var(--ice)" font-weight="700">VERDICT + RAISON</text>
+          </g>
+
+          <!-- AGENT EVALUATOR -->
+          <g class="ge-eval" transform="translate(0, 80)">
+            <rect x="500" y="0" width="200" height="180" rx="10" fill="var(--gold)" stroke="var(--gold)" stroke-width="2"/>
+            <text x="600" y="32" text-anchor="middle" font-family="JetBrains Mono" font-size="10" letter-spacing="3" fill="var(--navy)" font-weight="700">EVALUATOR</text>
+            <text x="600" y="78" text-anchor="middle" font-family="Fraunces" font-style="italic" font-size="32" fill="var(--navy)" font-weight="600">B</text>
+            <text x="600" y="118" text-anchor="middle" font-family="Fraunces" font-style="italic" font-size="13" fill="var(--navy)" opacity="0.85">juge contre la grille</text>
+            <text x="600" y="146" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="var(--navy)" letter-spacing="1.5" opacity="0.75">strict · cadré · déterministe</text>
+            <text x="600" y="162" text-anchor="middle" font-family="JetBrains Mono" font-size="9" fill="var(--navy)" letter-spacing="1.5" opacity="0.75">temp = 0</text>
+          </g>
+
+          <!-- Légende bas : itère K fois -->
+          <text x="380" y="320" text-anchor="middle" font-family="Fraunces" font-style="italic" font-size="14" fill="var(--ice)" opacity="0.85">
+            Si le score est sous le seuil, la boucle repart — jusqu'à K essais.
+          </text>
+          <text x="380" y="344" text-anchor="middle" font-family="JetBrains Mono" font-size="10" letter-spacing="2" fill="var(--gold-dk)">Au-delà : <tspan fill="var(--gold)">escalade humain</tspan></text>
+        </svg>
+      </div>
+
+      <p class="geneval-caption">
+        Le pattern marche parce qu'il découple deux compétences qu'un LLM
+        ne maîtrise pas aussi bien dans la même tête : produire et juger.
+        L'Evaluator a son propre prompt — souvent une <strong>rubrique
+        de notation explicite</strong> — et une température zéro. C'est lui
+        qui décide si l'output passe.
+      </p>
+    </div>
+
+    <aside class="xref reveal">
+      <span class="xref-tag">↗ Module</span>
+      <span class="xref-why">Generator + Evaluator, c'est déjà deux agents qui se répartissent le travail : <a href="multi-agent.html">Multi-agent</a>.</span>
+    </aside>
+    <aside class="xref reveal" style="margin-top: 14px;">
+      <span class="xref-tag">↗ Module</span>
+      <span class="xref-why">Ces patterns, on les capitalise en briques réutilisables : <a href="skills.html">Skills, hooks, rules</a>.</span>
+    </aside>
+
+  </div>
+</section>
+
+<!-- ============================================================
+     RÉCAP & SUITE
+============================================================ -->
+<section class="section gold-bg" id="recap">
+  <div class="container">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num" style="color: var(--navy);">03</span>
+        <span class="chapter-label" style="color: var(--navy); opacity: 0.7;">À retenir</span>
+      </div>
+      <h2 style="color: var(--navy);">Raisonner, pour un agent, c'est boucler</h2>
+      <p class="lede" style="color: var(--navy); opacity: 0.85; max-width: 760px;">
+        Derrière chaque agent, il y a une boucle : penser, agir, observer,
+        recommencer. Les patterns avancés ne font qu'ajouter un second regard
+        sur cette boucle — celui qui juge.
+      </p>
+    </div>
+
+    <h3 style="font-style: italic; color: var(--navy); margin-top: 40px; margin-bottom: 14px; font-size: 26px;">
+      Cinq points à emporter
+    </h3>
+
+    <div class="recap-list">
+      <div class="recap-item reveal"><div class="recap-num">1</div><div class="recap-body"><strong>Trois formes de raisonnement</strong> : la chaîne (CoT), l'arbre (ToT), la boucle (ReAct). On choisit selon le problème.</div></div>
+      <div class="recap-item reveal"><div class="recap-num">2</div><div class="recap-body"><strong>ReAct est la grammaire de l'agent</strong> : pensée → action → observation. Tout agent en est une variation.</div></div>
+      <div class="recap-item reveal"><div class="recap-num">3</div><div class="recap-body"><strong>Sur les modèles raisonneurs</strong>, ne force pas le « raisonne étape par étape » : ils le font déjà mieux en interne.</div></div>
+      <div class="recap-item reveal"><div class="recap-num">4</div><div class="recap-body"><strong>Pour fiabiliser</strong> : faire voter plusieurs réponses (self-consistency) ou itérer sur soi (self-refine).</div></div>
+      <div class="recap-item reveal"><div class="recap-num">5</div><div class="recap-body"><strong>Generator / Evaluator est le standard</strong> : un agent produit, un autre juge avec une grille stricte. Pas la même tête.</div></div>
+    </div>
+
+    <!-- Navigation de la série -->
+    <h3 style="font-style: italic; color: var(--navy); margin-top: 64px; margin-bottom: 18px; font-size: 24px;">
+      Continuer
+    </h3>
+    <div class="reveal" style="display: grid; grid-template-columns: 1fr 1fr; gap: 18px; max-width: 800px;">
+      <a href="prompter-aujourdhui.html" style="display: flex; flex-direction: column; gap: 8px; padding: 22px 24px; background: var(--navy); border-radius: 10px; text-decoration: none; transition: transform 0.3s ease;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--gold);">← Volet 1</span>
+        <strong style="font-family: 'Fraunces', serif; font-style: italic; font-weight: 600; font-size: 21px; color: var(--cream);">Prompter aujourd'hui</strong>
+        <span style="font-size: 13.5px; line-height: 1.5; color: var(--ice);">Les fondamentaux et ce qu'il faut désapprendre.</span>
+      </a>
+      <a href="system-prompt-agent.html" style="display: flex; flex-direction: column; gap: 8px; padding: 22px 24px; background: var(--navy); border-radius: 10px; text-decoration: none; transition: transform 0.3s ease;" onmouseover="this.style.transform='translateY(-4px)'" onmouseout="this.style.transform='translateY(0)'">
+        <span style="font-family: 'JetBrains Mono', monospace; font-size: 10px; letter-spacing: 2.5px; text-transform: uppercase; color: var(--gold);">Volet 3 →</span>
+        <strong style="font-family: 'Fraunces', serif; font-style: italic; font-weight: 600; font-size: 21px; color: var(--cream);">Le system prompt d'un agent</strong>
+        <span style="font-size: 13.5px; line-height: 1.5; color: var(--ice);">Écrire, sécuriser et évaluer le prompt d'un agent.</span>
+      </a>
+    </div>
+
+    <div class="closing-line reveal reveal-delay-2">— La suite : écrire le system prompt —</div>
+
+  </div>
+</section>
+<footer>
+  Comment un agent raisonne · Les mécaniques · 2026
+  <a class="footer-home" href="index.html">↑ Retour au sommaire</a>
+</footer>
+
+<script>
+  // ============================================================
+  // PROGRESS BAR
+  // ============================================================
+  const progressBar = document.getElementById('progress-bar');
+  function updateProgress() {
+    const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    const pct = (scrollTop / height) * 100;
+    progressBar.style.width = pct + '%';
+  }
+
+  // ============================================================
+  // TOC visibility + active link
+  // ============================================================
+  const toc = document.getElementById('toc');
+  const tocLinks = toc.querySelectorAll('a');
+  const sections = Array.from(tocLinks).map(a => document.querySelector(a.getAttribute('href')));
+
+  function updateToc() {
+    const scrollY = window.pageYOffset;
+    const hero = document.getElementById('hero');
+    if (scrollY > hero.offsetHeight - 200) {
+      toc.classList.add('visible');
+    } else {
+      toc.classList.remove('visible');
+    }
+    let active = 0;
+    for (let i = 0; i < sections.length; i++) {
+      if (sections[i] && sections[i].offsetTop <= scrollY + window.innerHeight / 3) {
+        active = i;
+      }
+    }
+    tocLinks.forEach((a, i) => a.classList.toggle('active', i === active));
+    const sec = sections[active];
+    const isLight = !!sec && (sec.classList.contains('light') || sec.classList.contains('gold-bg'));
+    toc.classList.toggle('on-light', isLight);
+  }
+
+  // ============================================================
+  // REVEAL ON SCROLL
+  // ============================================================
+  const reveals = document.querySelectorAll('.reveal');
+  const revealObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        revealObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -60px 0px' });
+  reveals.forEach(el => revealObserver.observe(el));
+
+  // ============================================================
+  // SCROLL LISTENER
+  // ============================================================
+  let rafId = null;
+  function onScroll() {
+    if (rafId) return;
+    rafId = requestAnimationFrame(() => {
+      updateProgress();
+      updateToc();
+      rafId = null;
+    });
+  }
+  window.addEventListener('scroll', onScroll, { passive: true });
+  window.addEventListener('resize', onScroll);
+  onScroll();
+</script>
+
+</body>
+</html>
