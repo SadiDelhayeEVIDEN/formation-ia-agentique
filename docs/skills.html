@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Skills, Rules, Workflows… toute la même famille</title>
+<title>Skills, Rules, Commands… toute la même famille</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,400;1,9..144,600&family=JetBrains+Mono:wght@400;500;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -178,6 +178,18 @@
     color: var(--muted-lt);
   }
   .light .chapter-label { color: var(--muted-dk); }
+
+  /* ============================================================
+     ACCESSIBILITÉ — focus clavier visible
+  ============================================================ */
+  a:focus-visible,
+  button:focus-visible,
+  .pdx-btn:focus-visible,
+  .toc a:focus-visible {
+    outline: 2px solid var(--gold);
+    outline-offset: 2px;
+    border-radius: 3px;
+  }
 
   /* ============================================================
      PROGRESS BAR
@@ -493,221 +505,6 @@
   .skill-md-example .value { color: var(--cream); }
   .skill-md-example .heading { color: var(--gold); font-weight: 700; }
 
-  /* Schéma de la progressive disclosure */
-  .pd-stage {
-    margin-top: 80px;
-    padding: 48px;
-    background: rgba(15,27,61,0.03);
-    border-radius: 16px;
-    border: 1px solid var(--divider-dk);
-  }
-  .pd-title {
-    text-align: center;
-    margin-bottom: 12px;
-  }
-  .pd-title h3 {
-    color: var(--navy);
-    font-style: italic;
-    margin-bottom: 8px;
-  }
-  .pd-title p {
-    color: var(--muted-dk);
-    font-size: 14.5px;
-    max-width: 580px;
-    margin: 0 auto;
-  }
-
-  .pd-controls {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 18px;
-    margin: 32px 0 36px;
-    flex-wrap: wrap;
-  }
-  .pd-step-btn {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 10px 18px;
-    background: #fff;
-    border: 1px solid var(--divider-dk);
-    border-radius: 30px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    letter-spacing: 1.5px;
-    color: var(--muted-dk);
-    text-transform: uppercase;
-    font-weight: 700;
-    cursor: pointer;
-    transition: all 0.3s ease;
-  }
-  .pd-step-btn .pd-num {
-    width: 22px; height: 22px;
-    border-radius: 50%;
-    background: rgba(15,27,61,0.08);
-    color: var(--muted-dk);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 11px;
-  }
-  .pd-step-btn.active {
-    background: var(--gold);
-    color: var(--navy);
-    border-color: var(--gold);
-    box-shadow: 0 4px 14px rgba(212,165,116,0.3);
-  }
-  .pd-step-btn.active .pd-num {
-    background: var(--navy);
-    color: var(--gold);
-  }
-  .pd-step-btn:hover:not(.active) {
-    border-color: var(--gold);
-    color: var(--navy);
-  }
-  .pd-arrow {
-    color: var(--gold);
-    font-size: 18px;
-    margin: 0 -4px;
-    opacity: 0.5;
-  }
-  @media (max-width: 700px) {
-    .pd-arrow { display: none; }
-  }
-
-  .pd-scene {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    gap: 24px;
-    align-items: stretch;
-    min-height: 380px;
-  }
-  .pd-col {
-    background: #fff;
-    border: 1px solid var(--divider-dk);
-    border-radius: 10px;
-    padding: 22px;
-    display: flex;
-    flex-direction: column;
-  }
-  .pd-col-head {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 16px;
-    padding-bottom: 12px;
-    border-bottom: 1px solid var(--divider-dk);
-  }
-  .pd-col-icon {
-    width: 30px; height: 30px;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: #fff;
-    flex-shrink: 0;
-  }
-  .pd-col-icon svg { width: 16px; height: 16px; }
-  .pd-col-icon.harness { background: var(--mech-rule); }
-  .pd-col-icon.llm { background: var(--mech-skill); color: var(--navy); }
-  .pd-col-icon.fs { background: var(--mech-workflow); }
-  .pd-col-name {
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    letter-spacing: 2px;
-    color: var(--muted-dk);
-    text-transform: uppercase;
-    font-weight: 700;
-  }
-  .pd-col-title {
-    font-family: 'Fraunces', serif;
-    font-style: italic;
-    font-size: 17px;
-    color: var(--navy);
-    font-weight: 600;
-  }
-
-  .pd-item {
-    background: rgba(15,27,61,0.03);
-    border: 1px solid var(--divider-dk);
-    border-radius: 6px;
-    padding: 12px 14px;
-    margin-bottom: 10px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 11px;
-    color: var(--ink);
-    transition: all 0.6s ease;
-    line-height: 1.5;
-    position: relative;
-  }
-  .pd-item:last-child { margin-bottom: 0; }
-  .pd-item .pd-item-tag {
-    display: inline-block;
-    padding: 2px 6px;
-    border-radius: 3px;
-    font-size: 9px;
-    letter-spacing: 1.5px;
-    margin-right: 6px;
-    font-weight: 700;
-  }
-  .pd-item.dim { opacity: 0.3; filter: grayscale(0.5); }
-  .pd-item.highlight {
-    background: rgba(212,165,116,0.12);
-    border-color: var(--gold);
-    box-shadow: 0 4px 14px rgba(212,165,116,0.2);
-  }
-  .pd-item small {
-    display: block;
-    color: var(--muted-dk);
-    font-style: italic;
-    font-family: 'Inter', sans-serif;
-    font-size: 11.5px;
-    margin-top: 4px;
-    letter-spacing: 0;
-  }
-
-  .pd-token-counter {
-    margin-bottom: 12px;
-    padding: 8px 12px;
-    background: rgba(212,165,116,0.06);
-    border: 1px dashed var(--gold-dk);
-    border-radius: 4px;
-    font-family: 'JetBrains Mono', monospace;
-    font-size: 10px;
-    color: var(--gold-dk);
-    text-transform: uppercase;
-    letter-spacing: 1.5px;
-    text-align: center;
-    transition: all 0.5s ease;
-  }
-  .pd-token-counter strong {
-    color: var(--navy);
-    font-size: 13px;
-    font-weight: 700;
-    letter-spacing: 0;
-    margin-left: 6px;
-  }
-
-  .pd-narration {
-    margin-top: 32px;
-    padding: 22px 28px;
-    background: var(--navy-2);
-    border-radius: 8px;
-    color: var(--ice);
-    font-family: 'Fraunces', serif;
-    font-style: italic;
-    font-size: 16.5px;
-    line-height: 1.6;
-    text-align: center;
-    transition: opacity 0.4s ease;
-  }
-  .pd-narration strong {
-    color: var(--gold);
-    font-style: normal;
-    font-weight: 600;
-  }
-
   /* Rôle harnais vs rôle LLM */
   .roles-grid {
     display: grid;
@@ -765,6 +562,35 @@
     color: var(--gold-dk);
     font-weight: 700;
   }
+  .role-card .rc-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 8px;
+    display: block;
+  }
+  .role-card .rc-tag.agents { color: var(--mech-rule); }
+  .role-card .rc-tag.skill  { color: var(--gold-dk); }
+
+  /* Liste de propriétés AGENTS.md (section claire) */
+  .agents-props { list-style: none; padding: 0; margin-top: 16px; }
+  .agents-props li {
+    position: relative;
+    padding-left: 22px;
+    margin-bottom: 9px;
+    font-size: 14px;
+    color: var(--ink);
+    line-height: 1.55;
+  }
+  .agents-props li::before {
+    content: '✓';
+    position: absolute;
+    left: 0; top: 0;
+    color: var(--green);
+    font-weight: 700;
+  }
 
   /* Standard ouvert encadré */
   .open-standard {
@@ -806,9 +632,386 @@
 
   @media (max-width: 900px) {
     .skill-anatomy { grid-template-columns: 1fr; gap: 28px; }
-    .pd-scene { grid-template-columns: 1fr; }
     .roles-grid { grid-template-columns: 1fr; }
     .open-standard { flex-direction: column; text-align: center; }
+  }
+
+  /* Sous-section : les scripts (chapitre 2) */
+  .scripts-stage {
+    margin-top: 72px;
+    padding: 40px 44px;
+    background: rgba(15,27,61,0.03);
+    border: 1px solid var(--divider-dk);
+    border-radius: 16px;
+  }
+  .scripts-stage h3 {
+    color: var(--navy);
+    font-style: italic;
+    margin-bottom: 14px;
+  }
+  .scripts-stage > p {
+    color: var(--ink);
+    font-size: 15px;
+    line-height: 1.7;
+    margin-bottom: 16px;
+    max-width: 760px;
+  }
+  .scripts-stage > p:last-of-type { margin-bottom: 0; }
+  .script-why {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+    margin: 30px 0 8px;
+  }
+  .script-why-card {
+    background: #fff;
+    border: 1px solid var(--divider-dk);
+    border-radius: 10px;
+    padding: 20px 22px;
+  }
+  .script-why-card.bad  { border-top: 3px solid var(--red); }
+  .script-why-card.good { border-top: 3px solid var(--green); }
+  .script-why-card .swc-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 700;
+    margin-bottom: 10px;
+  }
+  .script-why-card.bad  .swc-tag { color: var(--red); }
+  .script-why-card.good .swc-tag { color: var(--green); }
+  .script-why-card p {
+    font-size: 14px;
+    color: var(--ink);
+    line-height: 1.6;
+    margin: 0;
+  }
+  .script-why-card.good p strong { color: var(--gold-dk); }
+  @media (max-width: 700px) { .script-why { grid-template-columns: 1fr; } }
+  .scripts-takeaway {
+    margin-top: 26px;
+    padding: 18px 22px;
+    background: rgba(212,165,116,0.08);
+    border-left: 4px solid var(--gold);
+    border-radius: 0 8px 8px 0;
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 16px;
+    color: var(--gold-dk);
+    line-height: 1.5;
+  }
+  .scripts-takeaway strong { color: var(--gold-dk); font-weight: 700; font-style: normal; }
+
+  /* ============================================================
+     CHAPITRE 3 — PROGRESSIVE DISCLOSURE (animation refondue)
+     « La fenêtre de contexte qui grossit »
+  ============================================================ */
+  .pdx-stage {
+    margin-top: 56px;
+    padding: 40px;
+    background: rgba(202,220,252,0.04);
+    border: 1px solid var(--divider-lt);
+    border-radius: 16px;
+  }
+  .pdx-controls {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 14px;
+    margin-bottom: 36px;
+    flex-wrap: wrap;
+  }
+  .pdx-btn {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 18px;
+    background: rgba(15,27,61,0.4);
+    border: 1px solid var(--divider-lt);
+    border-radius: 30px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    color: var(--muted-lt);
+    text-transform: uppercase;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.3s ease;
+  }
+  .pdx-btn .pdx-num {
+    width: 22px; height: 22px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.08);
+    color: var(--muted-lt);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+  }
+  .pdx-btn.active {
+    background: var(--gold);
+    color: var(--navy);
+    border-color: var(--gold);
+    box-shadow: 0 4px 14px rgba(212,165,116,0.25);
+  }
+  .pdx-btn.active .pdx-num { background: var(--navy); color: var(--gold); }
+  .pdx-btn:hover:not(.active) { border-color: var(--gold); color: var(--cream); }
+  .pdx-arrow { color: var(--gold); font-size: 18px; opacity: 0.5; }
+  @media (max-width: 700px) { .pdx-arrow { display: none; } }
+
+  .pdx-hint {
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 1px;
+    color: var(--gold);
+    text-transform: uppercase;
+    margin-bottom: 14px;
+  }
+  .pdx-bridge {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 14px;
+    padding: 8px 14px;
+    background: rgba(212,165,116,0.06);
+    border: 1px dashed var(--divider-lt);
+    border-radius: 6px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    letter-spacing: 0.5px;
+    color: var(--muted-lt);
+  }
+  .pdx-bridge strong { color: var(--gold); font-weight: 700; }
+  .pdx-bridge-mid {
+    font-style: italic;
+    font-family: 'Fraunces', serif;
+    font-size: 12.5px;
+    color: var(--ice);
+    text-align: center;
+  }
+  @media (max-width: 600px) {
+    .pdx-bridge { flex-direction: column; gap: 4px; text-align: center; }
+  }
+
+  .pdx-scene {
+    display: grid;
+    grid-template-columns: 0.85fr 1.15fr;
+    gap: 22px;
+    align-items: stretch;
+  }
+  .pdx-col-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--muted-lt);
+    font-weight: 700;
+    margin-bottom: 12px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .pdx-col-label svg { width: 14px; height: 14px; color: var(--gold); }
+
+  /* Colonne disque */
+  .pdx-disk {
+    background: rgba(15,27,61,0.35);
+    border: 1px solid var(--divider-lt);
+    border-radius: 10px;
+    padding: 18px;
+  }
+  .pdx-skill {
+    border: 1px solid var(--divider-lt);
+    border-radius: 7px;
+    padding: 11px 13px;
+    margin-bottom: 10px;
+    background: rgba(10,18,48,0.4);
+    transition: all 0.5s ease;
+  }
+  .pdx-skill:last-child { margin-bottom: 0; }
+  .pdx-skill .pdx-skill-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--ice);
+    font-weight: 700;
+  }
+  .pdx-skill .pdx-skill-meta {
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    color: var(--muted-lt);
+    font-style: italic;
+    margin-top: 3px;
+    line-height: 1.4;
+  }
+  .pdx-skill.dim { opacity: 0.35; filter: grayscale(0.4); }
+  .pdx-skill.active {
+    border-color: var(--gold);
+    background: rgba(212,165,116,0.1);
+    box-shadow: 0 4px 14px rgba(212,165,116,0.18);
+  }
+  .pdx-refs {
+    margin-top: 10px;
+    padding-top: 10px;
+    border-top: 1px dashed var(--divider-lt);
+    display: none;
+  }
+  .pdx-refs.show { display: block; }
+  .pdx-ref {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    color: var(--muted-lt);
+    padding: 3px 0;
+  }
+  .pdx-ref::before {
+    content: '•';
+    color: var(--muted-lt);
+  }
+  .pdx-ref.loaded { color: var(--gold); }
+  .pdx-ref.loaded::before { content: '✓'; color: var(--gold); }
+
+  /* Colonne contexte (fenêtre qui grossit) */
+  .pdx-ctx {
+    background: var(--navy-2);
+    border: 1px solid var(--divider-lt);
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+  .cw-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-bottom: 1px solid var(--divider-lt);
+    background: rgba(15,27,61,0.5);
+  }
+  .cw-header .cw-title {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--muted-lt);
+    font-weight: 700;
+  }
+  .cw-meter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .cw-bar {
+    width: 90px; height: 7px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .cw-bar span {
+    display: block; height: 100%;
+    width: 12%;
+    background: var(--gold);
+    border-radius: 4px;
+    transition: width 0.6s ease;
+  }
+  .cw-tokens {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--gold);
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .cw-body {
+    padding: 14px 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12.5px;
+    line-height: 1.6;
+    color: var(--cream);
+    flex: 1;
+    overflow-x: auto;
+  }
+  .cw-block {
+    white-space: pre;
+    border-radius: 6px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    border: 1px solid transparent;
+    display: none;
+    transition: all 0.4s ease;
+  }
+  .cw-block:last-child { margin-bottom: 0; }
+  .cw-block.show { display: block; }
+  .cw-block.b-meta  { background: rgba(111,165,212,0.10); border-color: rgba(111,165,212,0.3); }
+  .cw-block.b-user  { background: rgba(199,125,212,0.10); border-color: rgba(199,125,212,0.3); }
+  .cw-block.b-skill { background: rgba(212,165,116,0.10); border-color: rgba(212,165,116,0.3); }
+  .cw-block.b-file  { background: rgba(127,191,127,0.10); border-color: rgba(127,191,127,0.3); }
+  .cw-block.fresh {
+    box-shadow: 0 0 0 1px var(--gold), 0 6px 18px rgba(212,165,116,0.22);
+    animation: cw-pop 0.5s ease;
+  }
+  @keyframes cw-pop {
+    0% { transform: translateY(8px); opacity: 0; }
+    100% { transform: translateY(0); opacity: 1; }
+  }
+  .cw-tag {
+    display: inline-block;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 1px 6px;
+    border-radius: 3px;
+    margin-bottom: 6px;
+  }
+  .cw-block.b-meta  .cw-tag { background: rgba(111,165,212,0.25); color: var(--mech-rule); }
+  .cw-block.b-user  .cw-tag { background: rgba(199,125,212,0.25); color: var(--mech-workflow); }
+  .cw-block.b-skill .cw-tag { background: rgba(212,165,116,0.25); color: var(--gold); }
+  .cw-block.b-file  .cw-tag { background: rgba(127,191,127,0.25); color: var(--green); }
+  .cw-block .cw-note {
+    color: var(--gold);
+    font-style: normal;
+  }
+  .pdx-disk-note {
+    margin-top: 12px;
+    font-family: 'Inter', sans-serif;
+    font-size: 11.5px;
+    font-style: italic;
+    color: var(--muted-lt);
+    line-height: 1.45;
+    opacity: 0;
+    transition: opacity 0.5s ease;
+  }
+  .pdx-disk-note.show { opacity: 1; }
+
+  .pdx-narration {
+    margin-top: 28px;
+    padding: 20px 26px;
+    background: rgba(15,27,61,0.5);
+    border: 1px solid var(--divider-lt);
+    border-radius: 8px;
+    color: var(--ice);
+    font-family: 'Fraunces', serif;
+    font-style: italic;
+    font-size: 16px;
+    line-height: 1.6;
+    text-align: center;
+  }
+  .pdx-narration strong { color: var(--gold); font-style: normal; font-weight: 600; }
+  .pdx-foot {
+    margin-top: 14px;
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    color: var(--muted-lt);
+    font-style: italic;
+  }
+  @media (max-width: 820px) {
+    .pdx-scene { grid-template-columns: 1fr; }
   }
 
   /* ============================================================
@@ -972,7 +1175,6 @@
     transform: translateY(-3px);
     box-shadow: 0 12px 28px rgba(15,27,61,0.08);
   }
-  .tool-card.cnonical { border-top-color: var(--gold); }      /* Anthropic */
   .tool-card.gold { border-top-color: var(--gold); }          /* Anthropic */
   .tool-card.violet { border-top-color: var(--mech-workflow); }/* Antigravity */
   .tool-card.blue { border-top-color: var(--mech-rule); }     /* Cursor */
@@ -980,6 +1182,7 @@
   .tool-card.orange { border-top-color: var(--orange); }      /* Codex */
   .tool-card.gray { border-top-color: var(--muted-dk); }      /* Cline / autres */
   .tool-card.red { border-top-color: var(--red); }            /* Junie */
+  .tool-card.teal { border-top-color: #4FB3A4; }              /* OpenCode */
 
   .tool-head {
     display: flex;
@@ -1083,49 +1286,244 @@
   }
 
   /* ============================================================
-     SECTION 5 — STANDARD AGENTS.md
+     CHAPITRE HOOKS — la famille déterministe
   ============================================================ */
-  .agents-stage {
-    margin-top: 56px;
+  .hook-vs {
     display: grid;
-    grid-template-columns: 1.1fr 1fr;
-    gap: 56px;
-    align-items: center;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    margin-top: 48px;
   }
-  .agents-narrative h3 {
+  .hook-vs-card {
+    padding: 26px 28px;
+    border-radius: 12px;
+    border: 1px solid var(--divider-lt);
+    background: rgba(202,220,252,0.04);
+  }
+  .hook-vs-card.is-hook {
+    border-color: var(--mech-hook);
+    background: rgba(127,191,127,0.07);
+  }
+  .hook-vs-card .hv-tag {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--muted-lt);
+    margin-bottom: 10px;
+  }
+  .hook-vs-card.is-hook .hv-tag { color: var(--mech-hook); }
+  .hook-vs-card h3 {
     font-style: italic;
     color: var(--cream);
-    margin-bottom: 18px;
+    margin-bottom: 12px;
+    font-size: 21px;
   }
-  .agents-narrative p {
-    font-size: 15px;
-    line-height: 1.7;
-    margin-bottom: 16px;
+  .hook-vs-card p { font-size: 14px; line-height: 1.6; color: var(--ice); margin: 0; }
+  .hook-vs-card p .hl { color: var(--gold); font-weight: 600; }
+  .hook-vs-card.is-hook p .hl { color: var(--mech-hook); font-weight: 600; }
+
+  .hook-cycle {
+    margin-top: 48px;
+    padding: 36px;
+    background: rgba(15,27,61,0.4);
+    border: 1px solid var(--divider-lt);
+    border-radius: 16px;
   }
-  .agents-narrative ul {
-    list-style: none;
-    padding: 0;
-    margin: 16px 0;
+  .hook-cycle-title {
+    text-align: center;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2.5px;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 700;
+    margin-bottom: 28px;
   }
-  .agents-narrative ul li {
+  .hook-flow {
+    display: grid;
+    grid-template-columns: 1fr auto 1fr auto 1fr;
+    gap: 12px;
+    align-items: center;
+  }
+  .hook-node {
     position: relative;
-    padding-left: 22px;
+    text-align: center;
+    padding: 16px 10px;
+    border-radius: 10px;
+    border: 1px solid var(--divider-lt);
+    background: rgba(10,18,48,0.5);
+  }
+  .hook-node.is-hook {
+    border-color: var(--mech-hook);
+    background: rgba(127,191,127,0.1);
+  }
+  .hook-node.is-tool {
+    border-color: var(--mech-rule);
+    background: rgba(111,165,212,0.1);
+  }
+  .hook-node .hn-label {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10.5px;
+    font-weight: 700;
+    color: var(--cream);
+    letter-spacing: 0.5px;
+  }
+  .hook-node.is-hook .hn-label { color: var(--mech-hook); }
+  .hook-node.is-tool .hn-label { color: var(--mech-rule); }
+  .hook-node .hn-sub {
+    font-family: 'Inter', sans-serif;
+    font-size: 10.5px;
+    font-style: italic;
+    color: var(--muted-lt);
+    margin-top: 5px;
+    line-height: 1.35;
+  }
+  .hook-conn {
+    text-align: center;
+    color: var(--gold);
+    font-size: 18px;
+    opacity: 0.55;
+  }
+  @media (max-width: 760px) {
+    .hook-flow { grid-template-columns: 1fr; }
+    .hook-conn { transform: rotate(90deg); }
+  }
+
+  .hook-points {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 28px;
+  }
+  .hook-chip {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    background: rgba(127,191,127,0.1);
+    border: 1px solid rgba(127,191,127,0.3);
+    color: var(--ice);
+    letter-spacing: 0.5px;
+  }
+  .hook-example {
+    margin-top: 48px;
+    background: var(--navy-2);
+    border: 1px solid var(--divider-lt);
+    border-radius: 12px;
+    padding: 26px 28px;
+  }
+  .hook-example .he-head {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+  .hook-example pre {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 12px;
+    line-height: 1.7;
+    color: var(--ice);
+    overflow-x: auto;
+    white-space: pre;
+  }
+  .hook-example pre .c-key { color: var(--mech-rule); }
+  .hook-example pre .c-str { color: var(--green); }
+  .hook-example pre .c-cmt { color: var(--muted-lt); font-style: italic; }
+  .hook-example .he-explain {
+    margin-top: 16px;
+    padding-top: 16px;
+    border-top: 1px solid var(--divider-lt);
+    font-size: 14px;
+    color: var(--ice);
+    line-height: 1.6;
+  }
+  .hook-example .he-explain strong { color: var(--mech-hook); }
+  .hook-files {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 18px;
+  }
+  .hook-file .hf-name {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    color: var(--gold);
     margin-bottom: 8px;
-    font-size: 14.5px;
+    font-weight: 700;
+  }
+  .hook-file pre {
+    background: rgba(10,18,48,0.5);
+    border: 1px solid var(--divider-lt);
+    border-radius: 8px;
+    padding: 14px 16px;
+    margin: 0;
+  }
+  .hook-example pre .c-cmd { color: var(--gold); }
+
+  /* Trace d'une interaction où le hook se déclenche */
+  .hook-trace {
+    margin-top: 28px;
+    background: var(--navy-2);
+    border: 1px solid var(--divider-lt);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+  .hook-trace .ht-head {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 10px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    color: var(--gold);
+    font-weight: 700;
+    padding: 16px 20px 0;
+  }
+  .ht-line {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 14px;
+    align-items: baseline;
+    padding: 14px 20px;
+    border-bottom: 1px dashed var(--divider-lt);
+  }
+  .ht-line:last-child { border-bottom: none; }
+  .ht-badge {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 9.5px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 700;
+    padding: 4px 9px;
+    border-radius: 4px;
+    text-align: center;
+    white-space: nowrap;
+  }
+  .ht-badge.agent   { background: rgba(212,165,116,0.18); color: var(--gold); }
+  .ht-badge.hook    { background: rgba(127,191,127,0.18); color: var(--mech-hook); }
+  .ht-badge.block   { background: rgba(227,107,90,0.18);  color: var(--red); }
+  .ht-text {
+    font-size: 13.5px;
     color: var(--ice);
     line-height: 1.55;
   }
-  .agents-narrative ul li::before {
-    content: '✓';
-    position: absolute;
-    left: 0;
-    top: 0;
-    color: var(--green);
-    font-weight: 700;
+  .ht-text code { font-size: 11.5px; }
+  .ht-text .ht-em { color: var(--red); font-weight: 600; }
+  .ht-text .ht-ok { color: var(--mech-hook); font-weight: 600; }
+  @media (max-width: 760px) {
+    .hook-vs { grid-template-columns: 1fr; }
+    .hook-files { grid-template-columns: 1fr; }
+    .ht-line { grid-template-columns: 1fr; gap: 6px; }
   }
 
+  /* ============================================================
+     CHAPITRE AGENTS.md — nuage d'adoption (carte sombre)
+  ============================================================ */
   .agents-cloud {
-    background: rgba(15,27,61,0.5);
+    background: var(--navy-2);
     border: 1px solid var(--gold);
     border-radius: 16px;
     padding: 36px;
@@ -1178,40 +1576,8 @@
     font-weight: 700;
   }
 
-  .agents-fact {
-    margin-top: 56px;
-    padding: 28px 36px;
-    background: rgba(212,165,116,0.05);
-    border: 1px dashed var(--gold);
-    border-radius: 8px;
-    text-align: center;
-    font-family: 'Fraunces', serif;
-    font-style: italic;
-    font-size: 17px;
-    line-height: 1.6;
-    color: var(--ice);
-  }
-  .agents-fact strong {
-    color: var(--gold);
-    font-weight: 600;
-  }
-  .agents-fact .big-num {
-    font-family: 'Fraunces', serif;
-    font-style: italic;
-    font-weight: 600;
-    font-size: 56px;
-    color: var(--gold);
-    line-height: 1;
-    margin-right: 14px;
-    vertical-align: middle;
-  }
-
-  @media (max-width: 900px) {
-    .agents-stage { grid-template-columns: 1fr; gap: 32px; }
-  }
-
   /* ============================================================
-     SECTION 6 — CONCLUSION
+     SECTION 8 — CONCLUSION
   ============================================================ */
   .conclusion-formula-final {
     margin-top: 32px;
@@ -1316,9 +1682,11 @@
   <a href="#hero"><span>Couverture</span></a>
   <a href="#probleme"><span>Le problème commun</span></a>
   <a href="#skills"><span>Le concept canonique</span></a>
+  <a href="#progressive-disclosure"><span>Progressive disclosure</span></a>
+  <a href="#agents-md"><span>AGENTS.md</span></a>
   <a href="#axes"><span>La grille de lecture</span></a>
   <a href="#panorama"><span>Outil par outil</span></a>
-  <a href="#agents-md"><span>Lingua franca</span></a>
+  <a href="#hooks"><span>Les Hooks</span></a>
   <a href="#conclusion"><span>Pour conclure</span></a>
 </nav>
 
@@ -1332,7 +1700,7 @@
         <div class="hero-meta">Bonus avancé · Skills & co.</div>
         <h1 class="h-display" style="margin-top:32px;">
           <em>Skills</em>, Rules,<br>
-          Workflows…<br>
+          Commands…<br>
           toute la même <em>famille</em>
         </h1>
         <div class="hero-divider"></div>
@@ -1368,22 +1736,22 @@
                 <text class="term-bubble" font-size="11" y="4" fill="var(--mech-skill)">SKILLS</text>
               </g>
             </g>
-            <!-- Bulle 3 : Workflows (bas-gauche) -->
+            <!-- Bulle 3 : Commands (bas-gauche) — famille user-triggered -->
             <g transform="translate(90, 320)">
               <g class="counter-outer">
-                <rect x="-54" y="-15" width="108" height="30" rx="15" fill="var(--navy-2)" stroke="var(--mech-workflow)" stroke-width="1.8"/>
-                <text class="term-bubble" font-size="11" y="4" fill="var(--mech-workflow)">WORKFLOWS</text>
+                <rect x="-50" y="-15" width="100" height="30" rx="15" fill="var(--navy-2)" stroke="var(--mech-workflow)" stroke-width="1.8"/>
+                <text class="term-bubble" font-size="11" y="4" fill="var(--mech-workflow)">COMMANDS</text>
               </g>
             </g>
           </g>
 
           <!-- Orbite intérieure : termes secondaires -->
           <g class="orbit-inner">
-            <!-- Commands (gauche) -->
+            <!-- Workflows (gauche) — terme secondaire, démoté -->
             <g transform="translate(125, 230)">
               <g class="counter-inner">
-                <rect x="-50" y="-13" width="100" height="26" rx="13" fill="var(--navy-2)" stroke="var(--gold-dk)" stroke-width="1.4" opacity="0.85"/>
-                <text class="term-bubble" font-size="10" y="3.5" fill="var(--gold)">COMMANDS</text>
+                <rect x="-54" y="-13" width="108" height="26" rx="13" fill="var(--navy-2)" stroke="var(--gold-dk)" stroke-width="1.4" opacity="0.85"/>
+                <text class="term-bubble" font-size="10" y="3.5" fill="var(--gold)">WORKFLOWS</text>
               </g>
             </g>
             <!-- Instructions (droite) -->
@@ -1443,9 +1811,10 @@
       </div>
       <h2>Pourquoi tous ces outils existent</h2>
       <p class="lede">
-        Un harnais est livré « générique ». Il ne connaît ni votre projet,
-        ni vos conventions, ni les habitudes de votre équipe. Si vous voulez
-        que l'agent suive vos règles, vous avez deux choix.
+        Un <em>harnais</em> — le programme qui fait tourner l'agent autour du LLM
+        (Claude Code, Cursor, Copilot…) — est livré « générique ». Il ne connaît
+        ni votre projet, ni vos conventions, ni les habitudes de votre équipe. Si
+        vous voulez que l'agent suive vos règles, vous avez deux choix.
       </p>
     </div>
 
@@ -1518,8 +1887,8 @@
       <h2 style="color: var(--navy);">Les <em>Skills</em> d'Anthropic, en détail</h2>
       <p class="lede">
         Commençons par le concept tel qu'Anthropic l'a formalisé en octobre 2025 :
-        un standard propre, simple à comprendre, et (fait remarquable) passé
-        en deux mois au statut de standard ouvert du secteur.
+        un standard propre, simple à comprendre, et (fait remarquable) ouvert
+        quelques mois plus tard et repris rapidement par d'autres harnais.
       </p>
     </div>
 
@@ -1571,117 +1940,44 @@ Format : <span class="key">type(scope): description</span>
       </div>
     </div>
 
-    <!-- Schéma de la progressive disclosure -->
-    <div class="pd-stage reveal">
-      <div class="pd-title">
-        <h3>L'astuce : la <em>progressive disclosure</em> (le « dévoilement progressif »)</h3>
-        <p>
-          C'est la mécanique qui fait toute l'élégance des Skills. Trois niveaux
-          de chargement, du plus léger au plus complet. Cliquez les phases pour voir
-          comment ça se passe.
-        </p>
-      </div>
+    <!-- Sous-section : les scripts d'un skill -->
+    <div class="scripts-stage reveal">
+      <h3>Et le code ? Un skill peut embarquer des scripts</h3>
+      <p>
+        Un skill n'est pas qu'un texte d'instructions. Son dossier peut aussi contenir
+        du <strong>code prêt à l'emploi</strong>. L'intérêt : certaines tâches sont mieux
+        faites par un programme que par le modèle — générer un classeur Excel, remplir un
+        formulaire PDF, retailler des images en lot… Le skill livre alors un petit script
+        (souvent en Python), et le <code>SKILL.md</code> indique quand s'en servir.
+      </p>
+      <p>
+        Côté coulisses, rien d'exotique : l'agent lance ce script comme une commande
+        ordinaire, récupère le résultat, et poursuit. Pas de moteur spécial — du code
+        normal, exécuté dans l'environnement du projet.
+      </p>
 
-      <div class="pd-controls">
-        <button class="pd-step-btn active" data-phase="1">
-          <span class="pd-num">1</span>
-          <span>Découverte</span>
-        </button>
-        <span class="pd-arrow">→</span>
-        <button class="pd-step-btn" data-phase="2">
-          <span class="pd-num">2</span>
-          <span>Activation</span>
-        </button>
-        <span class="pd-arrow">→</span>
-        <button class="pd-step-btn" data-phase="3">
-          <span class="pd-num">3</span>
-          <span>Détails à la demande</span>
-        </button>
-      </div>
-
-      <div class="pd-scene">
-        <!-- Colonne 1 : Système de fichiers -->
-        <div class="pd-col">
-          <div class="pd-col-head">
-            <div class="pd-col-icon fs">
-              <svg class="lc" viewBox="0 0 24 24"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>
-            </div>
-            <div>
-              <div class="pd-col-name">Sur disque</div>
-              <div class="pd-col-title">Les Skills</div>
-            </div>
-          </div>
-          <div class="pd-item" id="fs-skill1">
-            <span class="pd-item-tag" style="background: rgba(127,191,127,0.2); color: var(--green);">SKILL</span>
-            commit-conventions/<br>
-            <small>SKILL.md (250 mots)</small>
-          </div>
-          <div class="pd-item" id="fs-skill2">
-            <span class="pd-item-tag" style="background: rgba(127,191,127,0.2); color: var(--green);">SKILL</span>
-            excel-spreadsheet/<br>
-            <small>SKILL.md + 4 références + 1 script</small>
-          </div>
-          <div class="pd-item" id="fs-skill3">
-            <span class="pd-item-tag" style="background: rgba(127,191,127,0.2); color: var(--green);">SKILL</span>
-            code-review/<br>
-            <small>SKILL.md (180 mots)</small>
-          </div>
+      <div class="script-why">
+        <div class="script-why-card bad">
+          <div class="swc-tag">Sans script</div>
+          <p>
+            Le modèle fabrique le fichier <em>à la main</em>, cellule par cellule. Lent,
+            coûteux en <em>tokens</em> (les unités de texte que le LLM lit et facture),
+            et facile à rater sur un gros document.
+          </p>
         </div>
-
-        <!-- Colonne 2 : Harnais -->
-        <div class="pd-col">
-          <div class="pd-col-head">
-            <div class="pd-col-icon harness">
-              <svg class="lc" viewBox="0 0 24 24"><path d="M20.5 7.27 12 12l-8.5-4.73"/><path d="M12 22V12"/><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16Z"/></svg>
-            </div>
-            <div>
-              <div class="pd-col-name">Mécanique</div>
-              <div class="pd-col-title">Le Harnais</div>
-            </div>
-          </div>
-          <div class="pd-token-counter" id="harness-tokens">
-            Contexte : <strong>~50 tokens</strong>
-          </div>
-          <div class="pd-item" id="harness-meta">
-            <span class="pd-item-tag" style="background: rgba(212,165,116,0.2); color: var(--gold-dk);">META</span>
-            excel-spreadsheet<br>
-            <small>« Génère des classeurs Excel : tables, graphiques, formules, mise en forme… »</small>
-          </div>
-          <div class="pd-item" id="harness-load">
-            <span class="pd-item-tag" style="background: rgba(212,165,116,0.2); color: var(--gold-dk);">CHARGÉ</span>
-            SKILL.md<br>
-            <small>contenu complet injecté dans le contexte</small>
-          </div>
-        </div>
-
-        <!-- Colonne 3 : LLM -->
-        <div class="pd-col">
-          <div class="pd-col-head">
-            <div class="pd-col-icon llm">
-              <svg class="lc" viewBox="0 0 24 24"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
-            </div>
-            <div>
-              <div class="pd-col-name">Décideur</div>
-              <div class="pd-col-title">Le LLM</div>
-            </div>
-          </div>
-          <div class="pd-item" id="llm-think">
-            <span class="pd-item-tag" style="background: rgba(111,165,212,0.2); color: var(--mech-rule);">THINK</span>
-            <span id="llm-think-text">je vois 3 skills disponibles</span>
-            <small id="llm-think-sub">je connais leur description, je sais quand les utiliser</small>
-          </div>
-          <div class="pd-item" id="llm-action">
-            <span class="pd-item-tag" style="background: rgba(199,125,212,0.2); color: var(--mech-workflow);">ACTION</span>
-            <span id="llm-action-text">aucune</span>
-            <small id="llm-action-sub">en attente de la requête utilisateur</small>
-          </div>
+        <div class="script-why-card good">
+          <div class="swc-tag">Avec script</div>
+          <p>
+            Une commande, et le programme produit le fichier d'un coup, toujours de la
+            même façon. <strong>Le modèle orchestre, le code exécute.</strong>
+          </p>
         </div>
       </div>
 
-      <div class="pd-narration" id="pd-narration">
-        <strong>Phase 1 — Découverte.</strong> Au démarrage, le harnais ne charge dans le contexte
-        du LLM que les <em>métadonnées</em> de chaque skill (nom + description). Léger,
-        rapide. Le LLM sait juste qu'ils existent.
+      <div class="scripts-takeaway">
+        À retenir : un skill peut empaqueter à la fois le <em>savoir</em> (les instructions)
+        et le <em>savoir-faire outillé</em> (les scripts) — le tout dans un simple dossier,
+        réutilisable d'un projet à l'autre.
       </div>
     </div>
 
@@ -1711,7 +2007,7 @@ Format : <span class="key">type(scope): description</span>
           <li>Scanne les dossiers de skills au démarrage</li>
           <li>Injecte les métadonnées (nom + description) dans le contexte initial du LLM</li>
           <li>Fournit au LLM les outils <code>bash</code> / <code>read</code> nécessaires pour lire les fichiers</li>
-          <li>Exécute les scripts quand le LLM le demande, et lui rend la sortie</li>
+          <li>Quand le LLM lance un script via <code>bash</code>, exécute la commande shell et lui rend la sortie</li>
         </ul>
       </div>
 
@@ -1746,13 +2042,21 @@ Format : <span class="key">type(scope): description</span>
         <h4>Un standard ouvert : <code style="background: transparent; color: var(--gold-dk); padding: 0;">agentskills.io</code></h4>
         <p>
           D'abord lancée en octobre 2025 comme format propre à Anthropic, la spécification
-          est passée en <strong>standard ouvert</strong> dès décembre 2025, confiée à la
-          <strong>Linux Foundation</strong>. Résultat : le format <code>SKILL.md</code> est
-          aujourd'hui adopté par
-          <strong>Microsoft, OpenAI, Cursor, Goose, Amp, OpenCode, Gemini CLI</strong>…
-          Un Skill écrit pour Claude fonctionne sur la plupart des autres harnais.
+          a été <strong>ouverte en décembre 2025</strong> (publiée sur <code>agentskills.io</code>) ;
+          sa gouvernance long terme — possiblement au sein de l'Agentic AI Foundation,
+          sous la Linux Foundation — reste à préciser. Plusieurs harnais ont depuis annoncé
+          l'adoption du format (<strong>Codex, Cursor, Gemini CLI, goose, Amp</strong>…) :
+          un Skill écrit pour Claude vise la portabilité entre harnais compatibles.
         </p>
       </div>
+    </div>
+
+    <div class="reveal" style="margin-top: 56px; text-align: center;">
+      <p style="font-family: 'Fraunces', serif; font-style: italic; font-size: 19px; color: var(--gold-dk); max-width: 800px; margin: 0 auto;">
+        On a vu de quoi un Skill est <em>fait</em> (un dossier, du Markdown, des scripts).
+        Reste la pièce maîtresse : <em>comment</em> tout cela entre dans le contexte sans le saturer.
+        C'est la <strong style="color: var(--gold-dk);">progressive disclosure</strong> — et elle mérite son propre chapitre.
+      </p>
     </div>
 
     <aside class="xref on-light reveal">
@@ -1763,21 +2067,293 @@ Format : <span class="key">type(scope): description</span>
 </section>
 
 <!-- ============================================================
-     SECTION 3 — LES AXES DE DIFFÉRENCIATION
+     CHAPITRE 3 — LA PROGRESSIVE DISCLOSURE
+============================================================ -->
+<section class="section dark-2" id="progressive-disclosure">
+  <div class="container">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">03</span>
+        <span class="chapter-label">Le dévoilement progressif</span>
+      </div>
+      <h2>La <em>progressive disclosure</em> (le dévoilement progressif), pas à pas</h2>
+      <p class="lede">
+        C'est la mécanique qui fait toute l'élégance des Skills, et l'innovation
+        que les autres harnais ont reprise. L'idée : ne charger dans le contexte du LLM
+        que ce qui est <em>réellement utile</em>, au moment où ça l'est. Suivons
+        concrètement ce qui se concatène au prompt, phase après phase.
+      </p>
+    </div>
+
+    <div class="pdx-stage reveal reveal-d-1">
+      <div class="pdx-hint">Cliquez les 3 étapes — regardez la fenêtre de contexte se remplir</div>
+      <div class="pdx-controls">
+        <button class="pdx-btn active" data-phase="1" aria-pressed="true">
+          <span class="pdx-num">1</span><span>Découverte</span>
+        </button>
+        <span class="pdx-arrow">→</span>
+        <button class="pdx-btn" data-phase="2" aria-pressed="false">
+          <span class="pdx-num">2</span><span>Activation</span>
+        </button>
+        <span class="pdx-arrow">→</span>
+        <button class="pdx-btn" data-phase="3" aria-pressed="false">
+          <span class="pdx-num">3</span><span>Détails à la demande</span>
+        </button>
+      </div>
+
+      <div class="pdx-bridge">
+        <span class="pdx-bridge-left">← sur le disque : stocké, <strong>gratuit</strong></span>
+        <span class="pdx-bridge-right">dans le contexte : chargé, <strong>payé</strong> →</span>
+      </div>
+
+      <div class="pdx-scene">
+        <!-- Colonne gauche : le disque -->
+        <div>
+          <div class="pdx-col-label">
+            <svg class="lc" viewBox="0 0 24 24"><path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z"/></svg>
+            Sur le disque
+          </div>
+          <div class="pdx-disk">
+            <div class="pdx-skill" id="pdx-s1">
+              <div class="pdx-skill-name">commit-conventions/</div>
+              <div class="pdx-skill-meta">SKILL.md — messages de commit Git</div>
+            </div>
+            <div class="pdx-skill" id="pdx-s2">
+              <div class="pdx-skill-name">excel-spreadsheet/</div>
+              <div class="pdx-skill-meta">SKILL.md + 1 script + 4 références</div>
+              <div class="pdx-refs" id="pdx-refs">
+                <div class="pdx-ref" id="ref-charts">references/charts.md</div>
+                <div class="pdx-ref">references/formulas.md</div>
+                <div class="pdx-ref">references/tables.md</div>
+                <div class="pdx-ref">references/format.md</div>
+              </div>
+            </div>
+            <div class="pdx-skill" id="pdx-s3">
+              <div class="pdx-skill-name">pdf-form/</div>
+              <div class="pdx-skill-meta">SKILL.md — remplir des formulaires PDF</div>
+            </div>
+          </div>
+          <div class="pdx-disk-note" id="pdx-disk-note">
+            Les 3 autres références ne sont <strong>jamais</strong> concaténées : elles
+            restent sur le disque, hors du contexte.
+          </div>
+        </div>
+
+        <!-- Colonne droite : le contexte qui grossit -->
+        <div>
+          <div class="pdx-col-label">
+            <svg class="lc" viewBox="0 0 24 24"><path d="M12 8V4H8"/><rect width="16" height="12" x="4" y="8" rx="2"/><path d="M2 14h2"/><path d="M20 14h2"/><path d="M15 13v2"/><path d="M9 13v2"/></svg>
+            Le contexte du LLM
+          </div>
+          <div class="pdx-ctx">
+            <div class="cw-header">
+              <span class="cw-title">Fenêtre de contexte</span>
+              <div class="cw-meter">
+                <div class="cw-bar"><span id="cw-bar-fill"></span></div>
+                <span class="cw-tokens" id="cw-tokens">~60 tokens</span>
+              </div>
+            </div>
+            <div class="cw-body">
+              <div class="cw-block b-meta show" id="cw-meta"><span class="cw-tag">métadonnées</span>
+&lt;available_skills&gt;
+  commit-conventions — messages de commit Git
+  excel-spreadsheet  — classeurs Excel : tables,
+                       graphiques, formules, format
+  pdf-form           — remplir des formulaires PDF
+&lt;/available_skills&gt;</div>
+              <div class="cw-block b-user" id="cw-user"><span class="cw-tag">utilisateur</span>
+« Fais-moi un classeur Excel de mes ventes
+  par trimestre, avec un graphique. »</div>
+              <div class="cw-block b-skill" id="cw-skill"><span class="cw-tag">SKILL.md chargé</span>
+&lt;skill name="excel-spreadsheet"&gt;
+# Excel Spreadsheet
+## Quand l'utiliser — créer/éditer des .xlsx
+## Méthode — lancer `python scripts/build.py`
+## Détails par besoin :
+  → references/charts.md    (graphiques)
+  → references/formulas.md  (formules)
+  → references/tables.md    (tableaux)
+  → references/format.md    (mise en forme)
+&lt;/skill&gt;</div>
+              <div class="cw-block b-file" id="cw-file"><span class="cw-tag">référence chargée</span>
+&lt;file path="references/charts.md"&gt;
+# Graphiques
+BarChart pour comparer des catégories.
+add_chart(ws, anchor="E2") …
+&lt;/file&gt;</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="pdx-narration" id="pdx-narration">
+        <strong>Phase 1 — Découverte.</strong> Au démarrage, le harnais ne concatène au contexte
+        que les <em>métadonnées</em> de chaque skill (nom + description). Le LLM sait qu'ils existent,
+        rien de plus. Coût : ~60 tokens, quel que soit le nombre de skills installés.
+      </div>
+      <div class="pdx-foot">Chiffres illustratifs — à rapporter à une fenêtre de contexte de l'ordre de 200 000 tokens.</div>
+    </div>
+
+    <div class="reveal" style="margin-top: 48px; text-align: center;">
+      <p style="font-family: 'Fraunces', serif; font-style: italic; font-size: 18px; color: var(--gold); max-width: 800px; margin: 0 auto;">
+        Trois niveaux, un seul principe : <strong>le LLM ne paie en tokens que ce qu'il décide
+        de lire</strong>. On peut packager des skills très riches sans alourdir chaque conversation.
+      </p>
+    </div>
+
+    <aside class="xref reveal">
+      <span class="xref-tag">↗ Module</span>
+      <span class="xref-why">Ce dévoilement par paliers, c'est le harnais qui l'orchestre : <a href="le-harnais.html">Le harnais</a>.</span>
+    </aside>
+  </div>
+</section>
+
+<!-- ============================================================
+     SECTION 4 — LE STANDARD AGENTS.md
+============================================================ -->
+<section class="section light" id="agents-md">
+  <div class="container">
+    <div class="reveal">
+      <div class="chapter-mark">
+        <span class="chapter-num">04</span>
+        <span class="chapter-label">Le contexte permanent</span>
+      </div>
+      <h2 style="color: var(--navy);">Le fichier de contexte du projet : <code style="background: rgba(15,27,61,0.06); color: var(--gold-dk); padding: 2px 10px; border-radius: 4px;">AGENTS.md</code></h2>
+      <p class="lede">
+        Les Skills (<code>SKILL.md</code>) couvrent le <strong>savoir-faire à la demande</strong>
+        qu'on vient de voir. Reste le besoin le plus courant : donner à l'agent le
+        <strong>contexte permanent du projet</strong> — sa stack, ses conventions, ses garde-fous —
+        dès qu'il arrive. C'est le rôle d'<code>AGENTS.md</code> : un simple fichier Markdown, à la
+        racine du dépôt, que l'agent lit au démarrage. Complémentaire des Skills, pas concurrent.
+      </p>
+    </div>
+
+    <!-- Exemple concret + explication -->
+    <div class="skill-anatomy">
+      <div class="skill-md-example reveal reveal-d-1" style="margin-top: 0;">
+<span class="heading"># AGENTS.md</span>
+
+<span class="heading">## Stack</span>
+- React 18 + TypeScript strict, build via Vite
+- Tests : Vitest (jamais Jest)
+
+<span class="heading">## Conventions</span>
+- Variables en camelCase, composants en PascalCase
+- Ne jamais écrire dans /legacy
+
+<span class="heading">## Commandes</span>
+- Installer : pnpm install
+- Lancer les tests : pnpm test</div>
+
+      <div class="skill-explain reveal reveal-d-2">
+        <h3>« Un README pour les agents »</h3>
+        <p>
+          Aucune syntaxe à apprendre : du Markdown ordinaire, que l'agent lit en arrivant
+          sur le projet. La métaphore officielle du standard : <em>« think of it as a README
+          for agents »</em>. Rien de plus.
+        </p>
+        <ul class="agents-props">
+          <li>Un fichier <code>AGENTS.md</code> à la racine du dépôt</li>
+          <li>Lu automatiquement par l'agent au démarrage</li>
+          <li>Décrit la stack, les conventions, les commandes, les garde-fous</li>
+          <li>Hiérarchique : un par sous-dossier si besoin (le plus proche prime)</li>
+          <li>Versionné dans Git, donc partagé avec toute l'équipe</li>
+          <li>En général, <strong>c'est l'agent qu'on charge de le rédiger</strong>, puis on relit et on commit</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- Deux fichiers, deux rôles -->
+    <div class="reveal" style="margin-top: 64px; text-align: center;">
+      <h3 style="color: var(--navy); font-style: italic; margin-bottom: 6px;">Deux fichiers, deux rôles</h3>
+      <p style="color: var(--muted-dk); max-width: 600px; margin: 0 auto;">À ne pas confondre : ils sont complémentaires, pas concurrents.</p>
+    </div>
+    <div class="roles-grid">
+      <div class="role-card reveal reveal-d-1">
+        <span class="rc-tag agents">AGENTS.md</span>
+        <h3>Le contexte permanent</h3>
+        <p>Un par projet, <strong>toujours chargé</strong>. Ce que l'agent doit savoir en
+        permanence sur ce dépôt : stack, conventions, interdits.</p>
+      </div>
+      <div class="role-card reveal reveal-d-2">
+        <span class="rc-tag skill">SKILL.md</span>
+        <h3>Le savoir-faire à la demande</h3>
+        <p>Plusieurs par projet, <strong>chargés seulement quand c'est utile</strong>. Une
+        capacité réutilisable (générer un Excel, suivre une procédure de release…).</p>
+      </div>
+    </div>
+
+    <!-- Repère pour les utilisateurs de Copilot -->
+    <div class="open-standard reveal">
+      <div class="open-standard-icon">
+        <svg class="lc" viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+      </div>
+      <div>
+        <h4>Vous êtes sur GitHub Copilot ? Vous l'avez déjà presque.</h4>
+        <p>
+          Le format maison de Copilot, c'est <code style="background: transparent; color: var(--gold-dk); padding: 0;">.github/copilot-instructions.md</code> :
+          <strong>exactement la même idée</strong>, sous un autre nom. Et Copilot reconnaît
+          aussi <code style="background: transparent; color: var(--gold-dk); padding: 0;">AGENTS.md</code> nativement.
+          C'est concrètement de cela qu'il s'agit quand on parle d'<strong>agent</strong> :
+          du contexte qu'on écrit une fois pour que l'agent arrête de tout redemander.
+        </p>
+      </div>
+    </div>
+
+    <!-- Adoption : lingua franca -->
+    <div class="agents-cloud reveal" style="margin-top: 48px;">
+      <div class="agents-cloud-file">AGENTS.md</div>
+      <div class="agents-cloud-sub">la « lingua franca » des agents</div>
+      <div class="agents-cloud-title">Reconnu nativement par</div>
+      <div class="agents-vendors">
+        <span class="vendor-tag major">GitHub Copilot</span>
+        <span class="vendor-tag major">Codex (OpenAI)</span>
+        <span class="vendor-tag major">Cursor</span>
+        <span class="vendor-tag">Gemini CLI</span>
+        <span class="vendor-tag">Devin</span>
+        <span class="vendor-tag">Jules</span>
+        <span class="vendor-tag">Aider</span>
+        <span class="vendor-tag">goose</span>
+        <span class="vendor-tag">Zed</span>
+        <span class="vendor-tag">VS Code</span>
+        <span class="vendor-tag">RooCode</span>
+        <span class="vendor-tag">Cline</span>
+        <span class="vendor-tag">… et bien d'autres</span>
+      </div>
+    </div>
+
+    <div class="reveal" style="margin-top: 40px; text-align: center;">
+      <p style="font-family: 'Fraunces', serif; font-style: italic; font-size: 16px; color: var(--muted-dk); max-width: 720px; margin: 0 auto;">
+        Quelques outils gardent un nom propre — <strong style="color: var(--gold-dk);">Claude Code</strong> avec
+        <code>CLAUDE.md</code>, Gemini CLI avec <code>GEMINI.md</code> — mais c'est le même fichier,
+        le même rôle. En pratique : les règles communes dans <code>AGENTS.md</code>, les
+        spécificités d'un outil dans son fichier maison.
+      </p>
+    </div>
+
+    <aside class="xref on-light reveal">
+      <span class="xref-tag">↗ Module</span>
+      <span class="xref-why">Ce contexte permanent guide l'agent à chaque tour : c'est le terrain du <a href="system-prompt-agent.html">prompt d'agent</a>.</span>
+    </aside>
+  </div>
+</section>
+
+<!-- ============================================================
+     SECTION 5 — LES AXES DE DIFFÉRENCIATION
 ============================================================ -->
 <section class="section dark" id="axes">
   <div class="container">
     <div class="reveal">
       <div class="chapter-mark">
-        <span class="chapter-num">03</span>
+        <span class="chapter-num">05</span>
         <span class="chapter-label">La grille de lecture</span>
       </div>
       <h2>Trois axes pour comprendre <em>tous</em> les mécanismes</h2>
       <p class="lede">
-        Les Skills d'Anthropic ne sont qu'un point dans un espace plus large.
-        Avant d'entrer dans le panorama des outils, voici trois axes qui
-        permettent de comparer n'importe quels deux mécanismes, que ce soit
-        chez Anthropic, Antigravity, Cursor, ou ailleurs.
+        Les Skills et <code>AGENTS.md</code> ne sont que deux points dans un espace
+        plus large. Avant d'entrer dans le panorama des outils, voici trois axes qui
+        permettent de situer et comparer deux mécanismes quelconques, d'un
+        harnais à l'autre.
       </p>
     </div>
 
@@ -1794,8 +2370,8 @@ Format : <span class="key">type(scope): description</span>
         </div>
         <p class="lede-axis">
           Est-ce que le contenu est <em>tout le temps dans le contexte</em> du LLM,
-          ou est-ce qu'il n'est chargé que <em>quand pertinent</em> ? C'est ce qui
-          sépare une « Rule » d'un « Skill ».
+          ou est-ce qu'il n'est chargé que <em>quand pertinent</em> ? C'est le premier
+          arbitrage : confort permanent contre économie de tokens.
         </p>
 
         <div class="axis-spectrum">
@@ -1880,8 +2456,10 @@ Format : <span class="key">type(scope): description</span>
             de tokens est massive.
           </p>
           <p>
-            <strong>C'est exactement la philosophie d'Antigravity</strong> avec ses Skills,
-            et celle de Cursor avec son mode « Agent Requested ».
+            <strong>C'est exactement l'idée des Rules à activation conditionnelle</strong> :
+            chez Antigravity, une Rule se règle en <code>Always On</code> /
+            <code>Manual</code> / <code>Model Decision</code> ; chez Cursor, le mode
+            « Agent Requested » fait pareil — c'est le LLM qui juge, sur description, si la règle s'applique.
           </p>
         </div>
       </div>
@@ -1900,6 +2478,8 @@ Format : <span class="key">type(scope): description</span>
         <p class="lede-axis">
           Quand le contenu est chargé, est-ce qu'il l'est en <em>un bloc</em>,
           ou par paliers, en chargeant seulement les sous-parties pertinentes ?
+          L'axe 1 disait <em>si</em> le contenu entre d'office ; celui-ci dit
+          <em>comment</em> il est découpé une fois qu'on le charge.
         </p>
 
         <div class="axis-spectrum">
@@ -1919,8 +2499,8 @@ Format : <span class="key">type(scope): description</span>
             <h4>En 3 niveaux</h4>
             <p>
               D'abord les métadonnées, puis le SKILL.md, puis les fichiers
-              référencés à la demande. On peut donc packager des skills très riches
-              sans payer le coût en tokens quand on ne s'en sert pas.
+              référencés à la demande. Le contenu est <em>découpé en paliers</em> plutôt que
+              chargé en bloc : on lit la sous-partie utile, pas le fichier entier.
             </p>
             <p class="examples">Skills (toutes implémentations)</p>
           </div>
@@ -1938,13 +2518,13 @@ Format : <span class="key">type(scope): description</span>
 </section>
 
 <!-- ============================================================
-     SECTION 4 — LE PANORAMA PAR OUTIL
+     SECTION 6 — LE PANORAMA PAR OUTIL
 ============================================================ -->
 <section class="section light" id="panorama">
   <div class="container">
     <div class="reveal">
       <div class="chapter-mark">
-        <span class="chapter-num">04</span>
+        <span class="chapter-num">06</span>
         <span class="chapter-label">Outil par outil</span>
       </div>
       <h2 style="color: var(--navy);">Le panorama complet</h2>
@@ -1955,6 +2535,9 @@ Format : <span class="key">type(scope): description</span>
         <span style="color: var(--gold-dk); font-weight: 600;">Skills</span> (à la demande, agent décide),
         <span style="color: var(--mech-workflow); font-weight: 600;">Workflows</span> (à la demande, user décide),
         <span style="color: var(--green); font-weight: 600;">Hooks</span> (déterministes).
+        Dans chaque carte, ce sont les <strong>pastilles</strong> qui portent la couleur de famille ;
+        la fine bordure du haut n'est qu'un accent par éditeur. Les <em>Hooks</em>, d'une nature
+        à part, ont droit à leur propre chapitre juste après.
       </p>
     </div>
 
@@ -2009,8 +2592,57 @@ Format : <span class="key">type(scope): description</span>
         </div>
       </div>
 
+      <!-- OpenCode (l'IDE du public) -->
+      <div class="tool-card teal reveal reveal-d-2">
+        <div class="tool-head">
+          <span class="tool-name">OpenCode</span>
+          <span class="tool-vendor">Open source</span>
+        </div>
+        <div class="tool-tagline">Terminal-first et open source — il couvre les quatre familles à lui seul.</div>
+        <div class="tool-mechanisms">
+          <div class="mech-row">
+            <span class="mech-tag rule">Rule</span>
+            <div class="mech-content">
+              <code>AGENTS.md</code> (+ <code>~/.config/opencode/AGENTS.md</code> global)
+              <small>Toujours actif. Lit aussi <code>CLAUDE.md</code> en repli, et tout fichier listé dans <code>instructions</code>.</small>
+            </div>
+          </div>
+          <div class="mech-row">
+            <span class="mech-tag skill">Skill</span>
+            <div class="mech-content">
+              <code>.opencode/skills/&lt;nom&gt;/SKILL.md</code>
+              <small>Format <code>SKILL.md</code> standard (compatible <code>.claude/skills/</code>). Un outil <code>skill</code> natif charge le contenu <strong>à la demande</strong> — l'agent décide.</small>
+            </div>
+          </div>
+          <div class="mech-row">
+            <span class="mech-tag workflow">Command</span>
+            <div class="mech-content">
+              <code>.opencode/command/*.md</code> via <code>/nom</code>
+              <small>Slash commands. Variables <code>$ARGUMENTS</code>, injection shell <code>!`cmd`</code>, références <code>@fichier</code>.</small>
+            </div>
+          </div>
+          <div class="mech-row">
+            <span class="mech-tag hook">Plugin</span>
+            <div class="mech-content">
+              <code>.opencode/plugin/</code> en JS/TS
+              <small>Hooks sur événements (<code>tool.execute.before</code>/<code>after</code>…). Peut <strong>bloquer ou modifier</strong> un appel d'outil. Déterministe.</small>
+            </div>
+          </div>
+          <div class="mech-row">
+            <span class="mech-tag misc">Subagent</span>
+            <div class="mech-content">
+              <code>.opencode/agent/*.md</code>
+              <small>Agents primaires (<code>Build</code>, <code>Plan</code>) et subagents (<code>Explore</code>…), chacun avec ses <code>mode</code>, <code>model</code>, <code>tools</code>.</small>
+            </div>
+          </div>
+        </div>
+        <div class="tool-note">
+          À lui seul, OpenCode illustre tout le tableau : Rule, Skill, Command et Hook réunis dans un seul outil ouvert.
+        </div>
+      </div>
+
       <!-- Anthropic Claude Code -->
-      <div class="tool-card gold reveal reveal-d-2">
+      <div class="tool-card gold reveal reveal-d-3">
         <div class="tool-head">
           <span class="tool-name">Claude Code</span>
           <span class="tool-vendor">Anthropic</span>
@@ -2035,24 +2667,24 @@ Format : <span class="key">type(scope): description</span>
             <span class="mech-tag workflow">Command</span>
             <div class="mech-content">
               <code>.claude/commands/*.md</code>
-              <small>Format <em>legacy</em>. Slash commands avec frontmatter (<code>allowed-tools</code>, <code>argument-hint</code>). Remplacé par les Skills.</small>
+              <small>Slash commands avec frontmatter (<code>allowed-tools</code>, <code>argument-hint</code>). Coexistent avec les Skills, qui couvrent une partie des mêmes cas.</small>
             </div>
           </div>
           <div class="mech-row">
             <span class="mech-tag hook">Hook</span>
             <div class="mech-content">
-              25+ points de hook (PreToolUse, PostToolUse, SessionStart…)
+              une poignée d'événements (PreToolUse, PostToolUse, SessionStart…)
               <small>Code déterministe qui s'exécute autour des appels d'outils. Pour ce qui doit <em>toujours</em> se passer.</small>
             </div>
           </div>
         </div>
         <div class="tool-note">
-          Les <em>Skills</em> remplacent désormais les <em>Commands</em>. Une migration progressive est en cours.
+          Skills et Commands coexistent : les <em>Skills</em> couvrent une partie des cas d'usage des slash commands, sans les remplacer formellement.
         </div>
       </div>
 
       <!-- Antigravity -->
-      <div class="tool-card violet reveal reveal-d-3">
+      <div class="tool-card violet reveal reveal-d-4">
         <div class="tool-head">
           <span class="tool-name">Antigravity</span>
           <span class="tool-vendor">Google</span>
@@ -2086,41 +2718,6 @@ Format : <span class="key">type(scope): description</span>
         </div>
       </div>
 
-      <!-- Cursor -->
-      <div class="tool-card blue reveal reveal-d-4">
-        <div class="tool-head">
-          <span class="tool-name">Cursor</span>
-          <span class="tool-vendor">Anysphere</span>
-        </div>
-        <div class="tool-tagline">Une seule famille (les Rules), mais avec quatre modes d'application très fins.</div>
-        <div class="tool-mechanisms">
-          <div class="mech-row">
-            <span class="mech-tag rule">Rule</span>
-            <div class="mech-content">
-              <code>.cursor/rules/*.mdc</code>
-              <small>Markdown + frontmatter YAML. Quatre modes : <strong>Always</strong>, <strong>Auto Attached</strong> (via globs), <strong>Agent Requested</strong> (description), <strong>Manual</strong>.</small>
-            </div>
-          </div>
-          <div class="mech-row">
-            <span class="mech-tag rule">Rule (legacy)</span>
-            <div class="mech-content">
-              <code>.cursorrules</code>
-              <small>Fichier unique au root, déprécié mais toujours supporté. Migration recommandée vers <code>.cursor/rules/</code>.</small>
-            </div>
-          </div>
-          <div class="mech-row">
-            <span class="mech-tag misc">Précédence</span>
-            <div class="mech-content">
-              Team Rules → Project Rules → User Rules
-              <small>Les User Rules sont globales (texte libre dans Settings). Les Project Rules vivent dans le repo.</small>
-            </div>
-          </div>
-        </div>
-        <div class="tool-note">
-          Le mode <em>Agent Requested</em> rejoint la philosophie des Skills d'Anthropic : c'est le LLM qui juge si la règle s'applique.
-        </div>
-      </div>
-
       <!-- OpenAI Codex CLI -->
       <div class="tool-card orange reveal reveal-d-1">
         <div class="tool-head">
@@ -2133,14 +2730,14 @@ Format : <span class="key">type(scope): description</span>
             <span class="mech-tag rule">AGENTS.md</span>
             <div class="mech-content">
               Au root du repo, hiérarchique
-              <small>OpenAI a créé ce standard en août 2025. Le repo Codex contient lui-même <strong>88 fichiers AGENTS.md</strong> à différents niveaux.</small>
+              <small>Formalisé en août 2025, porté par OpenAI (Codex) avec d'autres éditeurs. Le repo Codex contient lui-même des dizaines de fichiers AGENTS.md à différents niveaux.</small>
             </div>
           </div>
           <div class="mech-row">
             <span class="mech-tag skill">Skill</span>
             <div class="mech-content">
               <code>~/.agents/skills/</code> ou <code>.agents/skills/</code>
-              <small>Format <code>SKILL.md</code> identique à Anthropic. Capping intéressant : la liste initiale est plafonnée à ~2% du context window.</small>
+              <small>Format <code>SKILL.md</code> identique à Anthropic. Capping intéressant : la liste initiale des descriptions est bornée pour ne pas saturer le contexte (de l'ordre de quelques % du context window).</small>
             </div>
           </div>
           <div class="mech-row">
@@ -2166,15 +2763,15 @@ Format : <span class="key">type(scope): description</span>
       <!-- Le reste de l'écosystème : Cline · Roo Code · Junie · Aider · Gemini CLI · Continue… -->
       <div class="tool-card gray reveal reveal-d-2">
         <div class="tool-head">
-          <span class="tool-name">Cline · Roo Code · Junie · Aider · Gemini CLI…</span>
+          <span class="tool-name">Cursor · Cline · Roo Code · Junie · Aider…</span>
           <span class="tool-vendor">Le reste de l'écosystème</span>
         </div>
-        <div class="tool-tagline">Approches plus légères. Toutes convergent vers les standards ouverts <code>AGENTS.md</code> et <code>SKILL.md</code>.</div>
+        <div class="tool-tagline">Des Rules de Cursor aux conventions maison — tous convergent vers les standards ouverts <code>AGENTS.md</code> et <code>SKILL.md</code>.</div>
         <div class="tool-mechanisms">
           <div class="mech-row">
             <span class="mech-tag rule">Convention propre</span>
             <div class="mech-content">
-              <code>.clinerules/</code>, <code>.roo/rules/</code>, <code>.junie/guidelines.md</code>, <code>conventions.md</code>, <code>GEMINI.md</code>…
+              <code>.cursor/rules/*.mdc</code>, <code>.clinerules/</code>, <code>.roo/rules/</code>, <code>.junie/guidelines.md</code>, <code>GEMINI.md</code>…
               <small>Chacun a son fichier ou dossier de référence, typiquement markdown, toujours actif. Un README pour l'agent.</small>
             </div>
           </div>
@@ -2182,7 +2779,7 @@ Format : <span class="key">type(scope): description</span>
             <span class="mech-tag rule">AGENTS.md</span>
             <div class="mech-content">
               Reconnu nativement par presque tous
-              <small>La <em>lingua franca</em> du secteur : Aider, goose, opencode, Zed, Warp, VS Code, Devin, Junie, Amp, RooCode, Gemini CLI, Windsurf…</small>
+              <small>La <em>lingua franca</em> du secteur : Aider, goose, Zed, Warp, VS Code, Devin, Junie, Amp, RooCode, Gemini CLI, Windsurf…</small>
             </div>
           </div>
           <div class="mech-row">
@@ -2195,8 +2792,8 @@ Format : <span class="key">type(scope): description</span>
           <div class="mech-row">
             <span class="mech-tag misc">Particularités</span>
             <div class="mech-content">
-              Modes, ignore, agnosticisme
-              <small>Cline a Plan &amp; Act ; Roo Code propose Architect/Code/Debug. Junie supporte <code>.aiignore</code> et reste LLM-agnostique.</small>
+              Modes fins, ignore, agnosticisme
+              <small><strong>Cursor</strong> affine ses Rules en 4 modes (Always / Auto Attached / Agent Requested / Manual). Cline a Plan &amp; Act ; Roo Code, Architect/Code/Debug ; Junie supporte <code>.aiignore</code>.</small>
             </div>
           </div>
         </div>
@@ -2215,135 +2812,157 @@ Format : <span class="key">type(scope): description</span>
 </section>
 
 <!-- ============================================================
-     SECTION 5 — LE STANDARD AGENTS.md
+     CHAPITRE 7 — LES HOOKS
 ============================================================ -->
-<section class="section dark-2" id="agents-md">
+<section class="section dark" id="hooks">
   <div class="container">
     <div class="reveal">
       <div class="chapter-mark">
-        <span class="chapter-num">05</span>
-        <span class="chapter-label">Une lingua franca émerge</span>
+        <span class="chapter-num">07</span>
+        <span class="chapter-label">La famille à part</span>
       </div>
-      <h2>L'autre standard ouvert : <code style="background: rgba(212,165,116,0.15); color: var(--gold); padding: 4px 12px; border-radius: 4px;">AGENTS.md</code></h2>
+      <h2>Les <em>Hooks</em> — quand rien ne doit être laissé au modèle</h2>
       <p class="lede">
-        À ce stade, vous pourriez croire que <code style="background: rgba(212,165,116,0.15); color: var(--gold);">SKILL.md</code>
-        couvre tout. Pas tout à fait. À côté du standard des Skills, un second standard ouvert
-        s'est imposé pour un rôle <strong>complémentaire</strong>, pas concurrent :
-        <code style="background: rgba(212,165,116,0.15); color: var(--gold);">AGENTS.md</code>,
-        le « README » que les agents lisent au démarrage du projet.
+        On les a aperçus dans chaque carte du panorama ; il est temps de leur rendre justice.
+        Tous les autres mécanismes partagent un point commun : ils <em>influencent</em> le LLM,
+        qui reste libre de décider. Les Hooks, eux, sont d'une autre nature. Ce n'est pas du
+        contexte, c'est du <strong>code déterministe</strong> qui s'exécute autour des actions de
+        l'agent — qu'il le veuille ou non. Voilà pourquoi ils méritent leur propre chapitre.
       </p>
     </div>
 
-    <!-- Petit pavé : deux fichiers, deux rôles -->
-    <div class="reveal reveal-d-1" style="display: flex; flex-wrap: wrap; gap: 24px; margin: 32px auto 48px; max-width: 820px;">
-      <div style="flex: 1 1 320px; padding: 24px 26px; border-radius: 8px; background: rgba(212,165,116,0.08); border: 1px solid rgba(212,165,116,0.28);">
-        <svg class="lc" viewBox="0 0 24 24" width="22" height="22" style="color: var(--gold); margin-bottom: 12px; opacity: 0.85;">
-          <path d="M12 7v14"/>
-          <path d="M3 18a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v13a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3z"/>
-        </svg>
-        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 2.5px; color: var(--gold); margin-bottom: 10px;">AGENTS.md</div>
-        <div style="font-family: 'Fraunces', serif; font-style: italic; font-size: 19px; color: var(--cream); margin-bottom: 8px;">le contexte permanent</div>
-        <div style="color: var(--ice); font-size: 14px; line-height: 1.55;">Un par projet, toujours chargé. Décrit la stack, les conventions, les garde-fous propres au repo.</div>
+    <div class="hook-vs reveal reveal-d-1">
+      <div class="hook-vs-card">
+        <div class="hv-tag">Skills · Rules · Commands</div>
+        <h3>Influencer le modèle</h3>
+        <p>
+          On <span class="hl">suggère</span> au LLM quoi faire, via du contexte. Bien rédigé,
+          il suit. Mais il garde son <span class="hl">libre arbitre</span> : il peut interpréter,
+          contourner, oublier. C'est probabiliste.
+        </p>
       </div>
-      <div style="flex: 1 1 320px; padding: 24px 26px; border-radius: 8px; background: rgba(127,191,127,0.07); border: 1px solid rgba(127,191,127,0.25);">
-        <svg class="lc" viewBox="0 0 24 24" width="22" height="22" style="color: var(--green); margin-bottom: 12px; opacity: 0.85;">
-          <path d="M11.017 2.814a1 1 0 0 1 1.966 0l1.051 5.558a2 2 0 0 0 1.594 1.594l5.558 1.051a1 1 0 0 1 0 1.966l-5.558 1.051a2 2 0 0 0-1.594 1.594l-1.051 5.558a1 1 0 0 1-1.966 0l-1.051-5.558a2 2 0 0 0-1.594-1.594l-5.558-1.051a1 1 0 0 1 0-1.966l5.558-1.051a2 2 0 0 0 1.594-1.594z"/>
-          <path d="M20 2v4"/>
-          <path d="M22 4h-4"/>
-          <circle cx="4" cy="20" r="2"/>
-        </svg>
-        <div style="font-family: 'JetBrains Mono', monospace; font-size: 11px; letter-spacing: 2.5px; color: var(--green); margin-bottom: 10px;">SKILL.md</div>
-        <div style="font-family: 'Fraunces', serif; font-style: italic; font-size: 19px; color: var(--cream); margin-bottom: 8px;">le savoir-faire à la demande</div>
-        <div style="color: var(--ice); font-size: 14px; line-height: 1.55;">Plusieurs par projet, chargés seulement quand le LLM en a besoin. Une capacité réutilisable.</div>
+      <div class="hook-vs-card is-hook">
+        <div class="hv-tag">Hooks</div>
+        <h3>Contraindre la mécanique</h3>
+        <p>
+          On <span class="hl">force</span> un comportement par du code, en dehors du LLM. Le hook
+          s'exécute <span class="hl">toujours</span>, à un moment précis du cycle, et peut bloquer
+          ou modifier l'action. C'est déterministe.
+        </p>
       </div>
     </div>
 
-    <div class="agents-stage">
-      <div class="agents-narrative reveal reveal-d-1">
-        <h3>« Un README pour les agents »</h3>
-        <p>
-          Origine : OpenAI a créé le format avec Codex CLI en août 2025.
-          Confié fin 2025 à la <strong>Linux Foundation / Agentic AI Foundation</strong>
-          comme standard ouvert. La métaphore officielle :
-          <em>« think of it as a README for agents »</em>.
-        </p>
-        <p>Pas de syntaxe particulière, pas de schéma à apprendre :</p>
-        <ul>
-          <li>Un fichier <code>AGENTS.md</code> au root du repo</li>
-          <li>Lu automatiquement par les agents au démarrage</li>
-          <li>Markdown libre, décrit la stack, les conventions, les contraintes</li>
-          <li>Hiérarchique : un par sous-dossier si besoin (le plus proche prime)</li>
-          <li>Versionné dans Git, partagé avec toute l'équipe</li>
-        </ul>
-        <p style="margin-top: 18px;">
-          Détail qui surprend souvent : <strong>c'est l'agent lui-même qui le rédige</strong>,
-          dans la quasi-totalité des cas. On lui demande d'explorer le repo et de produire
-          un premier <code>AGENTS.md</code>, qu'on relit ensuite et qu'on commit. Le fichier
-          reste sous responsabilité humaine, mais on part rarement d'une page blanche.
-        </p>
-      </div>
-
-      <div class="agents-cloud reveal reveal-d-2">
-        <div class="agents-cloud-title">Adopté nativement par</div>
-        <div class="agents-cloud-file">AGENTS.md</div>
-        <div class="agents-cloud-sub">la lingua franca des agents</div>
-        <div class="agents-vendors">
-          <span class="vendor-tag major">Codex (OpenAI)</span>
-          <span class="vendor-tag major">GitHub Copilot</span>
-          <span class="vendor-tag major">Cursor</span>
-          <span class="vendor-tag">Jules</span>
-          <span class="vendor-tag">Devin</span>
-          <span class="vendor-tag">Aider</span>
-          <span class="vendor-tag">goose</span>
-          <span class="vendor-tag">opencode</span>
-          <span class="vendor-tag">Zed</span>
-          <span class="vendor-tag">Warp</span>
-          <span class="vendor-tag">VS Code</span>
-          <span class="vendor-tag">Junie</span>
-          <span class="vendor-tag">Amp</span>
-          <span class="vendor-tag">RooCode</span>
-          <span class="vendor-tag">Gemini CLI</span>
-          <span class="vendor-tag">Cline</span>
-          <span class="vendor-tag">Augment Code</span>
-          <span class="vendor-tag">Factory</span>
-          <span class="vendor-tag">Kilo Code</span>
-          <span class="vendor-tag">UiPath Autopilot</span>
+    <div class="hook-cycle reveal reveal-d-2">
+      <div class="hook-cycle-title">Le cycle autour d'un appel d'outil</div>
+      <div class="hook-flow">
+        <div class="hook-node">
+          <div class="hn-label">Le LLM veut agir</div>
+          <div class="hn-sub">ex. écrire dans un fichier</div>
+        </div>
+        <div class="hook-conn">→</div>
+        <div class="hook-node is-hook">
+          <div class="hn-label">PreToolUse</div>
+          <div class="hn-sub">le hook s'exécute<br>avant l'action</div>
+        </div>
+        <div class="hook-conn">→</div>
+        <div class="hook-node is-tool">
+          <div class="hn-label">Décision</div>
+          <div class="hn-sub">autorisé · bloqué · modifié</div>
         </div>
       </div>
+      <div class="hook-points">
+        <span class="hook-chip">SessionStart</span>
+        <span class="hook-chip">UserPromptSubmit</span>
+        <span class="hook-chip">PreToolUse</span>
+        <span class="hook-chip">PostToolUse</span>
+        <span class="hook-chip">Stop</span>
+        <span class="hook-chip">SubagentStop</span>
+        <span class="hook-chip">Notification</span>
+        <span class="hook-chip">PreCompact</span>
+      </div>
     </div>
 
-    <div class="agents-fact reveal reveal-d-3">
-      <span class="big-num">88</span>
-      Anecdote parlante : le repo OpenAI Codex contient <strong>88 fichiers AGENTS.md</strong> à différents niveaux. Quand on dit que le format est hiérarchique, ce n'est pas anecdotique : chaque sous-projet peut avoir son propre <code style="background: rgba(212,165,116,0.15); color: var(--gold);">AGENTS.md</code>, et celui le plus proche du fichier édité prime.
+    <div class="hook-example reveal reveal-d-3">
+      <div class="he-head">Exemple concret — interdire toute écriture dans /legacy</div>
+      <div class="hook-files">
+        <div class="hook-file">
+          <div class="hf-name">1 · on déclare le hook — .claude/settings.json</div>
+          <pre>{
+  <span class="c-key">"hooks"</span>: {
+    <span class="c-key">"PreToolUse"</span>: [{
+      <span class="c-key">"matcher"</span>: <span class="c-str">"Write|Edit"</span>,
+      <span class="c-key">"hooks"</span>: [{
+        <span class="c-key">"type"</span>: <span class="c-str">"command"</span>,
+        <span class="c-key">"command"</span>: <span class="c-str">".claude/guard-legacy.sh"</span>
+      }]
+    }]
+  }
+}</pre>
+        </div>
+        <div class="hook-file">
+          <div class="hf-name">2 · le script — .claude/guard-legacy.sh</div>
+          <pre><span class="c-cmt">#!/usr/bin/env bash</span>
+<span class="c-cmt"># reçoit l'appel d'outil en JSON sur stdin</span>
+input=$(<span class="c-cmd">cat</span>)
+path=$(<span class="c-cmd">echo</span> "$input" | <span class="c-cmd">jq</span> -r '.tool_input.file_path')
+
+<span class="c-cmd">if</span> [[ "$path" == *"/legacy/"* ]]; <span class="c-cmd">then</span>
+  <span class="c-cmd">echo</span> <span class="c-str">"/legacy est protégé."</span> &gt;&amp;2
+  <span class="c-cmd">exit</span> 2   <span class="c-cmt"># ≠ 0 → le harnais bloque</span>
+<span class="c-cmd">fi</span>
+<span class="c-cmd">exit</span> 0     <span class="c-cmt"># 0 → l'action se poursuit</span></pre>
+        </div>
+      </div>
+      <div class="he-explain">
+        Le hook est déclenché <strong>par la configuration, pas par le LLM</strong>. Avant chaque
+        <code>Write</code> ou <code>Edit</code>, le harnais exécute le script en lui passant le détail
+        de l'action. Le script décide : <code>exit 0</code> laisse passer, <code>exit 2</code> bloque.
+      </div>
+    </div>
+
+    <div class="hook-trace reveal">
+      <div class="ht-head">Ce qui se passe quand l'agent tente l'interdit</div>
+      <div class="ht-line">
+        <span class="ht-badge agent">Agent</span>
+        <span class="ht-text">« Je corrige le bug dans <code>legacy/auth.js</code> » → tente <code>Write(legacy/auth.js)</code></span>
+      </div>
+      <div class="ht-line">
+        <span class="ht-badge hook">Hook</span>
+        <span class="ht-text"><code>PreToolUse</code> déclenche <code>guard-legacy.sh</code> → le chemin contient <code>/legacy/</code> → <code>exit 2</code></span>
+      </div>
+      <div class="ht-line">
+        <span class="ht-badge block">Harnais</span>
+        <span class="ht-text"><span class="ht-em">⛔ appel <code>Write</code> bloqué</span> — le fichier n'est pas touché. L'agent ne peut pas passer outre.</span>
+      </div>
+      <div class="ht-line">
+        <span class="ht-badge agent">Agent</span>
+        <span class="ht-text">reçoit le retour d'erreur (<code>/legacy est protégé</code>), <span class="ht-ok">s'adapte</span> : propose de corriger le bug ailleurs, ou prévient l'utilisateur.</span>
+      </div>
     </div>
 
     <div class="reveal" style="margin-top: 48px; text-align: center;">
-      <p style="font-family: 'Fraunces', serif; font-style: italic; font-size: 16px; color: var(--ice); max-width: 720px; margin: 0 auto;">
-        Quelques outils gardent leur format propre : <strong style="color: var(--gold);">Claude Code</strong> avec
-        <code style="background: rgba(212,165,116,0.15); color: var(--gold);">CLAUDE.md</code>,
-        Gemini CLI avec <code style="background: rgba(212,165,116,0.15); color: var(--gold);">GEMINI.md</code>,
-        sans adopter <code style="background: rgba(212,165,116,0.15); color: var(--gold);">AGENTS.md</code>.
-        En pratique, beaucoup d'équipes mettent les règles communes dans
-        <code style="background: rgba(212,165,116,0.15); color: var(--gold);">AGENTS.md</code>
-        et les spécificités outil-par-outil dans les fichiers maison.
+      <p style="font-family: 'Fraunces', serif; font-style: italic; font-size: 18px; color: var(--gold); max-width: 800px; margin: 0 auto;">
+        Retenez la ligne de partage : <strong>tout le reste guide le LLM, les Hooks
+        court-circuitent son jugement.</strong> C'est la seule famille qui ne parie pas
+        sur la coopération du modèle.
       </p>
     </div>
 
     <aside class="xref reveal">
       <span class="xref-tag">↗ Module</span>
-      <span class="xref-why">Ces fichiers de règles guident l'agent : c'est le terrain du <a href="system-prompt-agent.html">prompt d'agent</a>.</span>
+      <span class="xref-why">Les Hooks vivent au plus près de l'exécution, dans la boucle du <a href="le-harnais.html">harnais</a>.</span>
     </aside>
   </div>
 </section>
 
 <!-- ============================================================
-     SECTION 6 — CONCLUSION
+     SECTION 8 — CONCLUSION
 ============================================================ -->
-<section class="section dark" id="conclusion">
+<section class="section dark-2" id="conclusion">
   <div class="container-narrow">
     <div class="reveal">
       <div class="chapter-mark">
-        <span class="chapter-num">06</span>
+        <span class="chapter-num">08</span>
         <span class="chapter-label">Pour conclure</span>
       </div>
       <h2>La règle qui explique tout</h2>
@@ -2432,7 +3051,7 @@ function updateToc() {
 
   // Bascule clair/sombre selon la teinte du fond actif
   const sec = tocSections[active];
-  const isLight = !!sec && (sec.classList.contains('light') || sec.classList.contains('gold-bg'));
+  const isLight = !!sec && sec.classList.contains('light');
   toc.classList.toggle('on-light', isLight);
 }
 window.addEventListener('scroll', updateToc, { passive: true });
@@ -2450,93 +3069,72 @@ const revealObserver = new IntersectionObserver((entries) => {
 document.querySelectorAll('.reveal').forEach(el => revealObserver.observe(el));
 
 // ============================================================
-// SECTION 2 — Progressive Disclosure animation
+// CHAPITRE 3 — Progressive Disclosure : la fenêtre de contexte qui grossit
 // ============================================================
-const phases = {
+const pdxPhases = {
   1: {
-    label: '1 — Découverte',
-    narration: '<strong>Phase 1 — Découverte.</strong> Au démarrage, le harnais ne charge dans le contexte du LLM que les <em>métadonnées</em> de chaque skill (nom + description). Léger, rapide. Le LLM sait juste qu\'ils existent.',
-    fs: { skill1: 'normal', skill2: 'normal', skill3: 'normal' },
-    harnessTokens: '~50 tokens',
-    harnessMeta: 'highlight',
-    harnessLoad: 'dim',
-    llmThinkText: 'je vois 3 skills disponibles',
-    llmThinkSub: 'je connais leur description, je sais quand les utiliser',
-    llmActionText: 'aucune',
-    llmActionSub: 'en attente de la requête utilisateur'
+    narration: '<strong>Phase 1 — Découverte.</strong> Au démarrage, le harnais ne concatène au contexte que les <em>métadonnées</em> de chaque skill (nom + description). Le LLM sait qu\'ils existent, rien de plus. Coût : ~60 tokens, quel que soit le nombre de skills installés.',
+    tokens: '~60 tokens', barWidth: '12%',
+    blocks: { meta: 'show', user: '', skill: '', file: '' },
+    fresh: 'meta',
+    skillActive: false, refsShow: false, diskNote: false
   },
   2: {
-    label: '2 — Activation',
-    narration: '<strong>Phase 2 — Activation.</strong> L\'utilisateur demande un classeur Excel récapitulant ses ventes par trimestre, avec un graphique. Le LLM reconnaît que la description de <code style="background: rgba(212,165,116,0.2); color: var(--gold);">excel-spreadsheet</code> correspond. Il appelle <code style="background: rgba(212,165,116,0.2); color: var(--gold);">bash</code> pour lire le SKILL.md complet. Le harnais charge le contenu dans le contexte.',
-    fs: { skill1: 'normal', skill2: 'highlight', skill3: 'normal' },
-    harnessTokens: '~350 tokens',
-    harnessMeta: 'highlight',
-    harnessLoad: 'highlight',
-    llmThinkText: 'excel-spreadsheet correspond',
-    llmThinkSub: 'la description matche la requête, je dois charger le SKILL.md',
-    llmActionText: 'bash: read excel-spreadsheet/SKILL.md',
-    llmActionSub: 'le harnais exécute, le contenu rentre dans le contexte'
+    narration: '<strong>Phase 2 — Activation.</strong> La requête arrive. Le LLM reconnaît que la description d\'<code style="background: rgba(212,165,116,0.2); color: var(--gold);">excel-spreadsheet</code> correspond, et appelle <code style="background: rgba(212,165,116,0.2); color: var(--gold);">bash</code> pour lire son SKILL.md. Le harnais concatène le contenu complet : on passe de ~60 à ~380 tokens.',
+    tokens: '~380 tokens', barWidth: '62%',
+    blocks: { meta: 'show', user: 'show', skill: 'show', file: '' },
+    fresh: 'skill',
+    skillActive: true, refsShow: false, diskNote: false
   },
   3: {
-    label: '3 — Détails à la demande',
-    narration: '<strong>Phase 3 — Détails à la demande.</strong> Le SKILL.md liste quatre références (tables, graphiques, formules, mise en forme). Pour cette tâche précise, le LLM n\'a besoin que de <code style="background: rgba(212,165,116,0.2); color: var(--gold);">charts.md</code>. Les trois autres restent sur disque.',
-    fs: { skill1: 'normal', skill2: 'highlight', skill3: 'normal' },
-    harnessTokens: '~520 tokens',
-    harnessMeta: 'highlight',
-    harnessLoad: 'highlight',
-    llmThinkText: 'je vois @references/charts.md référencé',
-    llmThinkSub: 'cette tâche le nécessite, je le lis. Pas les autres références.',
-    llmActionText: 'bash: read references/charts.md',
-    llmActionSub: 'fichier additionnel chargé, le reste reste sur disque'
+    narration: '<strong>Phase 3 — Détails à la demande.</strong> Le SKILL.md listait quatre références. Pour <em>cette</em> tâche, le LLM ne lit que <code style="background: rgba(212,165,116,0.2); color: var(--gold);">charts.md</code> — les trois autres restent sur le disque, hors du contexte. ~540 tokens en tout.',
+    tokens: '~540 tokens', barWidth: '88%',
+    blocks: { meta: 'show', user: 'show', skill: 'show', file: 'show' },
+    fresh: 'file',
+    skillActive: true, refsShow: true, diskNote: true
   }
 };
 
-function applyPhase(phaseNum) {
-  const ph = phases[phaseNum];
+function applyPdxPhase(n) {
+  const ph = pdxPhases[n];
   if (!ph) return;
 
   // Boutons
-  document.querySelectorAll('.pd-step-btn').forEach(b => {
-    b.classList.toggle('active', parseInt(b.dataset.phase) === phaseNum);
+  document.querySelectorAll('.pdx-btn').forEach(b => {
+    const on = parseInt(b.dataset.phase) === n;
+    b.classList.toggle('active', on);
+    b.setAttribute('aria-pressed', on ? 'true' : 'false');
   });
 
-  // Narration
-  document.getElementById('pd-narration').innerHTML = ph.narration;
+  // Narration + compteur
+  document.getElementById('pdx-narration').innerHTML = ph.narration;
+  document.getElementById('cw-tokens').textContent = ph.tokens;
+  document.getElementById('cw-bar-fill').style.width = ph.barWidth;
 
-  // Filesystem items
-  ['skill1', 'skill2', 'skill3'].forEach(k => {
-    const el = document.getElementById('fs-' + k);
+  // Blocs du contexte
+  ['meta', 'user', 'skill', 'file'].forEach(k => {
+    const el = document.getElementById('cw-' + k);
     if (!el) return;
-    el.classList.remove('dim', 'highlight');
-    if (ph.fs[k] === 'highlight') el.classList.add('highlight');
-    if (ph.fs[k] === 'dim') el.classList.add('dim');
+    el.classList.toggle('show', ph.blocks[k] === 'show');
+    el.classList.toggle('fresh', ph.fresh === k);
   });
 
-  // Harness
-  document.getElementById('harness-tokens').innerHTML = 'Contexte : <strong>' + ph.harnessTokens + '</strong>';
-  const harnessMeta = document.getElementById('harness-meta');
-  const harnessLoad = document.getElementById('harness-load');
-  harnessMeta.classList.remove('dim', 'highlight');
-  harnessLoad.classList.remove('dim', 'highlight');
-  if (ph.harnessMeta === 'highlight') harnessMeta.classList.add('highlight');
-  if (ph.harnessLoad === 'highlight') harnessLoad.classList.add('highlight');
-  if (ph.harnessLoad === 'dim') harnessLoad.classList.add('dim');
-
-  // LLM
-  document.getElementById('llm-think-text').textContent = ph.llmThinkText;
-  document.getElementById('llm-think-sub').textContent = ph.llmThinkSub;
-  document.getElementById('llm-action-text').textContent = ph.llmActionText;
-  document.getElementById('llm-action-sub').textContent = ph.llmActionSub;
+  // Disque : skill actif + références. Quand un skill est chargé, les autres
+  // sont estompés pour montrer que seul le pertinent entre dans le contexte.
+  document.getElementById('pdx-s2').classList.toggle('active', ph.skillActive);
+  document.getElementById('pdx-s1').classList.toggle('dim', ph.skillActive);
+  document.getElementById('pdx-s3').classList.toggle('dim', ph.skillActive);
+  document.getElementById('pdx-refs').classList.toggle('show', ph.refsShow);
+  document.getElementById('ref-charts').classList.toggle('loaded', ph.refsShow);
+  document.getElementById('pdx-disk-note').classList.toggle('show', ph.diskNote);
 }
 
-document.querySelectorAll('.pd-step-btn').forEach(btn => {
-  btn.addEventListener('click', () => {
-    applyPhase(parseInt(btn.dataset.phase));
-  });
+document.querySelectorAll('.pdx-btn').forEach(btn => {
+  btn.addEventListener('click', () => applyPdxPhase(parseInt(btn.dataset.phase)));
 });
 
 // État initial
-applyPhase(1);
+applyPdxPhase(1);
 </script>
 
 </body>
