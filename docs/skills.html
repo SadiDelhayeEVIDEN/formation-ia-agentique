@@ -1391,13 +1391,6 @@
     .hook-conn { transform: rotate(90deg); }
   }
 
-  .hook-points {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-    justify-content: center;
-    margin-top: 28px;
-  }
   .hook-chip {
     font-family: 'JetBrains Mono', monospace;
     font-size: 11px;
@@ -1408,6 +1401,53 @@
     color: var(--ice);
     letter-spacing: 0.5px;
   }
+  /* Comparatif des événements de hook par outil */
+  .hook-compare { margin-top: 26px; }
+  .hc-row {
+    display: grid;
+    grid-template-columns: 130px 1fr;
+    gap: 16px;
+    align-items: start;
+    padding: 13px 0;
+    border-bottom: 1px dashed var(--divider-lt);
+  }
+  .hc-row:last-child { border-bottom: none; }
+  .hc-tool {
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    padding-top: 6px;
+  }
+  .hc-tool.copilot  { color: var(--green); }
+  .hc-tool.opencode { color: #4FB3A4; }
+  .hc-tool.claude   { color: var(--gold); }
+  .hc-chips { display: flex; flex-wrap: wrap; gap: 7px; }
+  .hook-compare-note {
+    margin-top: 18px;
+    font-family: 'Inter', sans-serif;
+    font-size: 13px;
+    font-style: italic;
+    color: var(--muted-lt);
+    line-height: 1.5;
+    text-align: center;
+  }
+  .hook-compare-note strong { color: var(--ice); font-style: normal; }
+  @media (max-width: 640px) {
+    .hc-row { grid-template-columns: 1fr; gap: 6px; }
+  }
+  .hook-guardrail {
+    margin-top: 28px;
+    padding: 20px 26px;
+    background: rgba(127,191,127,0.08);
+    border-left: 4px solid var(--mech-hook);
+    border-radius: 0 8px 8px 0;
+    color: var(--ice);
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .hook-guardrail strong { color: var(--mech-hook); }
+  .hook-guardrail em { color: var(--gold); font-style: italic; }
   .hook-example {
     margin-top: 48px;
     background: var(--navy-2);
@@ -2861,8 +2901,8 @@ add_chart(ws, anchor="E2") …
         </div>
         <div class="hook-conn">→</div>
         <div class="hook-node is-hook">
-          <div class="hn-label">PreToolUse</div>
-          <div class="hn-sub">le hook s'exécute<br>avant l'action</div>
+          <div class="hn-label">Le hook se déclenche</div>
+          <div class="hn-sub">avant (ou après)<br>l'action</div>
         </div>
         <div class="hook-conn">→</div>
         <div class="hook-node is-tool">
@@ -2870,16 +2910,46 @@ add_chart(ws, anchor="E2") …
           <div class="hn-sub">autorisé · bloqué · modifié</div>
         </div>
       </div>
-      <div class="hook-points">
-        <span class="hook-chip">SessionStart</span>
-        <span class="hook-chip">UserPromptSubmit</span>
-        <span class="hook-chip">PreToolUse</span>
-        <span class="hook-chip">PostToolUse</span>
-        <span class="hook-chip">Stop</span>
-        <span class="hook-chip">SubagentStop</span>
-        <span class="hook-chip">Notification</span>
-        <span class="hook-chip">PreCompact</span>
+
+      <div class="hook-compare">
+        <div class="hc-row">
+          <span class="hc-tool copilot">GitHub Copilot</span>
+          <div class="hc-chips">
+            <span class="hook-chip">sessionStart</span>
+            <span class="hook-chip">userPromptSubmitted</span>
+            <span class="hook-chip">preToolUse</span>
+            <span class="hook-chip">postToolUse</span>
+            <span class="hook-chip">permissionRequest</span>
+            <span class="hook-chip">agentStop</span>
+          </div>
+        </div>
+        <div class="hc-row">
+          <span class="hc-tool opencode">OpenCode</span>
+          <div class="hc-chips">
+            <span class="hook-chip">tool.execute.before</span>
+            <span class="hook-chip">tool.execute.after</span>
+            <span class="hook-chip">session.idle</span>
+            <span class="hook-chip">message.updated</span>
+            <span class="hook-chip">permission.ask</span>
+          </div>
+        </div>
+        <div class="hc-row">
+          <span class="hc-tool claude">Claude Code</span>
+          <div class="hc-chips">
+            <span class="hook-chip">SessionStart</span>
+            <span class="hook-chip">UserPromptSubmit</span>
+            <span class="hook-chip">PreToolUse</span>
+            <span class="hook-chip">PostToolUse</span>
+            <span class="hook-chip">Stop</span>
+            <span class="hook-chip">PreCompact</span>
+          </div>
+        </div>
       </div>
+      <p class="hook-compare-note">
+        Même cycle de vie, trois jeux de noms. <strong>Copilot et Claude Code</strong> partagent
+        presque le même vocabulaire (camelCase vs PascalCase) ; <strong>OpenCode</strong>, lui,
+        expose un « bus d'événements ».
+      </p>
     </div>
 
     <div class="hook-example reveal reveal-d-3">
@@ -2938,6 +3008,13 @@ path=$(<span class="c-cmd">echo</span> "$input" | <span class="c-cmd">jq</span> 
         <span class="ht-badge agent">Agent</span>
         <span class="ht-text">reçoit le retour d'erreur (<code>/legacy est protégé</code>), <span class="ht-ok">s'adapte</span> : propose de corriger le bug ailleurs, ou prévient l'utilisateur.</span>
       </div>
+    </div>
+
+    <div class="hook-guardrail reveal">
+      <strong>Le cas d'usage roi des hooks : les garde-fous.</strong> Tout ce qui ne doit
+      <em>jamais</em> dépendre du bon vouloir du modèle — secrets jamais lus, fichiers protégés,
+      formatage imposé, journalisation obligatoire — se câble en hook et devient infranchissable.
+      Là où une Rule ou un Skill <em>suggèrent</em>, le hook <em>garantit</em>.
     </div>
 
     <div class="reveal" style="margin-top: 48px; text-align: center;">
